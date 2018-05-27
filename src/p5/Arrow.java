@@ -87,8 +87,8 @@ public class Arrow {
 
 		p.translate(headXY.x, headXY.y);
 		p.rotate(rotationOffset);
-		//p.text(transitionSymbol, -PApplet.dist(tailXY.x, tailXY.y, headXY.x, headXY.y)/2, 7);
-		p.text(rotationOffset, -PApplet.dist(tailXY.x, tailXY.y, headXY.x, headXY.y)/2, 7);
+		p.text(transitionSymbol, -PApplet.dist(tailXY.x, tailXY.y, headXY.x, headXY.y)/2, 7);
+		//p.text(rotationOffset, -PApplet.dist(tailXY.x, tailXY.y, headXY.x, headXY.y)/2, 7);
 		p.beginShape();
 		p.vertex(-10, -7);
 		p.vertex(0, 0);

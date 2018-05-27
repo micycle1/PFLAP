@@ -1,7 +1,19 @@
 package main;
 
+import java.awt.MenuBar;
+import java.awt.MenuItem;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.FileDialog;
+import java.awt.Frame;
+import java.awt.Menu;
+
+import java.lang.reflect.Field;
+
 import java.util.ArrayList;
 import java.util.HashSet;
+
+import javax.swing.JOptionPane;
 
 import processing.core.PApplet;
 import processing.core.PVector;
@@ -9,10 +21,10 @@ import processing.event.KeyEvent;
 import processing.event.MouseEvent;
 
 import controlP5.ControlP5;
-import controlP5.Textfield;
 import p5.Arrow;
 import p5.SelectionBox;
 import p5.State;
+import processing.awt.*;
 
 public class PFLAP extends PApplet {
 
@@ -24,7 +36,6 @@ public class PFLAP extends PApplet {
 	public static HashSet<State> selected = new HashSet<>();
 
 	public static ControlP5 cp5;
-	private static Textfield consumable; // TODO User text entry
 
 	public static State initialState = null;
 	private static State mouseOverState, arrowTailState, arrowHeadState, dragState;
@@ -43,25 +54,26 @@ public class PFLAP extends PApplet {
 	public void setup() {
 		State.p = this; // Static PApplet for State objects
 		Arrow.p = this; // Static PApplet for Arrow objects
-		surface.setTitle("JFLAP ~ micycle");
+		surface.setTitle("PFLAP: Processing Formal Languages and Automata Package");
 		surface.setLocation(displayWidth / 2 - width / 2, displayHeight / 2 - height / 2);
 		surface.setResizable(false);
 		frameRate(60);
 		strokeJoin(MITER);
 		strokeWeight(3);
 		stroke(0);
-		textSize(16);
+		textSize(Consts.stateFontSize);
 		textAlign(CENTER, CENTER);
 		rectMode(CORNER);
 		ellipseMode(CENTER);
 		cursor(ARROW);
 		initCp5();
+		initMenuBar();
 	}
 
 	@Override
 	public void settings() {
 		size(Consts.WIDTH, Consts.HEIGHT);
-		smooth(4);
+		smooth(8);
 	}
 
 	@Override
@@ -90,7 +102,13 @@ public class PFLAP extends PApplet {
 		for (Arrow a : arrows) {
 			a.draw();
 		}
-
+		
+		if (mouseDown.contains(CENTER)) {
+			PVector offset = new PVector(mouseX - mouseClickXY.x, mouseY - mouseClickXY.y);
+			for (State s : selected) {
+				s.setPosition(new PVector(offset.x + s.getSelectedPosition().x, offset.y + s.getSelectedPosition().y));
+			}
+		}
 		for (State s : nodes) {
 			s.draw();
 		}
@@ -98,6 +116,144 @@ public class PFLAP extends PApplet {
 			dragState.setPosition(mouseCoords);
 			dragState.draw();
 		}
+
+	}
+
+	private void initMenuBar() {
+		// Declarations
+		Frame f = get_frame();
+		MenuBar menuBar = new MenuBar();
+		MenuItem fileMenuItem0, fileMenuItem1, fileMenuItem2, editMenuItem0, inputMenuItem0, helpMenuItem0,
+				helpMenuItem1;
+
+		// Top-Level Menus
+		Menu fileMenu = new Menu("File");
+		Menu editMenu = new Menu("Edit");
+		Menu inputMenu = new Menu("Input");
+		Menu helpMenu = new Menu("Help");
+
+		// File Menu
+		fileMenuItem0 = new MenuItem("Exit");
+		fileMenuItem1 = new MenuItem("Open");
+		fileMenuItem2 = new MenuItem("Save");
+
+		// Edit Menu
+		editMenuItem0 = new MenuItem("Delete All States");
+
+		// Input Menu
+		inputMenuItem0 = new MenuItem("Step By State");
+
+		// Help Menu
+		helpMenuItem0 = new MenuItem("Help");
+		helpMenuItem1 = new MenuItem("About PFLAP");
+
+		// Add file items to file menu
+		fileMenu.add(fileMenuItem0);
+		fileMenu.add(fileMenuItem1);
+		fileMenu.add(fileMenuItem2);
+
+		// Add edit items to edit menu
+		editMenu.add(editMenuItem0);
+
+		// Add input items to input menu
+		inputMenu.add(inputMenuItem0);
+
+		// Add help items to help menu
+		helpMenu.add(helpMenuItem0);
+		helpMenu.add(helpMenuItem1);
+
+		// Menu Action Listeners
+		ActionListener fileMenuListener, editMenuListener, inputMenuListener, helpMenuListener;
+
+		fileMenuListener = new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent event) {
+				switch (event.getActionCommand()) {
+					case "Exit" :
+						exit();
+						break;
+					case "Open" :
+						// FileDialog fg = new FileDialog(frame, "Open a file");
+						// fg.setVisible(true);
+						// String file = fg.getDirectory() + fg.getFile();
+						break;
+					default :
+						break;
+				}
+
+			}
+		};
+
+		editMenuListener = new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent event) {
+				switch (event.getActionCommand()) {
+					case "Delete All States" :
+						for (State s : nodes) {
+							deleteState(s);
+						}
+						break;
+
+					default :
+						break;
+				}
+			}
+		};
+
+		inputMenuListener = new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent event) {
+				switch (event.getActionCommand()) {
+					case "Step By State" :
+						String userInput = JOptionPane.showInputDialog("DFA Input: ");
+						break;
+					default :
+						break;
+				}
+			}
+		};
+
+		helpMenuListener = new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent event) {
+				switch (event.getActionCommand()) {
+					case "About PFLAP" :
+						JOptionPane.showMessageDialog(frame, Consts.about);
+						break;
+					case "Help" :
+						JOptionPane.showMessageDialog(frame, Consts.help);
+						break;
+					default :
+						break;
+				}
+			}
+		};
+
+		fileMenu.addActionListener(fileMenuListener);
+		editMenu.addActionListener(editMenuListener);
+		inputMenu.addActionListener(inputMenuListener);
+		helpMenu.addActionListener(helpMenuListener);
+
+		// Adding menus to the menu bar
+		menuBar.add(fileMenu);
+		menuBar.add(editMenu);
+		menuBar.add(inputMenu);
+		menuBar.add(helpMenu);
+
+		// Adding menubar to frame
+		f.setMenuBar(menuBar);
+	}
+
+	private Frame get_frame() {
+		Frame frame = null;
+		try {
+			Field f = ((PSurfaceAWT) surface).getClass().getDeclaredField("frame");
+			f.setAccessible(true);
+			frame = (Frame) (f.get(((PSurfaceAWT) surface)));
+		} catch (Exception e) {
+			println(e);
+		}
+		return frame;
 	}
 
 	private void initCp5() {
@@ -214,13 +370,15 @@ public class PFLAP extends PApplet {
 		if (cp5.isMouseOver()) {
 			return;
 		}
+		
+
 
 		if (selectionBox != null) {
 			selected.forEach(s -> s.deselect());
 			selected.clear();
 			for (State s : nodes) {
 				if (withinSelection(s)) {
-					s.selected = true;
+					s.select();
 					selected.add(s);
 				}
 			}
@@ -229,6 +387,8 @@ public class PFLAP extends PApplet {
 
 		switch (m.getButton()) {
 			case LEFT :
+				selected.forEach(s -> s.deselect());
+				selected.clear();
 				nodeMouseOver();
 				if (dragState != null) {
 					selected.remove(dragState);
@@ -256,13 +416,16 @@ public class PFLAP extends PApplet {
 					}
 				} else {
 					drawingArrow = null;
-					// nodeMouseOver();
 					if (mouseOverState != null) {
 						selected.add(mouseOverState);
 						mouseOverState.select();
 						mouseOverState.showUI();
 					}
 				}
+				break;
+
+			case CENTER :
+				selected.forEach(s -> s.select());
 				break;
 
 			default :

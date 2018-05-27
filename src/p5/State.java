@@ -28,7 +28,7 @@ public class State {
 	private ArrayList<Arrow> arrowTails = new ArrayList<>(); // TODO tailing
 																// touching this
 																// state
-	public boolean selected = false, finalState = false; // TODO (deletion)
+	private boolean selected = false, finalState = false; // TODO (deletion)
 
 	// [transition symbol, next node, current string]
 
@@ -127,6 +127,10 @@ public class State {
 
 	public PVector getPosition() {
 		return position;
+	}
+	
+	public PVector getSelectedPosition() {
+		return selectedPosition;
 	}
 
 	public void addArrowHead(Arrow a) {
