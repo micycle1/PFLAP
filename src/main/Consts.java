@@ -6,5 +6,6 @@ public final class Consts {
 	public static final int WIDTH = 800;
 	public static final int HEIGHT = 800;
 	public static final int SBNodeRadius = 5;
+	public static final boolean arrowLabelTextRotate = true; //TODO
 	
 }

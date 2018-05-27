@@ -8,10 +8,7 @@ import processing.core.PVector;
 import processing.event.KeyEvent;
 import processing.event.MouseEvent;
 
-import controlP5.CallbackEvent;
-import controlP5.CallbackListener;
 import controlP5.ControlP5;
-import controlP5.ScrollableList;
 import controlP5.Textfield;
 import p5.Arrow;
 import p5.SelectionBox;
@@ -23,19 +20,20 @@ public class PFLAP extends PApplet {
 	public static HashSet<Integer> mouseDown = new HashSet<Integer>();
 
 	public static ArrayList<Arrow> arrows = new ArrayList<>();
-	public static ArrayList<State> Nodes = new ArrayList<>();
+	public static ArrayList<State> nodes = new ArrayList<>();
+	public static HashSet<State> selected = new HashSet<>();
 
-	private static ControlP5 cp5;
-	private static ScrollableList mouseFunction;
-	private static Textfield tf1; // TODO User text entry
+	public static ControlP5 cp5;
+	private static Textfield consumable; // TODO User text entry
 
+	public static State initialState = null;
 	private static State mouseOverState, arrowTailState, arrowHeadState, dragState;
 	private static Arrow drawingArrow;
 	private static SelectionBox selectionBox = null;
 
 	private PVector mouseClickXY, mouseReleasedXY, mouseCoords;
 
-	private static String debug = "debug"; // TODO remove
+	public static boolean allowNewArrow = true;
 
 	public static void main(String[] args) {
 		PApplet.main(PFLAP.class);
@@ -43,13 +41,17 @@ public class PFLAP extends PApplet {
 
 	@Override
 	public void setup() {
-		State.p = this;
-		Arrow.p = this;
+		State.p = this; // Static PApplet for State objects
+		Arrow.p = this; // Static PApplet for Arrow objects
 		surface.setTitle("JFLAP ~ micycle");
+		surface.setLocation(displayWidth / 2 - width / 2, displayHeight / 2 - height / 2);
+		surface.setResizable(false);
 		frameRate(60);
 		strokeJoin(MITER);
-		strokeWeight(2);
+		strokeWeight(3);
 		stroke(0);
+		textSize(16);
+		textAlign(CENTER, CENTER);
 		rectMode(CORNER);
 		ellipseMode(CENTER);
 		cursor(ARROW);
@@ -65,15 +67,13 @@ public class PFLAP extends PApplet {
 	@Override
 	public void draw() {
 		mouseCoords = new PVector(constrain(mouseX, 0, width), constrain(mouseY, 0, height));
-
-		surface.setTitle(String.valueOf(mouseX) + "," + String.valueOf(mouseY)); // TODO
-		textAlign(LEFT, TOP);
+		// textAlign(LEFT, TOP);
 		background(255);
 		fill(0);
-		text(debug, 1, 1);
 
 		if (!(drawingArrow == null)) {
 			stroke(0, 0, 0, 80);
+			strokeWeight(2);
 			drawingArrow.setHeadXY(mouseCoords);
 			drawingArrow.draw();
 		}
@@ -84,12 +84,14 @@ public class PFLAP extends PApplet {
 		}
 
 		stroke(0);
+		fill(0);
+
+		strokeWeight(2);
 		for (Arrow a : arrows) {
 			a.draw();
 		}
 
-		textAlign(CENTER, CENTER);
-		for (State s : Nodes) {
+		for (State s : nodes) {
 			s.draw();
 		}
 		if (dragState != null) {
@@ -100,38 +102,6 @@ public class PFLAP extends PApplet {
 
 	private void initCp5() {
 		cp5 = new ControlP5(this);
-		// @formatter:off
-		mouseFunction = cp5.addScrollableList("Mouse Function");
-		mouseFunction.setOpen(false)
-		.setPosition(400 - mouseFunction.getWidth() / 2, 10)
-		.addItem("Drag", 0)
-		.addItem("Add Node/State", 1)
-		.addItem("Add Transition", 2)
-		.addItem("Delete", 3)
-		.changeValue(1f)
-		.onChange(new CallbackListener() {
-			@Override
-			public void controlEvent(CallbackEvent changeCursor) {
-				switch ((int) mouseFunction.getValue()) {
-					case 0 : // Drag
-						cursor(HAND);
-						break;
-					case 1 : // Add Node
-						cursor(ARROW);
-						break;
-					case 2 : // Add Transition
-						cursor(CROSS);
-						break;
-					case 3 : // Delete
-						cursor(ARROW);
-						break;
-					default :
-						cursor(ARROW);
-						break;
-				}
-			}
-		});
-		// @formatter:on
 	}
 
 	private static boolean withinRange(float x, float y, float diameter, float x2, float y2) {
@@ -142,21 +112,32 @@ public class PFLAP extends PApplet {
 		return -atan2(tail.x - head.x, tail.y - head.y) - (PI / 2);
 	}
 
+	public static boolean numberBetween(float n, float a1, float a2) {
+		return (n >= min(a1, a2) && n <= max(a1, a2));
+	}
+
 	private static boolean withinSelection(State s) {
-		PVector sXY = new PVector(s.getPosition().x, s.getPosition().y);
-		PVector bSP = new PVector(selectionBox.startPosition.x, selectionBox.startPosition.y);
-		PVector bEP = new PVector(selectionBox.endPosition.x, selectionBox.endPosition.y);
+		PVector sXY = s.getPosition();
+		PVector bSP = selectionBox.startPosition;
+		PVector bEP = selectionBox.endPosition;
 		return sXY.x >= bSP.x && sXY.y >= bSP.y && sXY.x <= bEP.x && sXY.y <= bEP.y;
 	}
 
 	public void nodeMouseOver() {
-		for (State s : Nodes) {
-			if (withinRange(s.getPosition().x, s.getPosition().y, Consts.stateRadius, mouseX, mouseY)) {
+		for (State s : nodes) {
+			if (withinRange(s.getPosition().x, s.getPosition().y, Consts.stateRadius, mouseX, mouseY)
+					|| s.cp5.isMouseOver()) {
 				mouseOverState = s;
 				return;
 			}
 		}
 		mouseOverState = null;
+	}
+
+	public void deleteState(State s) {
+		// call state functions to delete arrows
+		s.kill();
+		nodes.remove(s);
 	}
 
 	@Override
@@ -166,11 +147,13 @@ public class PFLAP extends PApplet {
 
 	@Override
 	public void keyReleased(KeyEvent key) {
-		switch (key.getKey()) {
-			case 'm' :
-				mouseFunction.changeValue(0);
+		switch (key.getKeyCode()) {
+			case 127 : // delete key
+				for (State s : selected) {
+					deleteState(s);
+				}
+				selected.clear();
 				break;
-
 			default :
 				break;
 		}
@@ -184,29 +167,41 @@ public class PFLAP extends PApplet {
 		}
 
 		mouseDown.add(m.getButton());
-		mouseClickXY = mouseCoords;
+		mouseClickXY = mouseCoords.copy();
 		mouseReleasedXY = null;
 
-		switch ((int) mouseFunction.getValue()) { // TODO
-			case 0 : // Drag
-				// thread("nodeMouseOver");
+		switch (m.getButton()) {
+			case LEFT :
 				nodeMouseOver();
-				dragState = mouseOverState;
-				Nodes.remove(dragState);
-				break;
-			case 1 : // Add Node
-				break;
-			case 2 : // Add Transition
-				// thread("nodeMouseOver");
-				nodeMouseOver();
-				if (!(mouseOverState == null)) {
-					arrowTailState = mouseOverState;
-					drawingArrow = new Arrow(mouseClickXY, arrowTailState);
+				if (mouseOverState == null) {
+					if (!(selected.isEmpty())) {
+						selected.forEach(s -> s.deselect());
+						selected.clear();
+					} else {
+						cursor(HAND);
+						dragState = new State(mouseClickXY, nodes.size());
+					}
 
+				} else {
+					if (!mouseOverState.cp5.isMouseOver()) {
+						cursor(HAND);
+						dragState = mouseOverState;
+						nodes.remove(dragState);
+						selected.add(dragState);
+						dragState.select();
+					}
 				}
 				break;
-			case 3 : // Delete
+
+			case RIGHT :
+				nodeMouseOver();
+				if (!(mouseOverState == null) && allowNewArrow) {
+					arrowTailState = mouseOverState;
+					drawingArrow = new Arrow(mouseClickXY, arrowTailState);
+					cursor(CROSS);
+				}
 				break;
+
 			default :
 				break;
 		}
@@ -214,62 +209,62 @@ public class PFLAP extends PApplet {
 
 	@Override
 	public void mouseReleased(MouseEvent m) {
-		mouseReleasedXY = mouseCoords;
+		cursor(ARROW);
+		mouseReleasedXY = mouseCoords.copy();
 		if (cp5.isMouseOver()) {
 			return;
 		}
 
 		if (selectionBox != null) {
-			for (State s : Nodes) {
-				s.selected = withinSelection(s);
+			selected.forEach(s -> s.deselect());
+			selected.clear();
+			for (State s : nodes) {
+				if (withinSelection(s)) {
+					s.selected = true;
+					selected.add(s);
+				}
 			}
 			selectionBox = null;
 		}
 
-		switch ((int) mouseFunction.getValue()) { // TODO
-			case 0 : // Drag
+		switch (m.getButton()) {
+			case LEFT :
+				nodeMouseOver();
 				if (dragState != null) {
-					Nodes.add(dragState);
+					selected.remove(dragState);
+					dragState.deselect();
+					nodes.add(dragState);
 					dragState = null;
 				}
 				break;
-			case 1 : // Add Node
-				if (m.getButton() == LEFT) {
-					Nodes.add(new State(mouseReleasedXY, Nodes.size()));
-				}
-				break;
-			case 2 : // Add Transition
-				nodeMouseOver();
-				arrowHeadState = mouseOverState;
-				if (arrowTailState != arrowHeadState && (arrowHeadState != null)) {
-					float theta1 = angleBetween(arrowHeadState.getPosition(), arrowTailState.getPosition());
-					PVector newHeadXy = new PVector(
-							arrowHeadState.getPosition().x + Consts.stateRadius * 0.5f * cos(theta1),
-							arrowHeadState.getPosition().y + Consts.stateRadius * 0.5f * sin(theta1));
-					drawingArrow.setHeadXY(newHeadXy);
 
-					float theta2 = angleBetween(arrowTailState.getPosition(), arrowHeadState.getPosition());
-					PVector newTailXy = new PVector(
-							arrowTailState.getPosition().x + Consts.stateRadius * 0.5f * cos(theta2),
-							arrowTailState.getPosition().y + Consts.stateRadius * 0.5f * sin(theta2));
-					drawingArrow.setTailXY(newTailXy);
-					arrows.add(drawingArrow);
-					
-					arrowTailState.addArrowTail(drawingArrow);
-					arrowHeadState.addArrowHead(drawingArrow);
-					
-					drawingArrow.head = arrowHeadState;
-				}
-				drawingArrow = null;
-				break;
-			case 3 : // Delete
-				if (mouseReleasedXY.equals(mouseClickXY)) {
+			case RIGHT :
+				if (!(mouseClickXY.equals(mouseReleasedXY))) {
 					nodeMouseOver();
+					arrowHeadState = mouseOverState;
+					if (arrowTailState != arrowHeadState && (arrowHeadState != null) && drawingArrow != null) {
+						drawingArrow.tail = arrowTailState;
+						drawingArrow.head = arrowHeadState;
+						drawingArrow.update();
+						arrowTailState.addArrowTail(drawingArrow);
+						arrowHeadState.addArrowHead(drawingArrow);
+						arrows.add(drawingArrow);
+					}
+					drawingArrow = null;
+					if (arrowHeadState == null) {
+						allowNewArrow = true;
+					}
+				} else {
+					drawingArrow = null;
+					// nodeMouseOver();
 					if (mouseOverState != null) {
-						Nodes.remove(mouseOverState);
+						selected.add(mouseOverState);
+						mouseOverState.select();
+						mouseOverState.showUI();
 					}
 				}
 				break;
+
 			default :
 				break;
 		}
@@ -278,11 +273,8 @@ public class PFLAP extends PApplet {
 	}
 
 	public void mouseDragged(MouseEvent m) {
-		if (selectionBox == null && dragState == null && drawingArrow == null && mouseFunction.getValue() != 1f) {
-			nodeMouseOver();
-			if (mouseOverState == null) {
-				selectionBox = new SelectionBox(this, mouseCoords);
-			}
+		if (mouseDown.contains(RIGHT) && selectionBox == null && drawingArrow == null) {
+			selectionBox = new SelectionBox(this, mouseCoords);
 		}
 	}
 }
