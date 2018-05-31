@@ -2,7 +2,7 @@ package main;
 
 public final class Consts {
 
-	public static final int stateRadius = 50, WIDTH = 800, HEIGHT = 800, SBNodeRadius = 5, stateFontSize = 16;
+	public static final int stateRadius = 50, WIDTH = 800, HEIGHT = 800, SBNodeRadius = 5, stateFontSize = 16, initialNodeIndicatorSize = 12;
 
 	public static final boolean arrowLabelTextRotate = true; // TODO
 

@@ -4,7 +4,6 @@ import java.awt.MenuBar;
 import java.awt.MenuItem;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.FileDialog;
 import java.awt.Frame;
 import java.awt.Menu;
 
@@ -15,6 +14,7 @@ import java.util.HashSet;
 
 import javax.swing.JOptionPane;
 
+import DFA.Machine;
 import processing.core.PApplet;
 import processing.core.PVector;
 import processing.event.KeyEvent;
@@ -37,7 +37,7 @@ public class PFLAP extends PApplet {
 
 	public static ControlP5 cp5;
 
-	public static State initialState = null;
+	public static int initialStateID;
 	private static State mouseOverState, arrowTailState, arrowHeadState, dragState;
 	private static Arrow drawingArrow;
 	private static SelectionBox selectionBox = null;
@@ -99,19 +99,17 @@ public class PFLAP extends PApplet {
 		fill(0);
 
 		strokeWeight(2);
-		for (Arrow a : arrows) {
-			a.draw();
-		}
-		
+		arrows.forEach(a -> a.draw());
+
 		if (mouseDown.contains(CENTER)) {
 			PVector offset = new PVector(mouseX - mouseClickXY.x, mouseY - mouseClickXY.y);
 			for (State s : selected) {
 				s.setPosition(new PVector(offset.x + s.getSelectedPosition().x, offset.y + s.getSelectedPosition().y));
 			}
 		}
-		for (State s : nodes) {
-			s.draw();
-		}
+
+		nodes.forEach(s -> s.draw());
+
 		if (dragState != null) {
 			dragState.setPosition(mouseCoords);
 			dragState.draw();
@@ -123,8 +121,8 @@ public class PFLAP extends PApplet {
 		// Declarations
 		Frame f = get_frame();
 		MenuBar menuBar = new MenuBar();
-		MenuItem fileMenuItem0, fileMenuItem1, fileMenuItem2, editMenuItem0, inputMenuItem0, helpMenuItem0,
-				helpMenuItem1;
+		MenuItem fileMenuItem0, fileMenuItem1, fileMenuItem2, editMenuItem0, editMenuItem1, editMenuItem2,
+				inputMenuItem0, helpMenuItem0, helpMenuItem1;
 
 		// Top-Level Menus
 		Menu fileMenu = new Menu("File");
@@ -139,6 +137,9 @@ public class PFLAP extends PApplet {
 
 		// Edit Menu
 		editMenuItem0 = new MenuItem("Delete All States");
+		// + deleted selected
+		editMenuItem1 = new MenuItem("Select All States");
+		editMenuItem2 = new MenuItem("Invert Selection");
 
 		// Input Menu
 		inputMenuItem0 = new MenuItem("Step By State");
@@ -154,6 +155,8 @@ public class PFLAP extends PApplet {
 
 		// Add edit items to edit menu
 		editMenu.add(editMenuItem0);
+		editMenu.add(editMenuItem1);
+		editMenu.add(editMenuItem2);
 
 		// Add input items to input menu
 		inputMenu.add(inputMenuItem0);
@@ -189,11 +192,21 @@ public class PFLAP extends PApplet {
 			public void actionPerformed(ActionEvent event) {
 				switch (event.getActionCommand()) {
 					case "Delete All States" :
-						for (State s : nodes) {
-							deleteState(s);
-						}
+						nodes.forEach(s -> s.kill());
+						nodes.clear();
 						break;
-
+					case "Select All States" :
+						selected.addAll(nodes);
+						nodes.forEach(s -> s.select());
+						break;
+					case "Invert Selection" :
+						ArrayList<State> temp = new ArrayList<>(nodes);
+						temp.removeAll(selected);
+						selected.forEach(s -> s.deselect());
+						selected.clear();
+						selected.addAll(temp);
+						selected.forEach(s -> s.select());
+						break;
 					default :
 						break;
 				}
@@ -206,6 +219,7 @@ public class PFLAP extends PApplet {
 				switch (event.getActionCommand()) {
 					case "Step By State" :
 						String userInput = JOptionPane.showInputDialog("DFA Input: ");
+						Machine.run(userInput, initialStateID);
 						break;
 					default :
 						break;
@@ -290,7 +304,7 @@ public class PFLAP extends PApplet {
 		mouseOverState = null;
 	}
 
-	public void deleteState(State s) {
+	public static void deleteState(State s) {
 		// call state functions to delete arrows
 		s.kill();
 		nodes.remove(s);
@@ -304,10 +318,8 @@ public class PFLAP extends PApplet {
 	@Override
 	public void keyReleased(KeyEvent key) {
 		switch (key.getKeyCode()) {
-			case 127 : // delete key
-				for (State s : selected) {
-					deleteState(s);
-				}
+			case 127 : // 127 == delete key
+				selected.forEach(s -> deleteState(s));
 				selected.clear();
 				break;
 			default :
@@ -324,7 +336,6 @@ public class PFLAP extends PApplet {
 
 		mouseDown.add(m.getButton());
 		mouseClickXY = mouseCoords.copy();
-		mouseReleasedXY = null;
 
 		switch (m.getButton()) {
 			case LEFT :
@@ -334,8 +345,10 @@ public class PFLAP extends PApplet {
 						selected.forEach(s -> s.deselect());
 						selected.clear();
 					} else {
-						cursor(HAND);
-						dragState = new State(mouseClickXY, nodes.size());
+						if (selectionBox == null) {
+							cursor(HAND);
+							dragState = new State(mouseClickXY, nodes.size());
+						}
 					}
 
 				} else {
@@ -370,8 +383,6 @@ public class PFLAP extends PApplet {
 		if (cp5.isMouseOver()) {
 			return;
 		}
-		
-
 
 		if (selectionBox != null) {
 			selected.forEach(s -> s.deselect());
@@ -387,13 +398,20 @@ public class PFLAP extends PApplet {
 
 		switch (m.getButton()) {
 			case LEFT :
-				selected.forEach(s -> s.deselect());
-				selected.clear();
+				// selected.forEach(s -> {
+				// if (!(s.UIOpen())) {
+				// println("asd");
+				// s.deselect();
+				// selected.remove(s); //TODO
+				// }
+				// });
+
 				nodeMouseOver();
 				if (dragState != null) {
 					selected.remove(dragState);
 					dragState.deselect();
 					nodes.add(dragState);
+					Machine.addNode(dragState);
 					dragState = null;
 				}
 				break;
@@ -432,7 +450,6 @@ public class PFLAP extends PApplet {
 				break;
 		}
 		mouseDown.remove(m.getButton());
-		mouseClickXY = null;
 	}
 
 	public void mouseDragged(MouseEvent m) {

@@ -2,6 +2,7 @@ package p5;
 
 import java.lang.ref.Reference;
 
+import DFA.Machine;
 import controlP5.CallbackEvent;
 import controlP5.CallbackListener;
 import controlP5.Textfield;
@@ -44,8 +45,10 @@ public class Arrow {
 							transitionSymbol = transitionSymbolEntry.getStringValue().charAt(0);
 							PFLAP.cp5.remove(String.valueOf(ID));
 							PFLAP.allowNewArrow = true;
+							Machine.nodes.get(tail.nodeID).addTransition(Machine.nodes.get(head.nodeID), transitionSymbol);
+							p.println(tail.nodeID,head.nodeID,transitionSymbol);
 						} else {
-							// notiufication object make!!!
+							// notification object make!!!
 						}
 
 					}
