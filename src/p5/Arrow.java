@@ -1,7 +1,5 @@
 package p5;
 
-import java.lang.ref.Reference;
-
 import DFA.Machine;
 import controlP5.CallbackEvent;
 import controlP5.CallbackListener;
@@ -22,7 +20,6 @@ public class Arrow {
 	private Textfield transitionSymbolEntry;
 	private char transitionSymbol = ' ';
 	private int ID;
-	private Reference<Float> headortail; //TODO?
 
 	public Arrow(PVector startXY, State tail) {
 		PFLAP.allowNewArrow = false;
@@ -46,7 +43,7 @@ public class Arrow {
 							PFLAP.cp5.remove(String.valueOf(ID));
 							PFLAP.allowNewArrow = true;
 							Machine.nodes.get(tail.nodeID).addTransition(Machine.nodes.get(head.nodeID), transitionSymbol);
-							p.println(tail.nodeID,head.nodeID,transitionSymbol);
+							PApplet.println(tail.nodeID,head.nodeID,transitionSymbol);
 						} else {
 							// notification object make!!!
 						}
@@ -86,12 +83,14 @@ public class Arrow {
 		// headXY.y) / 2);
 
 		p.noFill();
+		p.bezier(tailXY.x, tailXY.y, tailXY.x+65, tailXY.y-45, tailXY.x+65, tailXY.y+45, tailXY.x, tailXY.y); //RANDOM POINT  ON SPHERE
 		p.pushMatrix();
 
 		p.translate(headXY.x, headXY.y);
 		p.rotate(rotationOffset);
 		p.text(transitionSymbol, -PApplet.dist(tailXY.x, tailXY.y, headXY.x, headXY.y)/2, 7);
 		//p.text(rotationOffset, -PApplet.dist(tailXY.x, tailXY.y, headXY.x, headXY.y)/2, 7);
+
 		p.beginShape();
 		p.vertex(-10, -7);
 		p.vertex(0, 0);

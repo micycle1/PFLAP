@@ -3,11 +3,13 @@ package p5;
 import java.util.ArrayList;
 
 import DFA.Machine;
+import controlP5.CallbackEvent;
+import controlP5.CallbackListener;
 import controlP5.ControlEvent;
 import controlP5.ControlListener;
 import controlP5.ControlP5;
 import controlP5.ScrollableList;
-
+import controlP5.Textfield;
 import main.Consts;
 import main.PFLAP;
 
@@ -23,16 +25,34 @@ public class State {
 	public ControlP5 cp5;
 	private ScrollableList stateOptions;
 	private ControlListener listener;
-	private PVector position, selectedPosition; // TODO for multi move
-	private ArrayList<Arrow> arrowHeads = new ArrayList<>(); // TODO head
-																// touching this
-																// state
-	private ArrayList<Arrow> arrowTails = new ArrayList<>(); // TODO tailing
-																// touching this
-																// state
-	private boolean selected = false, accepting = false; // TODO (deletion)
+	private PVector position, selectedPosition;
+	private ArrayList<Arrow> arrowHeads = new ArrayList<>();
+	private ArrayList<Arrow> arrowTails = new ArrayList<>();
+	private boolean selected = false, accepting = false;
+	private static Textfield rename;
+	private static State renameState;
 
 	// [transition symbol, next node, current string]
+
+	static {
+		// @formatter:off
+		rename = PFLAP.cp5.addTextfield("Rename State");
+		rename.hide()
+		.setSize(45, 20)
+		.setFocus(false)
+		.addCallback(new CallbackListener() {
+			@Override
+			public void controlEvent(CallbackEvent input) {
+				if (input.getAction() == 100) {
+				renameState.label = rename.getStringValue();
+				rename.setFocus(false).hide();
+				rename.clear();
+				renameState = null;
+				}
+			}
+		});
+		// @formatter:on
+	}
 
 	public State(PVector XY, int ID) {
 		label = "q" + ID;
@@ -51,11 +71,14 @@ public class State {
 						break;
 					case 1 :
 						accepting = !accepting;
-						p.println(nodeID);
+						PApplet.println(nodeID);
 						Machine.nodes.get(nodeID).toggleAccepting();
 						break;
 					case 2 :
-						// bring up text box for text entry
+						renameState = State.this;
+						rename.setPosition(position.x, position.y + 50);
+						rename.setFocus(true);
+						rename.show();
 						break;
 					default :
 						break;
@@ -64,12 +87,12 @@ public class State {
 			}
 		};
 		stateOptions = cp5.addScrollableList("Options");
-		stateOptions.setType(1)
 		// @formatter:off
+		stateOptions.setType(1)
 				.addItems(new String[]{"Set As Inititial", "Toggle Accepting", "Rename"})
 				.open()
 				.addListener(listener);
-				// @formatter:on
+		// @formatter:on
 	}
 
 	public void kill() {
@@ -79,13 +102,6 @@ public class State {
 	}
 
 	public void draw() {
-
-		// if (cp5.isVisible()) {
-		// if (!(cp5.isMouseOver())) {
-		// cp5.hide();
-		// }
-		// }
-
 		p.strokeWeight(3);
 		if (PFLAP.initialStateID == nodeID) {
 			p.fill(255, 0, 0);
@@ -105,12 +121,7 @@ public class State {
 			p.ellipse(position.x, position.y, Consts.stateRadius, Consts.stateRadius);
 			p.fill(0);
 		} else {
-			if (PFLAP.initialStateID == ID) {
-				p.fill(0, 255, 0); // TODO
-			} else {
-				p.fill(0, 35, 255);
-			}
-
+			p.fill(0, 35, 255);
 			p.ellipse(position.x, position.y, Consts.stateRadius, Consts.stateRadius);
 			p.fill(255);
 		}
@@ -123,17 +134,10 @@ public class State {
 	}
 
 	public void setPosition(PVector position) {
-
 		this.position = position;
 		cp5.setPosition((int) this.position.x + 10, (int) this.position.y + 10);
-		for (Arrow a : arrowHeads) {
-			// a.setHeadXY(position);
-			a.update();
-		}
-		for (Arrow a : arrowTails) {
-			// a.setTailXY(position);
-			a.update();
-		}
+		arrowHeads.forEach(a -> a.update());
+		arrowTails.forEach(a -> a.update());
 	}
 
 	public void select() {

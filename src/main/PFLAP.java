@@ -15,6 +15,7 @@ import java.util.HashSet;
 import javax.swing.JOptionPane;
 
 import DFA.Machine;
+import GUI.Notification;
 import processing.core.PApplet;
 import processing.core.PVector;
 import processing.event.KeyEvent;
@@ -37,7 +38,7 @@ public class PFLAP extends PApplet {
 
 	public static ControlP5 cp5;
 
-	public static int initialStateID;
+	public static int initialStateID = -1;
 	private static State mouseOverState, arrowTailState, arrowHeadState, dragState;
 	private static Arrow drawingArrow;
 	private static SelectionBox selectionBox = null;
@@ -51,7 +52,10 @@ public class PFLAP extends PApplet {
 	}
 
 	@Override
+	
 	public void setup() {
+		initCp5();
+		initMenuBar();
 		State.p = this; // Static PApplet for State objects
 		Arrow.p = this; // Static PApplet for Arrow objects
 		surface.setTitle("PFLAP: Processing Formal Languages and Automata Package");
@@ -66,8 +70,9 @@ public class PFLAP extends PApplet {
 		rectMode(CORNER);
 		ellipseMode(CENTER);
 		cursor(ARROW);
-		initCp5();
-		initMenuBar();
+		//notifi();
+		Notification.notifi("test");
+
 	}
 
 	@Override
@@ -117,9 +122,9 @@ public class PFLAP extends PApplet {
 
 	}
 
-	private void initMenuBar() {
+	public void initMenuBar() {
 		// Declarations
-		Frame f = get_frame();
+		Frame f = getFrame();
 		MenuBar menuBar = new MenuBar();
 		MenuItem fileMenuItem0, fileMenuItem1, fileMenuItem2, editMenuItem0, editMenuItem1, editMenuItem2,
 				inputMenuItem0, helpMenuItem0, helpMenuItem1;
@@ -219,7 +224,11 @@ public class PFLAP extends PApplet {
 				switch (event.getActionCommand()) {
 					case "Step By State" :
 						String userInput = JOptionPane.showInputDialog("DFA Input: ");
-						Machine.run(userInput, initialStateID);
+						if (initialStateID != -1) {
+							Machine.run(userInput, initialStateID);
+						} else {
+							// new notification TODO
+						}
 						break;
 					default :
 						break;
@@ -258,7 +267,7 @@ public class PFLAP extends PApplet {
 		f.setMenuBar(menuBar);
 	}
 
-	private Frame get_frame() {
+	private Frame getFrame() {
 		Frame frame = null;
 		try {
 			Field f = ((PSurfaceAWT) surface).getClass().getDeclaredField("frame");
