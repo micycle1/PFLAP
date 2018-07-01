@@ -3,6 +3,7 @@ package p5;
 import java.util.ArrayList;
 
 import DFA.Machine;
+
 import controlP5.CallbackEvent;
 import controlP5.CallbackListener;
 import controlP5.ControlEvent;
@@ -10,6 +11,7 @@ import controlP5.ControlListener;
 import controlP5.ControlP5;
 import controlP5.ScrollableList;
 import controlP5.Textfield;
+
 import main.Consts;
 import main.PFLAP;
 
@@ -19,7 +21,6 @@ import processing.core.PVector;
 public class State {
 
 	public static PApplet p;
-	public int stateID; // TODO rename to 'name'
 	public String label; //TODO change to private 
 	public ControlP5 cp5;
 	private ScrollableList stateOptions;
@@ -53,11 +54,10 @@ public class State {
 		// @formatter:on
 	}
 	
-	public State(PVector XY, int liveID, int ID) {
+	public State(PVector XY, int liveID) {
 		Machine.addNode(this);
 		label = "q" + liveID;
 		position = XY;
-		stateID = ID;
 		cp5 = new ControlP5(p);
 		cp5.hide();
 		listener = new ControlListener() {
@@ -96,11 +96,13 @@ public class State {
 	}
 
 	public void kill() {
-		p.print("kill"); //TODO remove
+		for (Arrow a : arrowHeads) {
+			Machine.removeTransition(a.tail, a.head, a.transitionSymbol);
+		}
 		arrowHeads.forEach(a -> a.kill());
 		arrowTails.forEach(a -> a.kill());
 		cp5.getAll().forEach(c -> c.remove());
-		//Machine.deleteNode(this); TODO uncomment
+		Machine.deleteNode(this);
 		if (initial) {
 			Machine.setInitialState(null);
 		}

@@ -29,9 +29,8 @@ import processing.awt.*;
 
 /**
  * TODO:
- * Transitions work after state renaming
  * State self bezier-arrows
- * Deleting a state deletes transitions to it
+ * Right-click menu on arrows
  */
 public class PFLAP extends PApplet {
 
@@ -44,7 +43,6 @@ public class PFLAP extends PApplet {
 
 	public static ControlP5 cp5;
 
-	public static int stateID = 0;
 	private static State mouseOverState, arrowTailState, arrowHeadState, dragState;
 	private static Arrow drawingArrow;
 	private static SelectionBox selectionBox = null;
@@ -365,8 +363,7 @@ public class PFLAP extends PApplet {
 					} else {
 						if (selectionBox == null) {
 							cursor(HAND);
-							dragState = new State(mouseClickXY, nodes.size(), stateID);
-							stateID += 1;
+							dragState = new State(mouseClickXY, nodes.size());
 						}
 					}
 
@@ -430,7 +427,6 @@ public class PFLAP extends PApplet {
 					selected.remove(dragState);
 					dragState.deselect();
 					nodes.add(dragState);
-					Machine.addNode(dragState);
 					dragState = null;
 				}
 				break;

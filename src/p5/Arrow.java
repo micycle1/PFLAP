@@ -1,6 +1,7 @@
 package p5;
 
 import DFA.Machine;
+
 import controlP5.CallbackEvent;
 import controlP5.CallbackListener;
 import controlP5.Textfield;
@@ -18,7 +19,7 @@ public class Arrow {
 	private PVector tailXY, headXY;
 	private float rotationOffset;
 	private Textfield transitionSymbolEntry;
-	private char transitionSymbol = ' ';
+	public char transitionSymbol = ' ';
 	private int ID;
 
 	public Arrow(PVector startXY, State tail) {
