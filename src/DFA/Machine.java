@@ -1,50 +1,78 @@
 package DFA;
 
 import java.util.HashMap;
+import java.util.Map;
 
 import p5.State;
 
 public class Machine {
 
-	public static HashMap<Integer, Node> nodes = new HashMap<>();
-	private static String input;
+	private static Map<State, Map<Character, State>> transitions = new HashMap<>();
+	private static State initial;
 
-	public static void run(String sequence, int startID) {
-		if (nodes.containsKey(startID)) {
-			input = sequence;
-			nodes.get(startID).update(sequence);
-		}
+	public static void setInitialState(State s) {
+		initial = s;
+	}
+
+	public static State getInitialState() {
+		return initial;
 	}
 
 	public static void addNode(State s) {
-		System.out.println(s.nodeID);
-		Node n = new Node(s.nodeID, s.isAccepting());
-		nodes.put(s.nodeID, n);
-	}
-	
-	public static void deleteNode(State s) {
-		for (Node n : nodes.values()) {
-			if (n.transitions.containsValue(s.nodeID)) { //TODO
-				n.transitions.remove(s.nodeID);
-			}
-		}
-		nodes.remove(s.nodeID);
+		transitions.put(s, new HashMap<>());
 	}
 
-	public static int totalStates() {
-		return nodes.size();
+	public static void deleteNode(State s) {
+		transitions.remove(s);
+		// delete transitions to this node
+	}
+
+	public static void addTransition(State tail, State head, Character symbol) {
+		if (!transitions.get(tail).containsKey(symbol)) {
+			transitions.get(tail).put(symbol, head);
+		}
+	}
+
+	public static void removeTransition(State tail, State head, Character symbol) {
+		transitions.get(tail).remove(symbol);
+		// removing head node
+		// delete tail's references to it
+	}
+
+	public static boolean run(String symbols) {
+		State s = initial;
+		while (!(symbols.isEmpty())) {
+			System.out.println(s.label);
+			char symbol = symbols.charAt(0);
+			if (transitions.get(s).containsKey(symbol)) {
+				s = transitions.get(s).get(symbol);
+				symbols = symbols.substring(1);
+			} else {
+				return false;
+			}
+		}
+		return s.isAccepting();
+		// Notification?
 	}
 
 	public static int totalTransitions() {
-		int i = 0;
-		for (Node n : nodes.values()) {
-			i += n.transitions.size();
+		int n = 0;
+		for (Map<Character, State> m : transitions.values()) {
+			n += m.size();
 		}
-		return i;
+		return n;
 	}
 
-	public static void terminate(Node n, boolean accepted, String reason) {
-		System.out.println(input + " : " + accepted + " at State " + n.hash + ". " + reason);
+	public static void debug() {
+		if (initial != null) {
+			System.out.println("Initial: " + initial.label);
+		}
+		System.out.println("Transtions #: " + totalTransitions());
+		for (State s : transitions.keySet()) {
+			for (Character c : transitions.get(s).keySet()) {
+				System.out.println(s.label + " -> " + c + " -> " + transitions.get(s).get(c).label);
+			}
+		}
+		System.out.println("");
 	}
-
 }

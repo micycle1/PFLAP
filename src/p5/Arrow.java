@@ -14,7 +14,7 @@ import processing.core.PVector;
 public class Arrow {
 
 	public static PApplet p;
-	public State tail, head; // ARROW POINTS TO TAIL/HEAD????
+	public State tail, head;
 	private PVector tailXY, headXY;
 	private float rotationOffset;
 	private Textfield transitionSymbolEntry;
@@ -38,12 +38,11 @@ public class Arrow {
 					// @formatter:on
 					@Override
 					public void controlEvent(CallbackEvent input) {
-						if (transitionSymbolEntry.getStringValue().length() == 1) { //TODO && transition is unique
+						if (transitionSymbolEntry.getStringValue().length() == 1) { //TODO && transition has unique symbol
 							transitionSymbol = transitionSymbolEntry.getStringValue().charAt(0);
 							PFLAP.cp5.remove(String.valueOf(ID));
 							PFLAP.allowNewArrow = true;
-							Machine.nodes.get(tail.nodeID).addTransition(Machine.nodes.get(head.nodeID), transitionSymbol);
-							PApplet.println(tail.nodeID,head.nodeID,transitionSymbol);
+							Machine.addTransition(tail, head, transitionSymbol);
 						} else {
 							// notification object make!!!
 						}
@@ -74,6 +73,7 @@ public class Arrow {
 	public void kill() {
 		PFLAP.cp5.remove(String.valueOf(ID));
 		PFLAP.arrows.remove(this);
+		//Machine.removeTransition(tail, head, symbol); TODO
 	}
 
 	public void draw() {

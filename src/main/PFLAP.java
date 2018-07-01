@@ -27,6 +27,12 @@ import p5.SelectionBox;
 import p5.State;
 import processing.awt.*;
 
+/**
+ * TODO:
+ * Transitions work after state renaming
+ * State self bezier-arrows
+ * Deleting a state deletes transitions to it
+ */
 public class PFLAP extends PApplet {
 
 	public static HashSet<Character> keysDown = new HashSet<Character>();
@@ -38,7 +44,7 @@ public class PFLAP extends PApplet {
 
 	public static ControlP5 cp5;
 
-	public static int initialStateID = -1;
+	public static int stateID = 0;
 	private static State mouseOverState, arrowTailState, arrowHeadState, dragState;
 	private static Arrow drawingArrow;
 	private static SelectionBox selectionBox = null;
@@ -52,7 +58,7 @@ public class PFLAP extends PApplet {
 	}
 
 	@Override
-	
+
 	public void setup() {
 		initCp5();
 		initMenuBar();
@@ -70,8 +76,7 @@ public class PFLAP extends PApplet {
 		rectMode(CORNER);
 		ellipseMode(CENTER);
 		cursor(ARROW);
-		//notifi();
-		Notification.notifi("test");
+		Notification.notifi("test"); //TODO remove
 
 	}
 
@@ -88,7 +93,7 @@ public class PFLAP extends PApplet {
 		background(255);
 		fill(0);
 
-		if (!(drawingArrow == null)) {
+		if (drawingArrow != null) {
 			stroke(0, 0, 0, 80);
 			strokeWeight(2);
 			drawingArrow.setHeadXY(mouseCoords);
@@ -224,10 +229,12 @@ public class PFLAP extends PApplet {
 				switch (event.getActionCommand()) {
 					case "Step By State" :
 						String userInput = JOptionPane.showInputDialog("DFA Input: ");
-						if (initialStateID != -1) {
-							Machine.run(userInput, initialStateID);
-						} else {
-							// new notification TODO
+						if (Machine.getInitialState() != null) {
+							println(Machine.run(userInput));
+						}
+						else {
+							//notification TODO
+							System.err.println("No Initial State Defined");
 						}
 						break;
 					default :
@@ -331,6 +338,8 @@ public class PFLAP extends PApplet {
 				selected.forEach(s -> deleteState(s));
 				selected.clear();
 				break;
+			case 32 : // TODO remove (temp)
+				Machine.debug();
 			default :
 				break;
 		}
@@ -356,7 +365,8 @@ public class PFLAP extends PApplet {
 					} else {
 						if (selectionBox == null) {
 							cursor(HAND);
-							dragState = new State(mouseClickXY, nodes.size());
+							dragState = new State(mouseClickXY, nodes.size(), stateID);
+							stateID += 1;
 						}
 					}
 

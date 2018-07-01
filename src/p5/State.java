@@ -19,22 +19,21 @@ import processing.core.PVector;
 public class State {
 
 	public static PApplet p;
-	public int ID;
-	public int nodeID;
-	private String label;
+	public int stateID; // TODO rename to 'name'
+	public String label; //TODO change to private 
 	public ControlP5 cp5;
 	private ScrollableList stateOptions;
 	private ControlListener listener;
 	private PVector position, selectedPosition;
 	private ArrayList<Arrow> arrowHeads = new ArrayList<>();
 	private ArrayList<Arrow> arrowTails = new ArrayList<>();
-	private boolean selected = false, accepting = false;
+	private boolean selected = false, accepting = false, initial = false;
 	private static Textfield rename;
 	private static State renameState;
 
 	// [transition symbol, next node, current string]
 
-	static {
+	static { // only one rename box for class, reads which state is renaming
 		// @formatter:off
 		rename = PFLAP.cp5.addTextfield("Rename State");
 		rename.hide()
@@ -53,11 +52,12 @@ public class State {
 		});
 		// @formatter:on
 	}
-
-	public State(PVector XY, int ID) {
-		label = "q" + ID;
-		nodeID = this.hashCode();
+	
+	public State(PVector XY, int liveID, int ID) {
+		Machine.addNode(this);
+		label = "q" + liveID;
 		position = XY;
+		stateID = ID;
 		cp5 = new ControlP5(p);
 		cp5.hide();
 		listener = new ControlListener() {
@@ -67,12 +67,12 @@ public class State {
 				cp5.hide();
 				switch ((int) optionSelected.getValue()) {
 					case 0 :
-						PFLAP.initialStateID = nodeID;
+						PFLAP.nodes.forEach(s -> s.initial = false);
+						initial = true;
+						Machine.setInitialState(State.this);
 						break;
 					case 1 :
 						accepting = !accepting;
-						PApplet.println(nodeID);
-						Machine.nodes.get(nodeID).toggleAccepting();
 						break;
 					case 2 :
 						renameState = State.this;
@@ -96,14 +96,19 @@ public class State {
 	}
 
 	public void kill() {
+		p.print("kill"); //TODO remove
 		arrowHeads.forEach(a -> a.kill());
 		arrowTails.forEach(a -> a.kill());
 		cp5.getAll().forEach(c -> c.remove());
+		//Machine.deleteNode(this); TODO uncomment
+		if (initial) {
+			Machine.setInitialState(null);
+		}
 	}
 
 	public void draw() {
 		p.strokeWeight(3);
-		if (PFLAP.initialStateID == nodeID) {
+		if (initial) {
 			p.fill(255, 0, 0);
 			p.noStroke();
 
