@@ -4,6 +4,7 @@ import java.awt.MenuBar;
 import java.awt.MenuItem;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.File;
 import java.awt.Frame;
 import java.awt.Menu;
 
@@ -14,7 +15,6 @@ import java.util.HashSet;
 
 import javax.swing.JOptionPane;
 
-import DFA.Machine;
 import GUI.Notification;
 import processing.core.PApplet;
 import processing.core.PVector;
@@ -22,16 +22,23 @@ import processing.event.KeyEvent;
 import processing.event.MouseEvent;
 
 import controlP5.ControlP5;
+import machines.DFA;
+import machines.DPA;
 import p5.Arrow;
 import p5.SelectionBox;
 import p5.State;
 import processing.awt.*;
 
+//@formatter:off
 /**
- * TODO:
- * State self bezier-arrows
- * Right-click menu on arrows
+ * State self bezier-arrows. 
+ * Right-click menu on arrows dpa fully integrated with states and transitions.
+ * delete transitions
+ * modify transitions
+ * info about machine (#states, etc)
  */
+//@formatter:on
+
 public class PFLAP extends PApplet {
 
 	public static HashSet<Character> keysDown = new HashSet<Character>();
@@ -51,18 +58,24 @@ public class PFLAP extends PApplet {
 
 	public static boolean allowNewArrow = true;
 
+	public static enum modes {
+		DFA, DPA;
+	}
+
+	public static modes mode = modes.DPA; //TODO change for test
+
 	public static void main(String[] args) {
 		PApplet.main(PFLAP.class);
 	}
 
 	@Override
-
 	public void setup() {
+
 		initCp5();
 		initMenuBar();
 		State.p = this; // Static PApplet for State objects
 		Arrow.p = this; // Static PApplet for Arrow objects
-		surface.setTitle("PFLAP: Processing Formal Languages and Automata Package");
+		surface.setTitle(Consts.title);
 		surface.setLocation(displayWidth / 2 - width / 2, displayHeight / 2 - height / 2);
 		surface.setResizable(false);
 		frameRate(60);
@@ -74,7 +87,7 @@ public class PFLAP extends PApplet {
 		rectMode(CORNER);
 		ellipseMode(CENTER);
 		cursor(ARROW);
-		Notification.notifi("test"); //TODO remove
+		Notification.notifi("test"); // TODO remove
 
 	}
 
@@ -187,6 +200,12 @@ public class PFLAP extends PApplet {
 						// FileDialog fg = new FileDialog(frame, "Open a file");
 						// fg.setVisible(true);
 						// String file = fg.getDirectory() + fg.getFile();
+
+						// selectInput("Select a file to process:",
+						// "fileSelected");
+						// public void fileSelected(File selection) {
+						// print("SDW2");
+						// }
 						break;
 					default :
 						break;
@@ -227,11 +246,10 @@ public class PFLAP extends PApplet {
 				switch (event.getActionCommand()) {
 					case "Step By State" :
 						String userInput = JOptionPane.showInputDialog("DFA Input: ");
-						if (Machine.getInitialState() != null) {
-							println(Machine.run(userInput));
-						}
-						else {
-							//notification TODO
+						if (DFA.getInitialState() != null) {
+							println(DFA.run(userInput));
+						} else {
+							// notification TODO
 							System.err.println("No Initial State Defined");
 						}
 						break;
@@ -288,17 +306,6 @@ public class PFLAP extends PApplet {
 		cp5 = new ControlP5(this);
 	}
 
-	private static boolean withinRange(float x, float y, float diameter, float x2, float y2) {
-		return (sqrt(sq(y - y2) + sq(x - x2)) < diameter / 2);
-	}
-
-	public static float angleBetween(PVector tail, PVector head) {
-		return -atan2(tail.x - head.x, tail.y - head.y) - (PI / 2);
-	}
-
-	public static boolean numberBetween(float n, float a1, float a2) {
-		return (n >= min(a1, a2) && n <= max(a1, a2));
-	}
 
 	private static boolean withinSelection(State s) {
 		PVector sXY = s.getPosition();
@@ -309,8 +316,8 @@ public class PFLAP extends PApplet {
 
 	public void nodeMouseOver() {
 		for (State s : nodes) {
-			if (withinRange(s.getPosition().x, s.getPosition().y, Consts.stateRadius, mouseX, mouseY)
-					|| s.cp5.isMouseOver()) {
+			if (Functions.withinRange(s.getPosition().x, s.getPosition().y, Consts.stateRadius, mouseX, mouseY)
+					|| s.isMouseOver()) {
 				mouseOverState = s;
 				return;
 			}
@@ -337,7 +344,7 @@ public class PFLAP extends PApplet {
 				selected.clear();
 				break;
 			case 32 : // TODO remove (temp)
-				Machine.debug();
+				DPA.debug();
 			default :
 				break;
 		}
@@ -368,7 +375,7 @@ public class PFLAP extends PApplet {
 					}
 
 				} else {
-					if (!mouseOverState.cp5.isMouseOver()) {
+					if (!mouseOverState.isMouseOver()) {
 						cursor(HAND);
 						dragState = mouseOverState;
 						nodes.remove(dragState);
@@ -436,8 +443,8 @@ public class PFLAP extends PApplet {
 					nodeMouseOver();
 					arrowHeadState = mouseOverState;
 					if (arrowTailState != arrowHeadState && (arrowHeadState != null) && drawingArrow != null) {
-						drawingArrow.tail = arrowTailState;
-						drawingArrow.head = arrowHeadState;
+						drawingArrow.setTail(arrowTailState);
+						drawingArrow.setHead(arrowHeadState);
 						drawingArrow.update();
 						arrowTailState.addArrowTail(drawingArrow);
 						arrowHeadState.addArrowHead(drawingArrow);

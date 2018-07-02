@@ -7,6 +7,8 @@ public final class Consts {
 
 	public static final boolean arrowLabelTextRotate = true; // TODO
 
+	public static final String title = "PFLAP: Processing Formal Languages and Automata Package";
+	
 	// @formatter:off
 	public static final String about = "PFLAP: Processing Formal Languages and Automata Package.\r\n" + 
 			"A JFLAP alternative using the Processing library as the graphics backend.",
@@ -25,5 +27,4 @@ public final class Consts {
 					"DEL: Delete Selected States.\r\n" + 
 					"ESC: Exit Program.\r\n";
 	// @formatter:on
-
 }

@@ -1,12 +1,14 @@
 package p5;
 
-import DFA.Machine;
-
 import controlP5.CallbackEvent;
 import controlP5.CallbackListener;
 import controlP5.Textfield;
 
+import machines.DFA;
+import machines.DPA;
+
 import main.Consts;
+import main.Functions;
 import main.PFLAP;
 
 import processing.core.PApplet;
@@ -15,12 +17,17 @@ import processing.core.PVector;
 public class Arrow {
 
 	public static PApplet p;
-	public State tail, head;
+	private State tail, head;
 	private PVector tailXY, headXY;
 	private float rotationOffset;
 	private Textfield transitionSymbolEntry;
-	public char transitionSymbol = ' ';
+	private char transitionSymbol = ' ', stackPop, stackPush;
 	private int ID;
+	
+	private static enum entryTypes { 
+		SYMBOL, POP, PUSH
+	}
+	private entryTypes entryType = entryTypes.SYMBOL;
 
 	public Arrow(PVector startXY, State tail) {
 		PFLAP.allowNewArrow = false;
@@ -29,36 +36,61 @@ public class Arrow {
 		tailXY = startXY;
 		headXY = tailXY;
 		// @formatter:off
-		transitionSymbolEntry = PFLAP.cp5.addTextfield(String.valueOf(ID))
+		transitionSymbolEntry = PFLAP.cp5.addTextfield(String.valueOf(ID)) //make static?
 				.setColorLabel(0)
-				.keepFocus(true)
 				.setLabel("")
-				.setSize(30, 15)
 				.hide()
+				.setSize(30, 15)
 				.addCallback(new CallbackListener() {
 					// @formatter:on
 					@Override
 					public void controlEvent(CallbackEvent input) {
 						if (transitionSymbolEntry.getStringValue().length() == 1) { //TODO && transition has unique symbol
-							transitionSymbol = transitionSymbolEntry.getStringValue().charAt(0);
-							PFLAP.cp5.remove(String.valueOf(ID));
-							PFLAP.allowNewArrow = true;
-							Machine.addTransition(tail, head, transitionSymbol);
+							entry();
 						} else {
 							// notification object make!!!
 						}
 
 					}
 				});
-
+	}
+	
+	private void entry() {
+		transitionSymbolEntry.clear();
+		switch (entryType) {
+			case SYMBOL :
+				transitionSymbol = transitionSymbolEntry.getStringValue().charAt(0);
+				
+				if (PFLAP.mode == PFLAP.modes.DPA) {
+					entryType = entryTypes.POP;
+				}
+				else {
+					//DFA //todo switch
+					DFA.addTransition(tail, head, transitionSymbol);
+					PFLAP.cp5.remove(String.valueOf(ID));
+				}
+				break;
+			case POP :
+				stackPop = transitionSymbolEntry.getStringValue().charAt(0);
+				entryType = entryTypes.PUSH;
+				break;
+			case PUSH :
+				stackPush = transitionSymbolEntry.getStringValue().charAt(0);
+				DPA.addTransition(tail, head, transitionSymbol, stackPop, stackPush);
+				PFLAP.cp5.remove(String.valueOf(ID));
+				PFLAP.allowNewArrow = true;
+				break;
+			default :
+				break;
+		}
 	}
 
 	public void update() {
-		float theta1 = PFLAP.angleBetween(head.getPosition(), tail.getPosition());
+		float theta1 = Functions.angleBetween(head.getPosition(), tail.getPosition());
 		headXY = new PVector(head.getPosition().x + Consts.stateRadius * 0.5f * PApplet.cos(theta1),
 				head.getPosition().y + Consts.stateRadius * 0.5f * PApplet.sin(theta1));
 
-		float theta2 = PFLAP.angleBetween(tail.getPosition(), head.getPosition());
+		float theta2 = Functions.angleBetween(tail.getPosition(), head.getPosition());
 		tailXY = new PVector(tail.getPosition().x + Consts.stateRadius * 0.5f * PApplet.cos(theta2),
 				tail.getPosition().y + Consts.stateRadius * 0.5f * PApplet.sin(theta2));
 		rotationOffset = theta2;
@@ -74,7 +106,6 @@ public class Arrow {
 	public void kill() {
 		PFLAP.cp5.remove(String.valueOf(ID));
 		PFLAP.arrows.remove(this);
-		//Machine.removeTransition(tail, head, symbol); TODO
 	}
 
 	public void draw() {
@@ -89,7 +120,15 @@ public class Arrow {
 
 		p.translate(headXY.x, headXY.y);
 		p.rotate(rotationOffset);
-		p.text(transitionSymbol, -PApplet.dist(tailXY.x, tailXY.y, headXY.x, headXY.y)/2, 7);
+		switch (PFLAP.mode) {
+			case DFA :
+				p.text(transitionSymbol, -PApplet.dist(tailXY.x, tailXY.y, headXY.x, headXY.y)/2, 7);
+				break;
+			case DPA :
+				p.text(transitionSymbol + "; "+ stackPop +"/"+stackPush, -PApplet.dist(tailXY.x, tailXY.y, headXY.x, headXY.y)/2, 7);
+				break;
+		}
+		
 		//p.text(rotationOffset, -PApplet.dist(tailXY.x, tailXY.y, headXY.x, headXY.y)/2, 7);
 
 		p.beginShape();
@@ -106,6 +145,26 @@ public class Arrow {
 
 	public void setHeadXY(PVector headXY) {
 		this.headXY = headXY;
-		rotationOffset = PFLAP.angleBetween(tailXY, headXY);
+		rotationOffset = Functions.angleBetween(tailXY, headXY);
+	}
+	
+	public State getHead() {
+		return head;
+	}
+	
+	public void setHead(State head) {
+		this.head = head;
+	}
+	
+	public State getTail() {
+		return tail;
+	}
+	
+	public void setTail(State tail) {
+		this.tail = tail;
+	}
+	
+	public char getSymbol() {
+		return transitionSymbol;
 	}
 }

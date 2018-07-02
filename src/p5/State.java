@@ -2,8 +2,6 @@ package p5;
 
 import java.util.ArrayList;
 
-import DFA.Machine;
-
 import controlP5.CallbackEvent;
 import controlP5.CallbackListener;
 import controlP5.ControlEvent;
@@ -11,7 +9,7 @@ import controlP5.ControlListener;
 import controlP5.ControlP5;
 import controlP5.ScrollableList;
 import controlP5.Textfield;
-
+import machines.DFA;
 import main.Consts;
 import main.PFLAP;
 
@@ -21,8 +19,8 @@ import processing.core.PVector;
 public class State {
 
 	public static PApplet p;
-	public String label; //TODO change to private 
-	public ControlP5 cp5;
+	private String label; //TODO change to private 
+	private ControlP5 cp5;
 	private ScrollableList stateOptions;
 	private ControlListener listener;
 	private PVector position, selectedPosition;
@@ -32,9 +30,7 @@ public class State {
 	private static Textfield rename;
 	private static State renameState;
 
-	// [transition symbol, next node, current string]
-
-	static { // only one rename box for class, reads which state is renaming
+	static { // only one rename box for class
 		// @formatter:off
 		rename = PFLAP.cp5.addTextfield("Rename State");
 		rename.hide()
@@ -55,13 +51,12 @@ public class State {
 	}
 	
 	public State(PVector XY, int liveID) {
-		Machine.addNode(this);
+		DFA.addNode(this);
 		label = "q" + liveID;
 		position = XY;
 		cp5 = new ControlP5(p);
 		cp5.hide();
 		listener = new ControlListener() {
-
 			@Override
 			public void controlEvent(ControlEvent optionSelected) {
 				cp5.hide();
@@ -69,7 +64,7 @@ public class State {
 					case 0 :
 						PFLAP.nodes.forEach(s -> s.initial = false);
 						initial = true;
-						Machine.setInitialState(State.this);
+						DFA.setInitialState(State.this);
 						break;
 					case 1 :
 						accepting = !accepting;
@@ -89,7 +84,7 @@ public class State {
 		stateOptions = cp5.addScrollableList("Options");
 		// @formatter:off
 		stateOptions.setType(1)
-				.addItems(new String[]{"Set As Inititial", "Toggle Accepting", "Rename"})
+				.addItems(new String[]{"Set As Inititial", "Toggle Accepting", "Relabel"})
 				.open()
 				.addListener(listener);
 		// @formatter:on
@@ -97,14 +92,14 @@ public class State {
 
 	public void kill() {
 		for (Arrow a : arrowHeads) {
-			Machine.removeTransition(a.tail, a.head, a.transitionSymbol);
+			DFA.removeTransition(a.getTail(), a.getHead(), a.getSymbol());
 		}
 		arrowHeads.forEach(a -> a.kill());
 		arrowTails.forEach(a -> a.kill());
 		cp5.getAll().forEach(c -> c.remove());
-		Machine.deleteNode(this);
+		DFA.deleteNode(this);
 		if (initial) {
-			Machine.setInitialState(null);
+			DFA.setInitialState(null);
 		}
 	}
 
@@ -166,6 +161,10 @@ public class State {
 	public PVector getSelectedPosition() {
 		return selectedPosition;
 	}
+	
+	public String getLabel() {
+		return label;
+	}
 
 	public void addArrowHead(Arrow a) {
 		arrowHeads.add(a);
@@ -189,5 +188,9 @@ public class State {
 
 	public boolean isAccepting() {
 		return accepting;
+	}
+	
+	public boolean isMouseOver() {
+		return cp5.isMouseOver();
 	}
 }

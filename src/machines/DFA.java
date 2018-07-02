@@ -1,11 +1,14 @@
-package DFA;
+package machines;
 
 import java.util.HashMap;
 import java.util.Map;
 
 import p5.State;
 
-public class Machine {
+public class DFA {
+	/**
+	 * Deterministic Finite Automaton
+	 */
 
 	private static Map<State, Map<Character, State>> transitions = new HashMap<>();
 	private static State initial;
@@ -24,7 +27,6 @@ public class Machine {
 
 	public static void deleteNode(State s) {
 		transitions.remove(s);
-		// delete transitions to this node
 	}
 
 	public static void addTransition(State tail, State head, Character symbol) {
@@ -35,18 +37,16 @@ public class Machine {
 
 	public static void removeTransition(State tail, State head, Character symbol) {
 		transitions.get(tail).remove(symbol);
-		// removing head node
-		// delete tail's references to it
 	}
 
-	public static boolean run(String symbols) {
+	public static boolean run(String input) {
+		//System.out.println("⊢");
 		State s = initial;
-		while (!(symbols.isEmpty())) {
-			System.out.println(s.label);
-			char symbol = symbols.charAt(0);
+		while (!(input.isEmpty())) {
+			char symbol = input.charAt(0);
 			if (transitions.get(s).containsKey(symbol)) {
 				s = transitions.get(s).get(symbol);
-				symbols = symbols.substring(1);
+				input = input.substring(1);
 			} else {
 				return false;
 			}
@@ -65,12 +65,12 @@ public class Machine {
 
 	public static void debug() {
 		if (initial != null) {
-			System.out.println("Initial: " + initial.label);
+			System.out.println("Initial: " + initial.getLabel());
 		}
 		System.out.println("Transtions #: " + totalTransitions());
 		for (State s : transitions.keySet()) {
 			for (Character c : transitions.get(s).keySet()) {
-				System.out.println(s.label + " -> " + c + " -> " + transitions.get(s).get(c).label);
+				System.out.println(s.getLabel() + " -> " + c + " -> " + transitions.get(s).get(c).getLabel());
 			}
 		}
 		System.out.println("");
