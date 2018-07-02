@@ -42,16 +42,25 @@ public class DPA {
 	}
 
 	public static void addTransition(State tail, State head, Character symbol, Character pop, Character push) {
-		addNode(tail); // TODO
+		//addNode(tail); // TODO
 		Map<char[], State> c = new HashMap<>();
 		c.put(new char[]{pop, push}, head);
 		transitions.get(tail).put(symbol, c);
 	}
 
-	// public static void removeTransition(State tail, State head, Character
-	// symbol) {
-	// transitions.get(tail).remove(symbol);
-	// }
+	 public static void removeTransition(State tail, State head, Character symbol, Character pop, Character push) {
+		 
+		 //remove the state always
+		 //remove 
+		 
+		 //transitions.get(tail).get(symbol).get(new char[] {pop, push})
+		 if (transitions.get(tail).get(symbol).get(new char[] {pop, push}).size() > 1) {
+			 //transitions.get(tail).get(new char[] {pop, push}).remove(head);
+		 }
+		 else {
+			 transitions.get(tail).get(symbol).get(new char[] {pop, push});
+		 }
+	 }
 
 	public static boolean run(String input) {
 		State s = initial;

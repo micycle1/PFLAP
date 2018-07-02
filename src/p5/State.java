@@ -9,7 +9,10 @@ import controlP5.ControlListener;
 import controlP5.ControlP5;
 import controlP5.ScrollableList;
 import controlP5.Textfield;
+
 import machines.DFA;
+import machines.DPA;
+
 import main.Consts;
 import main.PFLAP;
 
@@ -51,7 +54,14 @@ public class State {
 	}
 	
 	public State(PVector XY, int liveID) {
-		DFA.addNode(this);
+		switch (PFLAP.mode) {
+			case DFA :
+				DFA.addNode(this);
+				break;
+			case DPA :
+				DPA.addNode(this);
+				break;
+		}
 		label = "q" + liveID;
 		position = XY;
 		cp5 = new ControlP5(p);
@@ -91,16 +101,31 @@ public class State {
 	}
 
 	public void kill() {
-		for (Arrow a : arrowHeads) {
-			DFA.removeTransition(a.getTail(), a.getHead(), a.getSymbol());
+		switch (PFLAP.mode) {
+			case DFA :
+				for (Arrow a : arrowHeads) {
+					DFA.removeTransition(a.getTail(), a.getHead(), a.getSymbol());
+				}
+				DFA.deleteNode(this);
+				if (initial) {
+					DFA.setInitialState(null);
+				}
+				break;
+				
+			case DPA :
+				for (Arrow a : arrowHeads) {
+					DPA.removeTransition(a.getTail(), a.getHead(), a.getSymbol(), a.getStackPop(), a.getStackPush());
+				}
+				DPA.deleteNode(this);
+				if (initial) {
+					DPA.setInitialState(null);
+				}
+				break;
 		}
+		
 		arrowHeads.forEach(a -> a.kill());
 		arrowTails.forEach(a -> a.kill());
 		cp5.getAll().forEach(c -> c.remove());
-		DFA.deleteNode(this);
-		if (initial) {
-			DFA.setInitialState(null);
-		}
 	}
 
 	public void draw() {

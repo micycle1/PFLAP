@@ -167,4 +167,13 @@ public class Arrow {
 	public char getSymbol() {
 		return transitionSymbol;
 	}
+	
+	public char getStackPop() {
+		// + setters for transition modification
+		return stackPop;
+	}
+	
+	public char getStackPush() {
+		return stackPush;
+	}
 }

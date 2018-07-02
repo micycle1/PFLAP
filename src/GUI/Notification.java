@@ -22,7 +22,7 @@ public class Notification {
 		frame.setSize(Consts.notificationPopupWidth, Consts.notificationPopupHeight);
 		frame.setLayout(new GridBagLayout());
 		
-		GridBagConstraints constraints = new GridBagConstraints();
+		final GridBagConstraints constraints = new GridBagConstraints();
 		constraints.gridx = 0;
 		constraints.gridy = 0;
 		constraints.weightx = 1.0f;

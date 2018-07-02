@@ -32,10 +32,11 @@ import processing.awt.*;
 //@formatter:off
 /**
  * State self bezier-arrows. 
- * Right-click menu on arrows dpa fully integrated with states and transitions.
+ * Right-click menu on arrows DPA fully integrated with states and transitions.
  * delete transitions
  * modify transitions
  * info about machine (#states, etc)
+ * save/load : stateXY; encoding of transitions per machine
  */
 //@formatter:on
 
@@ -62,7 +63,7 @@ public class PFLAP extends PApplet {
 		DFA, DPA;
 	}
 
-	public static modes mode = modes.DPA; //TODO change for test
+	public static modes mode = modes.DFA; // TODO change for test
 
 	public static void main(String[] args) {
 		PApplet.main(PFLAP.class);
@@ -102,7 +103,7 @@ public class PFLAP extends PApplet {
 		mouseCoords = new PVector(constrain(mouseX, 0, width), constrain(mouseY, 0, height));
 		// textAlign(LEFT, TOP);
 		background(255);
-		fill(0);
+		fill(0); //redundant?
 
 		if (drawingArrow != null) {
 			stroke(0, 0, 0, 80);
@@ -139,31 +140,39 @@ public class PFLAP extends PApplet {
 	}
 
 	public void initMenuBar() {
-		// Declarations
 		Frame f = getFrame();
 		MenuBar menuBar = new MenuBar();
-		MenuItem fileMenuItem0, fileMenuItem1, fileMenuItem2, editMenuItem0, editMenuItem1, editMenuItem2,
-				inputMenuItem0, helpMenuItem0, helpMenuItem1;
+		
+		MenuItem fileMenuItem0, fileMenuItem1, fileMenuItem2;
+		MenuItem editMenuItem0, editMenuItem1, editMenuItem2;
+		MenuItem viewMenuItem0, viewMenuItem1;
+		MenuItem inputMenuItem0, inputMenuItem1;
+		MenuItem helpMenuItem0, helpMenuItem1;
 
 		// Top-Level Menus
 		Menu fileMenu = new Menu("File");
 		Menu editMenu = new Menu("Edit");
+		Menu viewMenu = new Menu("View");
 		Menu inputMenu = new Menu("Input");
 		Menu helpMenu = new Menu("Help");
 
 		// File Menu
-		fileMenuItem0 = new MenuItem("Exit");
-		fileMenuItem1 = new MenuItem("Open");
-		fileMenuItem2 = new MenuItem("Save");
+		fileMenuItem0 = new MenuItem("Open");
+		fileMenuItem1 = new MenuItem("Save");
+		fileMenuItem2 = new MenuItem("Exit");
 
 		// Edit Menu
-		editMenuItem0 = new MenuItem("Delete All States");
-		// + deleted selected
-		editMenuItem1 = new MenuItem("Select All States");
+		editMenuItem0 = new MenuItem("Select All States");
+		editMenuItem1 = new MenuItem("Delete All States");
 		editMenuItem2 = new MenuItem("Invert Selection");
+		
+		//View Menu
+		viewMenuItem0 = new MenuItem("Save Stage As Image");
+		viewMenuItem1 = new MenuItem("Reorder States");
 
 		// Input Menu
 		inputMenuItem0 = new MenuItem("Step By State");
+		inputMenuItem1 = new MenuItem("Fast Run");
 
 		// Help Menu
 		helpMenuItem0 = new MenuItem("Help");
@@ -178,16 +187,21 @@ public class PFLAP extends PApplet {
 		editMenu.add(editMenuItem0);
 		editMenu.add(editMenuItem1);
 		editMenu.add(editMenuItem2);
+		
+		// Add view items to view menu
+		viewMenu.add(viewMenuItem0);
+		viewMenu.add(viewMenuItem1);
 
 		// Add input items to input menu
 		inputMenu.add(inputMenuItem0);
+		inputMenu.add(inputMenuItem1);
 
 		// Add help items to help menu
 		helpMenu.add(helpMenuItem0);
 		helpMenu.add(helpMenuItem1);
 
 		// Menu Action Listeners
-		ActionListener fileMenuListener, editMenuListener, inputMenuListener, helpMenuListener;
+		ActionListener fileMenuListener, editMenuListener, viewMenuListener, inputMenuListener, helpMenuListener;
 
 		fileMenuListener = new ActionListener() {
 			@Override
@@ -207,10 +221,12 @@ public class PFLAP extends PApplet {
 						// print("SDW2");
 						// }
 						break;
+					case "Save" :
+						break;
 					default :
+						System.err.println("Unhandled menuitem.");
 						break;
 				}
-
 			}
 		};
 
@@ -218,13 +234,13 @@ public class PFLAP extends PApplet {
 			@Override
 			public void actionPerformed(ActionEvent event) {
 				switch (event.getActionCommand()) {
-					case "Delete All States" :
-						nodes.forEach(s -> s.kill());
-						nodes.clear();
-						break;
 					case "Select All States" :
 						selected.addAll(nodes);
 						nodes.forEach(s -> s.select());
+						break;
+					case "Delete All States" :
+						nodes.forEach(s -> s.kill());
+						nodes.clear();
 						break;
 					case "Invert Selection" :
 						ArrayList<State> temp = new ArrayList<>(nodes);
@@ -235,6 +251,24 @@ public class PFLAP extends PApplet {
 						selected.forEach(s -> s.select());
 						break;
 					default :
+						System.err.println("Unhandled menuitem.");
+						break;
+				}
+			}
+		};
+		
+		viewMenuListener = new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent event) {
+				switch (event.getActionCommand()) {
+					case "Save Stage As Image" :
+						//TODO
+						break;
+					case "Reorder States" :
+						//TODO
+						break;
+					default :
+						System.err.println("Unhandled menuitem.");
 						break;
 				}
 			}
@@ -243,17 +277,36 @@ public class PFLAP extends PApplet {
 		inputMenuListener = new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent event) {
+				String userInput;
 				switch (event.getActionCommand()) {
 					case "Step By State" :
-						String userInput = JOptionPane.showInputDialog("DFA Input: ");
-						if (DFA.getInitialState() != null) {
-							println(DFA.run(userInput));
-						} else {
-							// notification TODO
-							System.err.println("No Initial State Defined");
+						switch (mode) {
+							case DFA :
+								if (DFA.getInitialState() != null) {
+									userInput = JOptionPane.showInputDialog("DFA Input: ");
+									println(DFA.run(userInput));
+								} else {
+									// notification TODO
+									System.err.println("No Initial State Defined");
+								}
+								break;
+
+							case DPA :
+								if (DPA.getInitialState() != null) {
+									userInput = JOptionPane.showInputDialog("DPA Input: ");
+									println(DPA.run(userInput));
+								} else {
+									System.err.println("No Initial State Defined");
+								}
+								break;
 						}
 						break;
+					case "Fast Run" : 
+						// TODO implement
+						print("todo");
+						break;
 					default :
+						System.err.println("Unhandled menuitem.");
 						break;
 				}
 			}
@@ -270,6 +323,7 @@ public class PFLAP extends PApplet {
 						JOptionPane.showMessageDialog(frame, Consts.help);
 						break;
 					default :
+						System.err.println("Unhandled menuitem.");
 						break;
 				}
 			}
@@ -277,12 +331,14 @@ public class PFLAP extends PApplet {
 
 		fileMenu.addActionListener(fileMenuListener);
 		editMenu.addActionListener(editMenuListener);
+		viewMenu.addActionListener(viewMenuListener);
 		inputMenu.addActionListener(inputMenuListener);
 		helpMenu.addActionListener(helpMenuListener);
 
 		// Adding menus to the menu bar
 		menuBar.add(fileMenu);
 		menuBar.add(editMenu);
+		menuBar.add(viewMenu);
 		menuBar.add(inputMenu);
 		menuBar.add(helpMenu);
 
@@ -305,7 +361,6 @@ public class PFLAP extends PApplet {
 	private void initCp5() {
 		cp5 = new ControlP5(this);
 	}
-
 
 	private static boolean withinSelection(State s) {
 		PVector sXY = s.getPosition();
@@ -344,7 +399,7 @@ public class PFLAP extends PApplet {
 				selected.clear();
 				break;
 			case 32 : // TODO remove (temp)
-				DPA.debug();
+				DFA.debug();
 			default :
 				break;
 		}
