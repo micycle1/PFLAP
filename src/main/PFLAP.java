@@ -4,7 +4,7 @@ import java.awt.MenuBar;
 import java.awt.MenuItem;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.io.File;
+//import java.io.File;
 import java.awt.Frame;
 import java.awt.Menu;
 
@@ -15,19 +15,26 @@ import java.util.HashSet;
 
 import javax.swing.JOptionPane;
 
-import GUI.Notification;
 import processing.core.PApplet;
+import processing.core.PImage;
 import processing.core.PVector;
 import processing.event.KeyEvent;
 import processing.event.MouseEvent;
 
 import controlP5.ControlP5;
+
 import machines.DFA;
 import machines.DPA;
+
 import p5.Arrow;
+import p5.Notification;
 import p5.SelectionBox;
 import p5.State;
+
 import processing.awt.*;
+
+import static main.Consts.notificationData.noInitialState;
+import static main.Functions.withinRange;
 
 //@formatter:off
 /**
@@ -37,6 +44,11 @@ import processing.awt.*;
  * modify transitions
  * info about machine (#states, etc)
  * save/load : stateXY; encoding of transitions per machine
+ * notification queue
+ * draw notifications on top
+ * blur behind notification
+ * Selection box doesnt work backwards
+ * Scale label size depending on distance
  */
 //@formatter:on
 
@@ -57,13 +69,18 @@ public class PFLAP extends PApplet {
 
 	private PVector mouseClickXY, mouseReleasedXY, mouseCoords;
 
-	public static boolean allowNewArrow = true;
+	public static boolean allowGUIInterraction = true;
+
+	public static PApplet p;
 
 	public static enum modes {
 		DFA, DPA;
 	}
 
-	public static modes mode = modes.DFA; // TODO change for test
+	public static PImage notificationBG;
+	public p5.Notification temp;
+
+	public static modes mode = modes.DPA; // TODO change for test
 
 	public static void main(String[] args) {
 		PApplet.main(PFLAP.class);
@@ -71,11 +88,11 @@ public class PFLAP extends PApplet {
 
 	@Override
 	public void setup() {
-
 		initCp5();
 		initMenuBar();
-		State.p = this; // Static PApplet for State objects
-		Arrow.p = this; // Static PApplet for Arrow objects
+		// notifications.get
+		p = this;
+
 		surface.setTitle(Consts.title);
 		surface.setLocation(displayWidth / 2 - width / 2, displayHeight / 2 - height / 2);
 		surface.setResizable(false);
@@ -88,8 +105,6 @@ public class PFLAP extends PApplet {
 		rectMode(CORNER);
 		ellipseMode(CENTER);
 		cursor(ARROW);
-		Notification.notifi("test"); // TODO remove
-
 	}
 
 	@Override
@@ -100,10 +115,11 @@ public class PFLAP extends PApplet {
 
 	@Override
 	public void draw() {
+
 		mouseCoords = new PVector(constrain(mouseX, 0, width), constrain(mouseY, 0, height));
 		// textAlign(LEFT, TOP);
 		background(255);
-		fill(0); //redundant?
+		fill(0); // redundant?
 
 		if (drawingArrow != null) {
 			stroke(0, 0, 0, 80);
@@ -121,6 +137,7 @@ public class PFLAP extends PApplet {
 		fill(0);
 
 		strokeWeight(2);
+		textSize(18);
 		arrows.forEach(a -> a.draw());
 
 		if (mouseDown.contains(CENTER)) {
@@ -130,7 +147,11 @@ public class PFLAP extends PApplet {
 			}
 		}
 
+		textAlign(CENTER, CENTER);
+		textSize(16);
 		nodes.forEach(s -> s.draw());
+
+		Notification.run();
 
 		if (dragState != null) {
 			dragState.setPosition(mouseCoords);
@@ -142,7 +163,7 @@ public class PFLAP extends PApplet {
 	public void initMenuBar() {
 		Frame f = getFrame();
 		MenuBar menuBar = new MenuBar();
-		
+
 		MenuItem fileMenuItem0, fileMenuItem1, fileMenuItem2;
 		MenuItem editMenuItem0, editMenuItem1, editMenuItem2;
 		MenuItem viewMenuItem0, viewMenuItem1;
@@ -165,8 +186,8 @@ public class PFLAP extends PApplet {
 		editMenuItem0 = new MenuItem("Select All States");
 		editMenuItem1 = new MenuItem("Delete All States");
 		editMenuItem2 = new MenuItem("Invert Selection");
-		
-		//View Menu
+
+		// View Menu
 		viewMenuItem0 = new MenuItem("Save Stage As Image");
 		viewMenuItem1 = new MenuItem("Reorder States");
 
@@ -187,7 +208,7 @@ public class PFLAP extends PApplet {
 		editMenu.add(editMenuItem0);
 		editMenu.add(editMenuItem1);
 		editMenu.add(editMenuItem2);
-		
+
 		// Add view items to view menu
 		viewMenu.add(viewMenuItem0);
 		viewMenu.add(viewMenuItem1);
@@ -256,16 +277,16 @@ public class PFLAP extends PApplet {
 				}
 			}
 		};
-		
+
 		viewMenuListener = new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent event) {
 				switch (event.getActionCommand()) {
 					case "Save Stage As Image" :
-						//TODO
+						// TODO
 						break;
 					case "Reorder States" :
-						//TODO
+						// TODO
 						break;
 					default :
 						System.err.println("Unhandled menuitem.");
@@ -286,27 +307,29 @@ public class PFLAP extends PApplet {
 									userInput = JOptionPane.showInputDialog("DFA Input: ");
 									println(DFA.run(userInput));
 								} else {
-									// notification TODO
+									Notification.addNotification(noInitialState);
 									System.err.println("No Initial State Defined");
 								}
 								break;
 
 							case DPA :
 								if (DPA.getInitialState() != null) {
+									DPA.setInitialStackSymbol(
+											JOptionPane.showInputDialog("Initial Stack Symbol: ").charAt(0));
 									userInput = JOptionPane.showInputDialog("DPA Input: ");
 									println(DPA.run(userInput));
 								} else {
+									Notification.addNotification(noInitialState);
 									System.err.println("No Initial State Defined");
 								}
 								break;
 						}
 						break;
-					case "Fast Run" : 
+					case "Fast Run" :
 						// TODO implement
-						print("todo");
 						break;
 					default :
-						System.err.println("Unhandled menuitem.");
+						System.err.println("Unhandled Menuitem.");
 						break;
 				}
 			}
@@ -371,7 +394,7 @@ public class PFLAP extends PApplet {
 
 	public void nodeMouseOver() {
 		for (State s : nodes) {
-			if (Functions.withinRange(s.getPosition().x, s.getPosition().y, Consts.stateRadius, mouseX, mouseY)
+			if (withinRange(s.getPosition().x, s.getPosition().y, Consts.stateRadius, mouseX, mouseY)
 					|| s.isMouseOver()) {
 				mouseOverState = s;
 				return;
@@ -399,7 +422,11 @@ public class PFLAP extends PApplet {
 				selected.clear();
 				break;
 			case 32 : // TODO remove (temp)
-				DFA.debug();
+				if (mode == modes.DFA) {
+					DFA.debug();
+				} else {
+					DPA.debug();
+				}
 			default :
 				break;
 		}
@@ -408,7 +435,7 @@ public class PFLAP extends PApplet {
 
 	@Override
 	public void mousePressed(MouseEvent m) {
-		if (cp5.isMouseOver()) {
+		if (cp5.isMouseOver() || !allowGUIInterraction) {
 			return;
 		}
 
@@ -442,7 +469,7 @@ public class PFLAP extends PApplet {
 
 			case RIGHT :
 				nodeMouseOver();
-				if (!(mouseOverState == null) && allowNewArrow) {
+				if (!(mouseOverState == null) && allowGUIInterraction) {
 					arrowTailState = mouseOverState;
 					drawingArrow = new Arrow(mouseClickXY, arrowTailState);
 					cursor(CROSS);
@@ -458,20 +485,8 @@ public class PFLAP extends PApplet {
 	public void mouseReleased(MouseEvent m) {
 		cursor(ARROW);
 		mouseReleasedXY = mouseCoords.copy();
-		if (cp5.isMouseOver()) {
+		if (cp5.isMouseOver() || !allowGUIInterraction) {
 			return;
-		}
-
-		if (selectionBox != null) {
-			selected.forEach(s -> s.deselect());
-			selected.clear();
-			for (State s : nodes) {
-				if (withinSelection(s)) {
-					s.select();
-					selected.add(s);
-				}
-			}
-			selectionBox = null;
 		}
 
 		switch (m.getButton()) {
@@ -494,27 +509,41 @@ public class PFLAP extends PApplet {
 				break;
 
 			case RIGHT :
-				if (!(mouseClickXY.equals(mouseReleasedXY))) {
-					nodeMouseOver();
-					arrowHeadState = mouseOverState;
-					if (arrowTailState != arrowHeadState && (arrowHeadState != null) && drawingArrow != null) {
-						drawingArrow.setTail(arrowTailState);
-						drawingArrow.setHead(arrowHeadState);
-						drawingArrow.update();
-						arrowTailState.addArrowTail(drawingArrow);
-						arrowHeadState.addArrowHead(drawingArrow);
-						arrows.add(drawingArrow);
+				if (selectionBox != null) {
+					selected.forEach(s -> s.deselect());
+					selected.clear();
+					for (State s : nodes) {
+						if (withinSelection(s)) {
+							s.select();
+							selected.add(s);
+						}
 					}
-					drawingArrow = null;
-					if (arrowHeadState == null) {
-						allowNewArrow = true;
-					}
+					selectionBox = null;
 				} else {
-					drawingArrow = null;
-					if (mouseOverState != null) {
-						selected.add(mouseOverState);
-						mouseOverState.select();
-						mouseOverState.showUI();
+					if (!(mouseClickXY.equals(mouseReleasedXY))) {
+						nodeMouseOver();
+						arrowHeadState = mouseOverState;
+						if (arrowTailState != arrowHeadState && (arrowHeadState != null) && drawingArrow != null) { 
+							//TODO change logic for self transition
+							allowGUIInterraction = false;
+							drawingArrow.setTail(arrowTailState);
+							drawingArrow.setHead(arrowHeadState);
+							drawingArrow.update();
+							arrowTailState.addArrowTail(drawingArrow);
+							arrowHeadState.addArrowHead(drawingArrow);
+							arrows.add(drawingArrow);
+						}
+						drawingArrow = null;
+						if (arrowHeadState == null) {
+							allowGUIInterraction = true;
+						}
+					} else {
+						drawingArrow = null;
+						if (mouseOverState != null) {
+							selected.add(mouseOverState);
+							mouseOverState.select();
+							mouseOverState.showUI();
+						}
 					}
 				}
 				break;
@@ -530,8 +559,8 @@ public class PFLAP extends PApplet {
 	}
 
 	public void mouseDragged(MouseEvent m) {
-		if (mouseDown.contains(RIGHT) && selectionBox == null && drawingArrow == null) {
-			selectionBox = new SelectionBox(this, mouseCoords);
+		if (mouseDown.contains(RIGHT) && selectionBox == null && drawingArrow == null && allowGUIInterraction) {
+			selectionBox = new SelectionBox(mouseCoords);
 		}
 	}
 }

@@ -1,14 +1,44 @@
 package main;
 
+/**
+ * Stores global constants and strings. All members are immutable.
+ */
 public final class Consts {
 
 	public static final int stateRadius = 50, WIDTH = 800, HEIGHT = 800, SBNodeRadius = 5, stateFontSize = 16,
-			initialNodeIndicatorSize = 12, notificationPopupWidth = 300, notificationPopupHeight = 125;
+			initialNodeIndicatorSize = 12;
+
+	public static final int notificationWidth = 275, notificationHeight = 125, notificationTextPadding = 10,
+			notificationLifetime = 240, notificationLifetimeFast = 150, notificationLifetimeVeryFast = 60;
 
 	public static final boolean arrowLabelTextRotate = true; // TODO
 
 	public static final String title = "PFLAP: Processing Formal Languages and Automata Package";
-	
+
+	public static enum notificationData {
+		// @formatter:off
+		noInitialState(new String[] {"No Initial State", "Elect an initial state before running."}),
+		symbolNotValid(new String[] {"Symbol Entry Invalid", "Symbols must be one character in length."})
+		;
+		// @formatter:on
+
+		private String title;
+		private String message;
+
+		notificationData(String[] info) {
+			title = info[0];
+			message = info[1];
+		}
+
+		public String title() {
+			return title;
+		}
+
+		public String message() {
+			return message;
+		}
+	}
+
 	// @formatter:off
 	public static final String about = "PFLAP: Processing Formal Languages and Automata Package.\r\n" + 
 			"A JFLAP alternative using the Processing library as the graphics backend.",
@@ -27,4 +57,8 @@ public final class Consts {
 					"DEL: Delete Selected States.\r\n" + 
 					"ESC: Exit Program.\r\n";
 	// @formatter:on
+
+	private Consts() {
+		throw new AssertionError();
+	}
 }

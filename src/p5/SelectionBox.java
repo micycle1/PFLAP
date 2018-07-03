@@ -1,19 +1,20 @@
 package p5;
 
-import garciadelcastillo.dashedlines.*;
+import garciadelcastillo.dashedlines.DashedLines;
+
 import processing.core.PApplet;
 import processing.core.PVector;
-import main.Consts;
+
+import static main.Consts.SBNodeRadius;
+import static main.PFLAP.p;
 
 public class SelectionBox {
 
 	DashedLines d;
-	static PApplet p;
 	int dist = 0, width, height;
 	public PVector startPosition, endPosition;
 
-	public SelectionBox(PApplet p, PVector position) {
-		SelectionBox.p = p;
+	public SelectionBox(PVector position) {
 		this.startPosition = position;
 		endPosition = startPosition;
 		d = new DashedLines(p);
@@ -29,8 +30,8 @@ public class SelectionBox {
 		dist += 1;
 		p.fill(80, 100);
 		p.noStroke();
-		p.ellipse(startPosition.x, startPosition.y, 2 * Consts.SBNodeRadius, 2 * Consts.SBNodeRadius);
-		p.ellipse(endPosition.x, endPosition.y, 2 * Consts.SBNodeRadius, 2 * Consts.SBNodeRadius);
+		p.ellipse(startPosition.x, startPosition.y, 2 * SBNodeRadius, 2 * SBNodeRadius);
+		p.ellipse(endPosition.x, endPosition.y, 2 * SBNodeRadius, 2 * SBNodeRadius);
 	}
 
 	public void setEndPosition(PVector endPosition) {

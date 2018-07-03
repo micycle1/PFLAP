@@ -13,16 +13,17 @@ import controlP5.Textfield;
 import machines.DFA;
 import machines.DPA;
 
-import main.Consts;
+import static main.Consts.stateRadius;
+import static main.Consts.initialNodeIndicatorSize;
 import main.PFLAP;
+import static main.PFLAP.p;
 
 import processing.core.PApplet;
 import processing.core.PVector;
 
 public class State {
 
-	public static PApplet p;
-	private String label; //TODO change to private 
+	private String label;
 	private ControlP5 cp5;
 	private ScrollableList stateOptions;
 	private ControlListener listener;
@@ -74,7 +75,16 @@ public class State {
 					case 0 :
 						PFLAP.nodes.forEach(s -> s.initial = false);
 						initial = true;
-						DFA.setInitialState(State.this);
+						switch (PFLAP.mode) {
+							case DFA :
+								DFA.setInitialState(State.this);
+								break;
+							case DPA :
+								DPA.setInitialState(State.this);
+							default :
+								break;
+						}
+
 						break;
 					case 1 :
 						accepting = !accepting;
@@ -135,9 +145,9 @@ public class State {
 			p.noStroke();
 
 			p.pushMatrix();
-			p.translate(position.x - Consts.stateRadius / 2 - 3, position.y);
-			p.triangle(-Consts.initialNodeIndicatorSize, -Consts.initialNodeIndicatorSize,
-					-Consts.initialNodeIndicatorSize, Consts.initialNodeIndicatorSize, 0, 0);
+			p.translate(position.x - stateRadius / 2 - 3, position.y);
+			p.triangle(-initialNodeIndicatorSize, -initialNodeIndicatorSize,
+					-initialNodeIndicatorSize, initialNodeIndicatorSize, 0, 0);
 			p.rotate(PApplet.radians(90));
 			p.popMatrix();
 
@@ -145,17 +155,17 @@ public class State {
 		}
 		if (!selected) {
 			p.fill(255, 220, 0);
-			p.ellipse(position.x, position.y, Consts.stateRadius, Consts.stateRadius);
+			p.ellipse(position.x, position.y, stateRadius, stateRadius);
 			p.fill(0);
 		} else {
 			p.fill(0, 35, 255);
-			p.ellipse(position.x, position.y, Consts.stateRadius, Consts.stateRadius);
+			p.ellipse(position.x, position.y, stateRadius, stateRadius);
 			p.fill(255);
 		}
 		if (accepting) {
 			p.noFill();
 			p.strokeWeight(2);
-			p.ellipse(position.x, position.y, Consts.stateRadius - 9, Consts.stateRadius - 9);
+			p.ellipse(position.x, position.y, stateRadius - 9, stateRadius - 9);
 		}
 		p.text(label, position.x, position.y);
 	}

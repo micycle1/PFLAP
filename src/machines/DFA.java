@@ -1,6 +1,5 @@
 package machines;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -11,7 +10,7 @@ public class DFA {
 	 * Deterministic Finite Automaton
 	 */
 
-	private static Map<State, Map<Character, ArrayList<State>>> transitions = new HashMap<>();
+	private static Map<State, Map<Character, State>> transitions = new HashMap<>();
 	private static State initial;
 
 	public static void setInitialState(State s) {
@@ -31,10 +30,7 @@ public class DFA {
 	}
 
 	public static void addTransition(State tail, State head, Character symbol) {
-		if (!transitions.get(tail).containsKey(symbol)) {
-			transitions.get(tail).put(symbol, new ArrayList<>());
-		}
-		transitions.get(tail).get(symbol).add(head);
+			transitions.get(tail).put(symbol, head); //OVerwrites same symbol
 	}
 
 	public static void removeTransition(State tail, State head, Character symbol) {
@@ -82,6 +78,7 @@ public class DFA {
 				System.out.println(s.getLabel() + " -> " + c + " -> " + transitions.get(s).get(c).getLabel());
 			}
 		}
+		//entryset
 		System.out.println("");
 	}
 }
