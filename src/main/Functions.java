@@ -44,10 +44,10 @@ public final class Functions {
 	
 	/**
 	 * Determine if a point is within rectangular region.
-	 * @param point
-	 * @param UL
-	 * @param BR
-	 * @return
+	 * @param point PVector position to test.
+	 * @param UL Corner one of region.
+	 * @param BR Corner two of region (different X & Y).
+	 * @return True if point contained in region.
 	 */
 	public static boolean withinRegion(PVector point, PVector UL, PVector BR) {
 		return point.x >= UL.x && point.y >= UL.y && point.x <= BR.x && point.y <= BR.y ||
