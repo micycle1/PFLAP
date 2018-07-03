@@ -42,6 +42,18 @@ public final class Functions {
 		return (n >= min(a1, a2) && n <= max(a1, a2));
 	}
 	
+	/**
+	 * Determine if a point is within rectangular region.
+	 * @param point
+	 * @param UL
+	 * @param BR
+	 * @return
+	 */
+	public static boolean withinRegion(PVector point, PVector UL, PVector BR) {
+		return point.x >= UL.x && point.y >= UL.y && point.x <= BR.x && point.y <= BR.y ||
+				point.x >= BR.x && point.y >= BR.y && point.x <= UL.x && point.y <= UL.y;
+	}
+	
 	private Functions() {
 		throw new AssertionError();
 	}

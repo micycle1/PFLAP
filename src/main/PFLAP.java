@@ -35,20 +35,21 @@ import processing.awt.*;
 
 import static main.Consts.notificationData.noInitialState;
 import static main.Functions.withinRange;
+import static main.Functions.withinRegion;
 
 //@formatter:off
 /**
  * State self bezier-arrows. 
- * Right-click menu on arrows DPA fully integrated with states and transitions.
+ * Right-click menu on arrows 
+ * DPA fully integrated with states and transitions.
  * delete transitions
  * modify transitions
  * info about machine (#states, etc)
+ * undo/redo
  * save/load : stateXY; encoding of transitions per machine
- * notification queue
  * draw notifications on top
  * blur behind notification
  * Selection box doesnt work backwards
- * Scale label size depending on distance
  */
 //@formatter:on
 
@@ -385,13 +386,6 @@ public class PFLAP extends PApplet {
 		cp5 = new ControlP5(this);
 	}
 
-	private static boolean withinSelection(State s) {
-		PVector sXY = s.getPosition();
-		PVector bSP = selectionBox.startPosition;
-		PVector bEP = selectionBox.endPosition;
-		return sXY.x >= bSP.x && sXY.y >= bSP.y && sXY.x <= bEP.x && sXY.y <= bEP.y;
-	}
-
 	public void nodeMouseOver() {
 		for (State s : nodes) {
 			if (withinRange(s.getPosition().x, s.getPosition().y, Consts.stateRadius, mouseX, mouseY)
@@ -513,7 +507,7 @@ public class PFLAP extends PApplet {
 					selected.forEach(s -> s.deselect());
 					selected.clear();
 					for (State s : nodes) {
-						if (withinSelection(s)) {
+						if (withinRegion(s.getPosition(), selectionBox.startPosition, selectionBox.endPosition)) {
 							s.select();
 							selected.add(s);
 						}
