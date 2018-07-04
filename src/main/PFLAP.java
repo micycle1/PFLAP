@@ -47,9 +47,8 @@ import static main.Functions.withinRegion;
  * info about machine (#states, etc)
  * undo/redo
  * save/load : stateXY; encoding of transitions per machine
- * draw notifications on top
  * blur behind notification
- * Selection box doesnt work backwards
+ * mutli selection creating transtion makes multiple transitions
  */
 //@formatter:on
 
@@ -97,6 +96,7 @@ public class PFLAP extends PApplet {
 		surface.setTitle(Consts.title);
 		surface.setLocation(displayWidth / 2 - width / 2, displayHeight / 2 - height / 2);
 		surface.setResizable(false);
+		surface.setResizable(true);
 		frameRate(60);
 		strokeJoin(MITER);
 		strokeWeight(3);
@@ -116,11 +116,8 @@ public class PFLAP extends PApplet {
 
 	@Override
 	public void draw() {
-
 		mouseCoords = new PVector(constrain(mouseX, 0, width), constrain(mouseY, 0, height));
-		// textAlign(LEFT, TOP);
 		background(255);
-		fill(0); // redundant?
 
 		if (drawingArrow != null) {
 			stroke(0, 0, 0, 80);
@@ -128,7 +125,6 @@ public class PFLAP extends PApplet {
 			drawingArrow.setHeadXY(mouseCoords);
 			drawingArrow.draw();
 		}
-
 		if (selectionBox != null) {
 			selectionBox.setEndPosition(mouseCoords);
 			selectionBox.draw();
@@ -136,29 +132,20 @@ public class PFLAP extends PApplet {
 
 		stroke(0);
 		fill(0);
-
 		strokeWeight(2);
 		textSize(18);
 		arrows.forEach(a -> a.draw());
-
-		if (mouseDown.contains(CENTER)) {
-			PVector offset = new PVector(mouseX - mouseClickXY.x, mouseY - mouseClickXY.y);
-			for (State s : selected) {
-				s.setPosition(new PVector(offset.x + s.getSelectedPosition().x, offset.y + s.getSelectedPosition().y));
-			}
-		}
-
+		
 		textAlign(CENTER, CENTER);
 		textSize(16);
 		nodes.forEach(s -> s.draw());
-
-		Notification.run();
-
+		
 		if (dragState != null) {
 			dragState.setPosition(mouseCoords);
 			dragState.draw();
 		}
-
+		
+		Notification.run();
 	}
 
 	public void initMenuBar() {
@@ -517,8 +504,8 @@ public class PFLAP extends PApplet {
 					if (!(mouseClickXY.equals(mouseReleasedXY))) {
 						nodeMouseOver();
 						arrowHeadState = mouseOverState;
-						if (arrowTailState != arrowHeadState && (arrowHeadState != null) && drawingArrow != null) { 
-							//TODO change logic for self transition
+						if (arrowTailState != arrowHeadState && (arrowHeadState != null) && drawingArrow != null) {
+							// TODO change logic for self transition
 							allowGUIInterraction = false;
 							drawingArrow.setTail(arrowTailState);
 							drawingArrow.setHead(arrowHeadState);
@@ -553,8 +540,23 @@ public class PFLAP extends PApplet {
 	}
 
 	public void mouseDragged(MouseEvent m) {
-		if (mouseDown.contains(RIGHT) && selectionBox == null && drawingArrow == null && allowGUIInterraction) {
-			selectionBox = new SelectionBox(mouseCoords);
+		switch (m.getButton()) {
+			case LEFT : 
+				break;
+			case RIGHT :
+				if (selectionBox == null && drawingArrow == null && allowGUIInterraction) {
+					selectionBox = new SelectionBox(mouseCoords);
+				}
+				break;
+			case CENTER :
+				PVector offset = new PVector(mouseX - mouseClickXY.x, mouseY - mouseClickXY.y);
+				for (State s : selected) {
+					s.setPosition(new PVector(constrain(offset.x + s.getSelectedPosition().x, 0, width),
+							constrain(offset.y + s.getSelectedPosition().y, 0, height)));
+				}
+				break;
+			default :
+				break;
 		}
 	}
 }

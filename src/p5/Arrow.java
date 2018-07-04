@@ -134,14 +134,9 @@ public class Arrow {
 
 	public void draw() {
 		p.line(tailXY.x, tailXY.y, headXY.x, headXY.y);
-
-		// p.text(transitionSymbol, (tailXY.x + headXY.x) / 2, (tailXY.y +
-		// headXY.y) / 2);
-
-		p.noFill();
+		p.noFill(); //disable to fill arrow head
 		p.bezier(tailXY.x, tailXY.y, tailXY.x+65, tailXY.y-45, tailXY.x+65, tailXY.y+45, tailXY.x, tailXY.y); //RANDOM POINT  ON SPHERE
 		p.pushMatrix();
-
 		p.translate(headXY.x, headXY.y);
 		p.rotate(rotationOffset);
 		p.textSize(textSize);
