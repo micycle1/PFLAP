@@ -4,6 +4,8 @@ import java.awt.MenuBar;
 import java.awt.MenuItem;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.Color;
+import java.awt.FileDialog;
 //import java.io.File;
 import java.awt.Frame;
 import java.awt.Menu;
@@ -14,9 +16,9 @@ import java.util.ArrayList;
 import java.util.HashSet;
 
 import javax.swing.JOptionPane;
+import javax.swing.JColorChooser;
 
 import processing.core.PApplet;
-import processing.core.PImage;
 import processing.core.PVector;
 import processing.event.KeyEvent;
 import processing.event.MouseEvent;
@@ -36,6 +38,7 @@ import processing.awt.*;
 import static main.Consts.notificationData.noInitialState;
 import static main.Functions.withinRange;
 import static main.Functions.withinRegion;
+import static main.Functions.lumdiff;
 
 //@formatter:off
 /**
@@ -49,6 +52,7 @@ import static main.Functions.withinRegion;
  * save/load : stateXY; encoding of transitions per machine
  * blur behind notification
  * mutli selection creating transtion makes multiple transitions
+ * position of relabel box
  */
 //@formatter:on
 
@@ -77,10 +81,10 @@ public class PFLAP extends PApplet {
 		DFA, DPA;
 	}
 
-	public static PImage notificationBG;
-	public p5.Notification temp;
+	public static modes mode = modes.DFA; // TODO change for test
 
-	public static modes mode = modes.DPA; // TODO change for test
+	public static Color stateColour = new Color(255, 220, 0), stateSelectedColour = new Color(0, 35, 255),
+			transitionColour = new Color(0, 0, 0), bgColour = new Color(255, 255, 255);
 
 	public static void main(String[] args) {
 		PApplet.main(PFLAP.class);
@@ -90,9 +94,7 @@ public class PFLAP extends PApplet {
 	public void setup() {
 		initCp5();
 		initMenuBar();
-		// notifications.get
 		p = this;
-
 		surface.setTitle(Consts.title);
 		surface.setLocation(displayWidth / 2 - width / 2, displayHeight / 2 - height / 2);
 		surface.setResizable(false);
@@ -106,18 +108,19 @@ public class PFLAP extends PApplet {
 		rectMode(CORNER);
 		ellipseMode(CENTER);
 		cursor(ARROW);
+		colorMode(RGB);
 	}
 
 	@Override
 	public void settings() {
 		size(Consts.WIDTH, Consts.HEIGHT);
-		smooth(8);
+		smooth(4);
 	}
 
 	@Override
 	public void draw() {
 		mouseCoords = new PVector(constrain(mouseX, 0, width), constrain(mouseY, 0, height));
-		background(255);
+		background(bgColour.getRGB());
 
 		if (drawingArrow != null) {
 			stroke(0, 0, 0, 80);
@@ -130,25 +133,28 @@ public class PFLAP extends PApplet {
 			selectionBox.draw();
 		}
 
-		stroke(0);
 		fill(0);
 		strokeWeight(2);
+		stroke(transitionColour.getRGB());
 		textSize(18);
 		arrows.forEach(a -> a.draw());
-		
+
 		textAlign(CENTER, CENTER);
 		textSize(16);
+		stroke(0);
+		strokeWeight(2);
 		nodes.forEach(s -> s.draw());
-		
+
 		if (dragState != null) {
 			dragState.setPosition(mouseCoords);
 			dragState.draw();
 		}
-		
+
 		Notification.run();
 	}
 
 	public void initMenuBar() {
+
 		Frame f = getFrame();
 		MenuBar menuBar = new MenuBar();
 
@@ -157,6 +163,7 @@ public class PFLAP extends PApplet {
 		MenuItem viewMenuItem0, viewMenuItem1;
 		MenuItem inputMenuItem0, inputMenuItem1;
 		MenuItem helpMenuItem0, helpMenuItem1;
+		MenuItem defineColoursItem0, defineColoursItem1, defineColoursItem2, defineColoursItem3;
 
 		// Top-Level Menus
 		Menu fileMenu = new Menu("File");
@@ -164,6 +171,17 @@ public class PFLAP extends PApplet {
 		Menu viewMenu = new Menu("View");
 		Menu inputMenu = new Menu("Input");
 		Menu helpMenu = new Menu("Help");
+
+		// Second-Level Menus
+		Menu defineColours = new Menu("Redefine Colours");
+		defineColoursItem0 = new MenuItem("State Colour");
+		defineColoursItem1 = new MenuItem("State Selected Colour");
+		defineColoursItem2 = new MenuItem("Transition Arrow Colour");
+		defineColoursItem3 = new MenuItem("Background Colour");
+		defineColours.add(defineColoursItem0);
+		defineColours.add(defineColoursItem1);
+		defineColours.add(defineColoursItem2);
+		defineColours.add(defineColoursItem3);
 
 		// File Menu
 		fileMenuItem0 = new MenuItem("Open");
@@ -200,6 +218,7 @@ public class PFLAP extends PApplet {
 		// Add view items to view menu
 		viewMenu.add(viewMenuItem0);
 		viewMenu.add(viewMenuItem1);
+		viewMenu.add(defineColours);
 
 		// Add input items to input menu
 		inputMenu.add(inputMenuItem0);
@@ -210,7 +229,8 @@ public class PFLAP extends PApplet {
 		helpMenu.add(helpMenuItem1);
 
 		// Menu Action Listeners
-		ActionListener fileMenuListener, editMenuListener, viewMenuListener, inputMenuListener, helpMenuListener;
+		ActionListener fileMenuListener, editMenuListener, viewMenuListener, inputMenuListener, helpMenuListener,
+				defineColoursListener;
 
 		fileMenuListener = new ActionListener() {
 			@Override
@@ -220,20 +240,15 @@ public class PFLAP extends PApplet {
 						exit();
 						break;
 					case "Open" :
-						// FileDialog fg = new FileDialog(frame, "Open a file");
-						// fg.setVisible(true);
-						// String file = fg.getDirectory() + fg.getFile();
-
-						// selectInput("Select a file to process:",
-						// "fileSelected");
-						// public void fileSelected(File selection) {
-						// print("SDW2");
-						// }
+						FileDialog fg = new FileDialog(frame, "Open a file", FileDialog.LOAD);
+						fg.setVisible(true);
+						String file = fg.getDirectory() + fg.getFile();
+						print(file);
 						break;
-					case "Save" :
+					case "Save" : // save info rather than image
 						break;
 					default :
-						System.err.println("Unhandled menuitem.");
+						System.err.println("Unhandled Menuitem.");
 						break;
 				}
 			}
@@ -260,7 +275,7 @@ public class PFLAP extends PApplet {
 						selected.forEach(s -> s.select());
 						break;
 					default :
-						System.err.println("Unhandled menuitem.");
+						System.err.println("Unhandled Menuitem.");
 						break;
 				}
 			}
@@ -271,13 +286,20 @@ public class PFLAP extends PApplet {
 			public void actionPerformed(ActionEvent event) {
 				switch (event.getActionCommand()) {
 					case "Save Stage As Image" :
-						// TODO
+						FileDialog fg = new FileDialog(frame, "Save", FileDialog.SAVE);
+						fg.setDirectory(System.getProperty("user.home") + "\\Desktop");
+						fg.setTitle("Save Frame");
+						fg.setVisible(true);
+						if (fg.getFile() != null) {
+							String file = fg.getDirectory() + fg.getFile() + ".png";
+							saveFrame(file);
+						}
 						break;
 					case "Reorder States" :
 						// TODO
 						break;
 					default :
-						System.err.println("Unhandled menuitem.");
+						System.err.println("Unhandled Menuitem.");
 						break;
 				}
 			}
@@ -334,7 +356,43 @@ public class PFLAP extends PApplet {
 						JOptionPane.showMessageDialog(frame, Consts.help);
 						break;
 					default :
-						System.err.println("Unhandled menuitem.");
+						System.err.println("Unhandled Menuitem.");
+						break;
+				}
+			}
+		};
+
+		defineColoursListener = new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent event) {
+				Color temp;
+				switch (event.getActionCommand()) {
+					case "State Colour" :
+						temp = JColorChooser.showDialog(null, "Choose State Colour", stateColour);
+						if (temp != null) {
+							stateColour = temp;
+						}
+						break;
+					case "State Selected Colour" :
+						temp = JColorChooser.showDialog(null, "Choose State Selected Color", stateSelectedColour);
+						if (temp != null) {
+							stateSelectedColour = temp;
+						}
+						break;
+					case "Transition Arrow Colour" :
+						temp = JColorChooser.showDialog(null, "Choose Transition Arrow Colour", transitionColour);
+						if (temp != null) {
+							transitionColour = temp;
+						}
+						break;
+					case "Background Colour" :
+						temp = JColorChooser.showDialog(null, "Choose Background Colour", bgColour);
+						if (temp != null) {
+							bgColour = temp;
+						}
+						break;
+					default :
+						System.err.println("Unhandled Menuitem.");
 						break;
 				}
 			}
@@ -345,6 +403,7 @@ public class PFLAP extends PApplet {
 		viewMenu.addActionListener(viewMenuListener);
 		inputMenu.addActionListener(inputMenuListener);
 		helpMenu.addActionListener(helpMenuListener);
+		defineColours.addActionListener(defineColoursListener);
 
 		// Adding menus to the menu bar
 		menuBar.add(fileMenu);
@@ -385,7 +444,6 @@ public class PFLAP extends PApplet {
 	}
 
 	public static void deleteState(State s) {
-		// call state functions to delete arrows
 		s.kill();
 		nodes.remove(s);
 	}
@@ -541,7 +599,7 @@ public class PFLAP extends PApplet {
 
 	public void mouseDragged(MouseEvent m) {
 		switch (m.getButton()) {
-			case LEFT : 
+			case LEFT :
 				break;
 			case RIGHT :
 				if (selectionBox == null && drawingArrow == null && allowGUIInterraction) {

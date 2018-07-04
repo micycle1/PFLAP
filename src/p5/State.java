@@ -15,8 +15,11 @@ import machines.DPA;
 
 import static main.Consts.stateRadius;
 import static main.Consts.initialNodeIndicatorSize;
+
 import main.PFLAP;
 import static main.PFLAP.p;
+import static main.PFLAP.stateColour;
+import static main.PFLAP.stateSelectedColour;
 
 import processing.core.PApplet;
 import processing.core.PVector;
@@ -31,6 +34,7 @@ public class State {
 	private ArrayList<Arrow> arrowHeads = new ArrayList<>();
 	private ArrayList<Arrow> arrowTails = new ArrayList<>();
 	private boolean selected = false, accepting = false, initial = false;
+	// private boolean running; //TODO
 	private static Textfield rename;
 	private static State renameState;
 
@@ -53,7 +57,7 @@ public class State {
 		});
 		// @formatter:on
 	}
-	
+
 	public State(PVector XY, int liveID) {
 		switch (PFLAP.mode) {
 			case DFA :
@@ -91,7 +95,7 @@ public class State {
 						break;
 					case 2 :
 						renameState = State.this;
-						rename.setPosition(position.x, position.y + 50);
+						rename.setPosition(position.x - rename.getWidth() / 2, position.y + 30);
 						rename.setFocus(true);
 						rename.show();
 						break;
@@ -121,7 +125,7 @@ public class State {
 					DFA.setInitialState(null);
 				}
 				break;
-				
+
 			case DPA :
 				for (Arrow a : arrowHeads) {
 					DPA.removeTransition(a.getTail(), a.getHead(), a.getSymbol(), a.getStackPop(), a.getStackPush());
@@ -132,7 +136,7 @@ public class State {
 				}
 				break;
 		}
-		
+
 		arrowHeads.forEach(a -> a.kill());
 		arrowTails.forEach(a -> a.kill());
 		cp5.getAll().forEach(c -> c.remove());
@@ -146,19 +150,19 @@ public class State {
 
 			p.pushMatrix();
 			p.translate(position.x - stateRadius / 2 - 3, position.y);
-			p.triangle(-initialNodeIndicatorSize, -initialNodeIndicatorSize,
-					-initialNodeIndicatorSize, initialNodeIndicatorSize, 0, 0);
+			p.triangle(-initialNodeIndicatorSize, -initialNodeIndicatorSize, -initialNodeIndicatorSize,
+					initialNodeIndicatorSize, 0, 0);
 			p.rotate(PApplet.radians(90));
 			p.popMatrix();
 
 			p.stroke(0);
 		}
 		if (!selected) {
-			p.fill(255, 220, 0);
+			p.fill(stateColour.getRGB());
 			p.ellipse(position.x, position.y, stateRadius, stateRadius);
 			p.fill(0);
 		} else {
-			p.fill(0, 35, 255);
+			p.fill(stateSelectedColour.getRGB());
 			p.ellipse(position.x, position.y, stateRadius, stateRadius);
 			p.fill(255);
 		}
@@ -196,7 +200,7 @@ public class State {
 	public PVector getSelectedPosition() {
 		return selectedPosition;
 	}
-	
+
 	public String getLabel() {
 		return label;
 	}
@@ -224,7 +228,7 @@ public class State {
 	public boolean isAccepting() {
 		return accepting;
 	}
-	
+
 	public boolean isMouseOver() {
 		return cp5.isMouseOver();
 	}

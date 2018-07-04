@@ -1,7 +1,17 @@
 package main;
 
-import static processing.core.PApplet.*;
 import processing.core.PVector;
+import static processing.core.PApplet.atan2;
+import static processing.core.PApplet.PI;
+import static processing.core.PApplet.pow;
+import static processing.core.PApplet.sq;
+import static processing.core.PApplet.sqrt;
+import static processing.core.PApplet.max;
+import static processing.core.PApplet.min;
+
+import java.awt.Color;
+
+
 
 /**
  * Provides static geometry functions.
@@ -70,6 +80,27 @@ public final class Functions {
 				|| (point.x >= BR.x && point.y >= BR.y) && (point.x <= UL.x && point.y <= UL.y) // NW
 				|| (point.x <= UL.x && point.x >= BR.x) && (point.y >= UL.y && point.y <= BR.y) // SW
 				|| (point.x <= BR.x && point.x >= UL.x) && (point.y >= BR.y && point.y <= UL.y); // NE
+	}
+	
+	/**
+	 * Calculates luminosity contrast.
+	 * The returned value should be bigger than 5 for best readability.
+	 * @param a AWT Colour Object
+	 * @param b AWT Colour Object
+	 * @return 21.0 >=Double >= 1.0
+	 */
+	public static double lumdiff(Color a, Color b) {
+		double L1 = 0.2126 * pow(a.getRed() / 255f, 2.2f) + 0.7152 * pow(a.getGreen() / 255f, 2.2f)
+				+ 0.0722 * pow(a.getBlue() / 255f, 2.2f);
+
+		double L2 = 0.2126 * pow(b.getRed() / 255f, 2.2f) + 0.7152 * pow(b.getGreen() / 255f, 2.2f)
+				+ 0.0722 * pow(b.getBlue() / 255f, 2.2f);
+
+		if (L1 > L2) {
+			return (L1 + 0.05) / (L2 + 0.05);
+		} else {
+			return (L2 + 0.05) / (L1 + 0.05);
+		}
 	}
 
 	private Functions() {
