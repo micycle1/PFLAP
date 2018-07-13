@@ -2,13 +2,18 @@ package p5;
 
 import controlP5.CallbackEvent;
 import controlP5.CallbackListener;
+import controlP5.ControlEvent;
+import controlP5.ControlListener;
+import controlP5.ControlP5;
+import controlP5.ScrollableList;
 import controlP5.Textfield;
-
+import javafx.scene.shape.Ellipse;
 import machines.DFA;
 import machines.DPA;
-
+import main.Functions;
 import main.PFLAP;
-
+import main.PFLAP.modes;
+import processing.core.PApplet;
 import processing.core.PVector;
 
 import static main.Consts.stateRadius;
@@ -19,7 +24,6 @@ import static main.Functions.numberBetween;
 
 import static main.PFLAP.p;
 import static main.PFLAP.PI;
-import static main.PFLAP.transitionColour;
 
 import static processing.core.PApplet.dist;
 import static processing.core.PApplet.map;
@@ -29,6 +33,9 @@ import static processing.core.PApplet.cos;
 public class Arrow {
 
 	private State tail, head;
+	private ControlP5 cp5;
+	private ScrollableList stateOptions;
+	private ControlListener menuListener;
 	private PVector tailXY, headXY;
 	private float rotationOffset, theta1, theta2, textSize = 16;
 	private Textfield transitionSymbolEntry;
@@ -57,18 +64,49 @@ public class Arrow {
 					// @formatter:on
 					@Override
 					public void controlEvent(CallbackEvent input) {
-						if (transitionSymbolEntry.getStringValue().length() == 1) { // TODO
-																					// &&
-																					// transition
-																					// has
-																					// unique
-																					// symbol
+						if (transitionSymbolEntry.getStringValue().length() == 1) {
+							// TODO && transition has unique symbol
 							entry();
 						} else {
 							Notification.addNotification(symbolNotValid);
 						}
 					}
 				});
+
+		cp5 = new ControlP5(p);
+		cp5.hide();
+		menuListener = new ControlListener() {
+			@Override
+			public void controlEvent(ControlEvent optionSelected) {
+				cp5.hide();
+				switch ((int) optionSelected.getValue()) {
+					case 0 :
+						System.err.println(optionSelected.getValue());
+						transitionSymbolEntry.show();
+						break;
+					case 1 :
+						// TODO interface for machines so call kill() on generic
+						head.childKill(Arrow.this);
+						tail.childKill(Arrow.this);
+						if (PFLAP.mode == modes.DFA) {
+							DFA.removeTransition(tail, head, transitionSymbol);
+						}
+						parentKill();
+						break;
+					default :
+						break;
+				}
+			}
+
+		};
+		stateOptions = cp5.addScrollableList("Options");
+		// @formatter:off
+		stateOptions.setType(1)
+				.addItems(new String[] {"Change Symbol", "Delete Transition"})
+				.open()
+				.addListener(menuListener);
+		// @formatter:on
+
 	}
 
 	private void entry() {
@@ -76,7 +114,6 @@ public class Arrow {
 		switch (entryType) {
 			case SYMBOL :
 				transitionSymbol = transitionSymbolEntry.getStringValue().charAt(0);
-
 				if (PFLAP.mode == PFLAP.modes.DPA) {
 					entryType = entryTypes.POP;
 				} else {
@@ -113,11 +150,13 @@ public class Arrow {
 		theta2 = angleBetween(tail.getPosition(), head.getPosition());
 		tailXY = new PVector(tail.getPosition().x + stateRadius * 0.5f * cos(theta2),
 				tail.getPosition().y + stateRadius * 0.5f * sin(theta2));
-		
+
 		textSize = map(PVector.dist(tailXY, headXY), 0, 200, 10, 16);
 
 		rotationOffset = theta2;
 		transitionSymbolEntry.setPosition((headXY.x + tailXY.x) / 2, (headXY.y + tailXY.y) / 2).show().setFocus(true); // reposition
+		stateOptions.setPosition(headXY.x - dist(tailXY.x, tailXY.y, headXY.x, headXY.y) / 2,
+				(PApplet.abs(headXY.y) + PApplet.abs(tailXY.y)) / 2 + 7); // TOD
 
 		if (numberBetween(theta2, 0.5f * PI, -0.5f * PI)) {
 			labelRotationModifier = -1;
@@ -128,39 +167,63 @@ public class Arrow {
 		}
 	}
 
-	public void kill() {
+	public void parentKill() {
 		PFLAP.cp5.remove(String.valueOf(ID));
 		PFLAP.arrows.remove(this);
 	}
 
 	public void draw() {
 		p.line(tailXY.x, tailXY.y, headXY.x, headXY.y);
-		p.noFill(); //disable to fill arrow head
-		//p.bezier(tailXY.x, tailXY.y, tailXY.x+65, tailXY.y-45, tailXY.x+65, tailXY.y+45, tailXY.x, tailXY.y); //TODO RANDOM POINT  ON SPHERE
-		
+		p.noFill(); // disable to fill arrow head
+		// p.bezier(tailXY.x, tailXY.y, tailXY.x+65, tailXY.y-45, tailXY.x+65,
+		// tailXY.y+45, tailXY.x, tailXY.y); //TODO RANDOM POINT ON SPHERE
+
 		p.pushMatrix();
 		p.translate(headXY.x, headXY.y);
 		p.rotate(rotationOffset);
 		p.textSize(textSize);
 		switch (PFLAP.mode) {
 			case DFA :
-				p.text(transitionSymbol, + labelRotationModifier*dist(tailXY.x, tailXY.y, headXY.x, headXY.y)/2, 7);
+				p.text(transitionSymbol, labelRotationModifier * dist(tailXY.x, tailXY.y, headXY.x, headXY.y) / 2, 7);
 				break;
 			case DPA :
-				p.text(transitionSymbol + "; "+ stackPop +"/"+stackPush, + labelRotationModifier*dist(tailXY.x, tailXY.y, headXY.x, headXY.y)/2, 7); //- to +
+				p.text(transitionSymbol + "; " + stackPop + "/" + stackPush,
+						+labelRotationModifier * dist(tailXY.x, tailXY.y, headXY.x, headXY.y) / 2, 7);
 				break;
 		}
 		p.popMatrix();
-		
+
 		p.pushMatrix();
 		p.translate(headXY.x, headXY.y);
-		p.rotate(theta2);
+		p.rotate(theta2); // TODO theta2 not working when arrow is created
 		p.beginShape();
 		p.vertex(-10, -7);
 		p.vertex(0, 0);
 		p.vertex(-10, 7);
 		p.endShape();
 		p.popMatrix();
+
+	}
+
+	public boolean isMouseOver(PVector mousePos) {
+		float cx = (headXY.x + tailXY.x) / 2;
+		float cy = (headXY.y + tailXY.y) / 2;
+		float dx = mousePos.x - cx;
+		float dy = mousePos.y - cy;
+		float nx = dx * cos(-theta2) - (dy * sin(-theta2));
+		float ny = dy * cos(-theta2) + (dx * sin(-theta2));
+		float dist = dist(tailXY.x, tailXY.y, headXY.x, headXY.y) / 2;
+		boolean inside = (PApplet.abs(nx) < dist * 2 / 2) && (PApplet.abs(ny) < 10 / 2);
+		return inside || Functions.withinRange(mousePos.x, mousePos.y, 20, cx, cy) || cp5.isMouseOver();
+	}
+
+	public void hideUI() {
+		cp5.hide();
+	}
+
+	public void showUI() {
+		stateOptions.open();
+		cp5.show();
 	}
 
 	public PVector getTailXY() {

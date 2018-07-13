@@ -26,7 +26,7 @@ public class Notification {
 	private static LinkedList<Notification> notifications = new LinkedList<>();
 
 	private static PImage background;
-	private static final PVector positionTarget = new PVector(p.width - notificationWidth,
+	public static PVector positionTarget = new PVector(p.width - notificationWidth,
 			p.height - notificationHeight);
 	private PVector position = new PVector(p.width - notificationWidth, p.height);
 	private String title, message;
@@ -47,6 +47,9 @@ public class Notification {
 
 	public static void addNotification(Consts.notificationData data) {
 		notifications.add(new Notification(data.title(), data.message()));
+	}
+	public static void addNotification(String title, String message) {
+		notifications.add(new Notification(title, message));
 	}
 
 	public static void run() {
@@ -101,5 +104,6 @@ public class Notification {
 				notificationWidth - notificationTextPadding, 
 				notificationHeight - notificationTextPadding);
 		 // @formatter:on
+		p.textAlign(PApplet.CENTER, PApplet.CENTER);
 	}
 }

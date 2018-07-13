@@ -5,7 +5,7 @@ package main;
  */
 public final class Consts {
 
-	public static final int stateRadius = 50, WIDTH = 800, HEIGHT = 800, SBNodeRadius = 5, stateFontSize = 16,
+	public static final int stateRadius = 50, WIDTH = 800, HEIGHT = 800, SBNodeRadius = 5, stateFontSize = 18,
 			initialNodeIndicatorSize = 12;
 
 	public static final int notificationWidth = 275, notificationHeight = 125, notificationTextPadding = 10,
@@ -18,7 +18,9 @@ public final class Consts {
 	public static enum notificationData {
 		// @formatter:off
 		noInitialState(new String[] {"No Initial State", "Elect an initial state before running."}),
-		symbolNotValid(new String[] {"Symbol Entry Invalid", "Symbols must be one character in length."})
+		symbolNotValid(new String[] {"Symbol Entry Invalid", "Symbols must be one character in length."}),
+		machineAccepted(new String[] {"String Accepted", "The automaton accepted the input."}),
+		machineRejected(new String[] {"String Rejected", "The automaton rejected the input."}),
 		;
 		// @formatter:on
 

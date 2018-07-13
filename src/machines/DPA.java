@@ -96,18 +96,18 @@ public class DPA {
 	}
 
 	public static boolean run(String input) {
-		State s = initial;
-		stack.push(initialStackSymbol);
-		while (!(input.isEmpty())) {
-			char symbol = input.charAt(0);
-			if (transitions.get(s).containsKey(symbol)
-					&& transitions.get(s).keySet() {
-				// s = transitions.get(s).get(symbol);
-				input = input.substring(1);
-			} else {
-				return false;
-			}
-		}
+//		State s = initial;
+//		stack.push(initialStackSymbol);
+//		while (!(input.isEmpty())) {
+//			char symbol = input.charAt(0);
+//			if (transitions.get(s).containsKey(symbol)
+//					&& transitions.get(s).keySet() {
+//				// s = transitions.get(s).get(symbol);
+//				input = input.substring(1);
+//			} else {
+//				return false;
+//			}
+//		}
 		return s.isAccepting();
 	}
 

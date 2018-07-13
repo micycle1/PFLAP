@@ -137,9 +137,18 @@ public class State {
 				break;
 		}
 
-		arrowHeads.forEach(a -> a.kill());
-		arrowTails.forEach(a -> a.kill());
+		arrowHeads.forEach(a -> a.parentKill());
+		arrowTails.forEach(a -> a.parentKill());
 		cp5.getAll().forEach(c -> c.remove());
+	}
+	
+	public void childKill(Arrow a) {
+		if (arrowHeads.contains(a)) {
+			arrowHeads.remove(a);
+		}
+		else {
+			arrowTails.remove(a);
+		}
 	}
 
 	public void draw() {

@@ -4,6 +4,11 @@ import java.awt.MenuBar;
 import java.awt.MenuItem;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.ComponentAdapter;
+import java.awt.event.ComponentEvent;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
+import java.awt.CheckboxMenuItem;
 import java.awt.Color;
 import java.awt.FileDialog;
 //import java.io.File;
@@ -19,12 +24,13 @@ import javax.swing.JOptionPane;
 import javax.swing.JColorChooser;
 
 import processing.core.PApplet;
+import processing.core.PFont;
 import processing.core.PVector;
 import processing.event.KeyEvent;
 import processing.event.MouseEvent;
 
 import controlP5.ControlP5;
-
+import controlP5.Textarea;
 import machines.DFA;
 import machines.DPA;
 
@@ -35,10 +41,11 @@ import p5.State;
 
 import processing.awt.*;
 
+import static main.Consts.notificationHeight;
+import static main.Consts.notificationWidth;
 import static main.Consts.notificationData.noInitialState;
 import static main.Functions.withinRange;
 import static main.Functions.withinRegion;
-import static main.Functions.lumdiff;
 
 //@formatter:off
 /**
@@ -52,7 +59,11 @@ import static main.Functions.lumdiff;
  * save/load : stateXY; encoding of transitions per machine
  * blur behind notification
  * mutli selection creating transtion makes multiple transitions
- * position of relabel box
+ * state resize / transition thickness
+ * PGraphics.begindraw for screenshot transparency
+ * DFA: if adding transition w/ same head & tail, merge into existing
+ * pimage for arrow transitions
+ * make machine non-static of type generic
  */
 //@formatter:on
 
@@ -66,12 +77,14 @@ public class PFLAP extends PApplet {
 	public static HashSet<State> selected = new HashSet<>();
 
 	public static ControlP5 cp5;
+	private static Textarea trace;
 
 	private static State mouseOverState, arrowTailState, arrowHeadState, dragState;
-	private static Arrow drawingArrow;
+	private static Arrow drawingArrow, mouseOverTransition;
 	private static SelectionBox selectionBox = null;
 
 	private PVector mouseClickXY, mouseReleasedXY, mouseCoords;
+	private static PFont comfortaaRegular, comfortaaBold, traceFont;
 
 	public static boolean allowGUIInterraction = true;
 
@@ -92,13 +105,15 @@ public class PFLAP extends PApplet {
 
 	@Override
 	public void setup() {
-		initCp5();
-		initMenuBar();
 		p = this;
 		surface.setTitle(Consts.title);
 		surface.setLocation(displayWidth / 2 - width / 2, displayHeight / 2 - height / 2);
 		surface.setResizable(false);
 		surface.setResizable(true);
+		comfortaaRegular = createFont("Comfortaa Regular", 24, true);
+		traceFont = createFont("Comfortaa Regular", 12, true);
+		comfortaaBold = createFont("Comfortaa Bold", Consts.stateFontSize, true);
+		textFont(comfortaaBold);
 		frameRate(60);
 		strokeJoin(MITER);
 		strokeWeight(3);
@@ -109,6 +124,8 @@ public class PFLAP extends PApplet {
 		ellipseMode(CENTER);
 		cursor(ARROW);
 		colorMode(RGB);
+		initCp5();
+		initMenuBar();
 	}
 
 	@Override
@@ -137,10 +154,11 @@ public class PFLAP extends PApplet {
 		strokeWeight(2);
 		stroke(transitionColour.getRGB());
 		textSize(18);
+		textFont(comfortaaRegular);
 		arrows.forEach(a -> a.draw());
 
-		textAlign(CENTER, CENTER);
-		textSize(16);
+		textSize(Consts.stateFontSize);
+		textFont(comfortaaBold);
 		stroke(0);
 		strokeWeight(2);
 		nodes.forEach(s -> s.draw());
@@ -156,11 +174,18 @@ public class PFLAP extends PApplet {
 	public void initMenuBar() {
 
 		Frame f = getFrame();
+		f.addComponentListener(new ComponentAdapter() {
+			public void componentResized(ComponentEvent event) {
+				Notification.positionTarget = new PVector(p.width - notificationWidth, p.height - notificationHeight);
+			}
+		});
+
 		MenuBar menuBar = new MenuBar();
 
 		MenuItem fileMenuItem0, fileMenuItem1, fileMenuItem2;
 		MenuItem editMenuItem0, editMenuItem1, editMenuItem2;
 		MenuItem viewMenuItem0, viewMenuItem1;
+		CheckboxMenuItem viewMenuCheckboxItem0;
 		MenuItem inputMenuItem0, inputMenuItem1;
 		MenuItem helpMenuItem0, helpMenuItem1;
 		MenuItem defineColoursItem0, defineColoursItem1, defineColoursItem2, defineColoursItem3;
@@ -196,6 +221,8 @@ public class PFLAP extends PApplet {
 		// View Menu
 		viewMenuItem0 = new MenuItem("Save Stage As Image");
 		viewMenuItem1 = new MenuItem("Reorder States");
+		viewMenuCheckboxItem0 = new CheckboxMenuItem("Action Tracer", false);
+		//TODO view machine information (# states)
 
 		// Input Menu
 		inputMenuItem0 = new MenuItem("Step By State");
@@ -231,6 +258,7 @@ public class PFLAP extends PApplet {
 		// Menu Action Listeners
 		ActionListener fileMenuListener, editMenuListener, viewMenuListener, inputMenuListener, helpMenuListener,
 				defineColoursListener;
+		ItemListener tracerListener;
 
 		fileMenuListener = new ActionListener() {
 			@Override
@@ -315,7 +343,8 @@ public class PFLAP extends PApplet {
 							case DFA :
 								if (DFA.getInitialState() != null) {
 									userInput = JOptionPane.showInputDialog("DFA Input: ");
-									println(DFA.run(userInput));
+									DFA.run(userInput);
+									// /println();
 								} else {
 									Notification.addNotification(noInitialState);
 									System.err.println("No Initial State Defined");
@@ -398,12 +427,22 @@ public class PFLAP extends PApplet {
 			}
 		};
 
+		tracerListener = new ItemListener() {
+			@Override
+			public void itemStateChanged(ItemEvent event) {
+				trace.setVisible(viewMenuCheckboxItem0.getState());
+			}
+		};
+
 		fileMenu.addActionListener(fileMenuListener);
 		editMenu.addActionListener(editMenuListener);
 		viewMenu.addActionListener(viewMenuListener);
 		inputMenu.addActionListener(inputMenuListener);
 		helpMenu.addActionListener(helpMenuListener);
 		defineColours.addActionListener(defineColoursListener);
+
+		viewMenuCheckboxItem0.addItemListener(tracerListener);
+		viewMenu.add(viewMenuCheckboxItem0);
 
 		// Adding menus to the menu bar
 		menuBar.add(fileMenu);
@@ -430,6 +469,26 @@ public class PFLAP extends PApplet {
 
 	private void initCp5() {
 		cp5 = new ControlP5(this);
+		trace = cp5.addTextarea("Trace")
+		// @formatter:off
+				.setVisible(false)
+				.setPosition(10, 670)
+				.setSize(200, 100)
+				//.setFont(createFont("", 12))
+				.setFont(traceFont)
+				.setLineHeight(14)
+				.setColor(color(255))
+				.setColorBackground(color(0, 200))
+				.setMoveable(false)
+				;
+		// @formatter:on
+
+		cp5.addConsole(trace);
+		System.out.println("Tracer: Traces machine transitions during operation.");
+	}
+
+	public void pushTrace(String entry) {
+		trace.append(entry + "\n\r");
 	}
 
 	public void nodeMouseOver() {
@@ -441,6 +500,16 @@ public class PFLAP extends PApplet {
 			}
 		}
 		mouseOverState = null;
+	}
+
+	public void transitionMouseOver() {
+		for (Arrow a : arrows) {
+			if (a.isMouseOver(mouseClickXY)) {
+				mouseOverTransition = a;
+				return;
+			}
+		}
+		mouseOverTransition = null;
 	}
 
 	public static void deleteState(State s) {
@@ -484,7 +553,8 @@ public class PFLAP extends PApplet {
 		switch (m.getButton()) {
 			case LEFT :
 				nodeMouseOver();
-				if (mouseOverState == null) {
+				transitionMouseOver();
+				if (mouseOverState == null && mouseOverTransition == null) {
 					if (!(selected.isEmpty())) {
 						selected.forEach(s -> s.deselect());
 						selected.clear();
@@ -496,19 +566,26 @@ public class PFLAP extends PApplet {
 					}
 
 				} else {
-					if (!mouseOverState.isMouseOver()) {
-						cursor(HAND);
-						dragState = mouseOverState;
-						nodes.remove(dragState);
-						selected.add(dragState);
-						dragState.select();
+					if (mouseOverState != null) {
+						if (!mouseOverState.isMouseOver()) {
+							cursor(HAND);
+							dragState = mouseOverState;
+							nodes.remove(dragState);
+							selected.add(dragState);
+							dragState.select();
+						}
+					} else {
+						if (mouseOverTransition != null) {
+							// clicked on transition GUI
+						}
 					}
 				}
 				break;
 
 			case RIGHT :
 				nodeMouseOver();
-				if (!(mouseOverState == null) && allowGUIInterraction) {
+				transitionMouseOver();
+				if (!(mouseOverState == null) && allowGUIInterraction && mouseOverTransition == null) {
 					arrowTailState = mouseOverState;
 					drawingArrow = new Arrow(mouseClickXY, arrowTailState);
 					cursor(CROSS);
@@ -582,6 +659,11 @@ public class PFLAP extends PApplet {
 							selected.add(mouseOverState);
 							mouseOverState.select();
 							mouseOverState.showUI();
+						} else {
+							transitionMouseOver();
+							if (mouseOverTransition != null) {
+								mouseOverTransition.showUI(); // TODO
+							}
 						}
 					}
 				}
@@ -616,5 +698,12 @@ public class PFLAP extends PApplet {
 			default :
 				break;
 		}
+	}
+
+	public void exit() {
+		/**
+		 * Finish-up
+		 */
+		super.exit();
 	}
 }
