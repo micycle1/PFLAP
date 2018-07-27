@@ -7,12 +7,14 @@ import controlP5.ControlListener;
 import controlP5.ControlP5;
 import controlP5.ScrollableList;
 import controlP5.Textfield;
-import javafx.scene.shape.Ellipse;
+
 import machines.DFA;
 import machines.DPA;
+
 import main.Functions;
 import main.PFLAP;
 import main.PFLAP.modes;
+
 import processing.core.PApplet;
 import processing.core.PVector;
 
@@ -175,8 +177,7 @@ public class Arrow {
 	public void draw() {
 		p.line(tailXY.x, tailXY.y, headXY.x, headXY.y);
 		p.noFill(); // disable to fill arrow head
-		// p.bezier(tailXY.x, tailXY.y, tailXY.x+65, tailXY.y-45, tailXY.x+65,
-		// tailXY.y+45, tailXY.x, tailXY.y); //TODO RANDOM POINT ON SPHERE
+		p.bezier(tailXY.x, tailXY.y, tailXY.x + 65, tailXY.y - 45, tailXY.x + 65, tailXY.y + 45, tailXY.x, tailXY.y); // TODO
 
 		p.pushMatrix();
 		p.translate(headXY.x, headXY.y);
@@ -202,7 +203,6 @@ public class Arrow {
 		p.vertex(-10, 7);
 		p.endShape();
 		p.popMatrix();
-
 	}
 
 	public boolean isMouseOver(PVector mousePos) {
@@ -256,7 +256,7 @@ public class Arrow {
 	}
 
 	public char getStackPop() {
-		// + setters for when modiying transitions
+		// + setters for when modifying transitions
 		return stackPop;
 	}
 

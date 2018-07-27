@@ -1,7 +1,6 @@
 package p5;
 
 import main.Consts;
-import main.PFLAP;
 
 import processing.core.PApplet;
 import processing.core.PImage;
@@ -33,7 +32,7 @@ public class Notification {
 	private int lifetime, startTime, alpha = 255;
 
 	static {
-		background = PFLAP.p.createImage(notificationWidth, notificationHeight, PApplet.ARGB);
+		background = p.createImage(notificationWidth, notificationHeight, PApplet.ARGB);
 		for (int i = 0; i < background.pixels.length; i++) {
 			float a = PApplet.map(i, 0, background.pixels.length, 255, 0);
 			background.pixels[i] = p.color(10, 100, 100, a);

@@ -25,6 +25,8 @@ import javax.swing.JColorChooser;
 
 import processing.core.PApplet;
 import processing.core.PFont;
+import processing.core.PImage;
+import processing.core.PSurface;
 import processing.core.PVector;
 import processing.event.KeyEvent;
 import processing.event.MouseEvent;
@@ -57,12 +59,10 @@ import static main.Functions.withinRegion;
  * info about machine (#states, etc)
  * undo/redo
  * save/load : stateXY; encoding of transitions per machine
- * blur behind notification
  * mutli selection creating transtion makes multiple transitions
  * state resize / transition thickness
  * PGraphics.begindraw for screenshot transparency
  * DFA: if adding transition w/ same head & tail, merge into existing
- * pimage for arrow transitions
  * make machine non-static of type generic
  */
 //@formatter:on
@@ -86,6 +86,7 @@ public class PFLAP extends PApplet {
 	private PVector mouseClickXY, mouseReleasedXY, mouseCoords;
 	private static PFont comfortaaRegular, comfortaaBold, traceFont;
 
+	private static boolean fullScreen = false;
 	public static boolean allowGUIInterraction = true;
 
 	public static PApplet p;
@@ -222,7 +223,7 @@ public class PFLAP extends PApplet {
 		viewMenuItem0 = new MenuItem("Save Stage As Image");
 		viewMenuItem1 = new MenuItem("Reorder States");
 		viewMenuCheckboxItem0 = new CheckboxMenuItem("Action Tracer", false);
-		//TODO view machine information (# states)
+		// TODO view machine information (# states)
 
 		// Input Menu
 		inputMenuItem0 = new MenuItem("Step By State");
@@ -295,12 +296,14 @@ public class PFLAP extends PApplet {
 						nodes.clear();
 						break;
 					case "Invert Selection" :
-						ArrayList<State> temp = new ArrayList<>(nodes);
-						temp.removeAll(selected);
-						selected.forEach(s -> s.deselect());
-						selected.clear();
-						selected.addAll(temp);
-						selected.forEach(s -> s.select());
+						if (selected.size() > 0) { // only if >=1 selected
+							ArrayList<State> temp = new ArrayList<>(nodes);
+							temp.removeAll(selected);
+							selected.forEach(s -> s.deselect());
+							selected.clear();
+							selected.addAll(temp);
+							selected.forEach(s -> s.select());
+						}
 						break;
 					default :
 						System.err.println("Unhandled Menuitem.");
@@ -324,7 +327,7 @@ public class PFLAP extends PApplet {
 						}
 						break;
 					case "Reorder States" :
-						// TODO
+						// TODO into grid?
 						break;
 					default :
 						System.err.println("Unhandled Menuitem.");
@@ -493,8 +496,7 @@ public class PFLAP extends PApplet {
 
 	public void nodeMouseOver() {
 		for (State s : nodes) {
-			if (withinRange(s.getPosition().x, s.getPosition().y, Consts.stateRadius, mouseX, mouseY)
-					|| s.isMouseOver()) {
+			if (withinRange(s.getPosition().x, s.getPosition().y, s.getRadius(), mouseX, mouseY) || s.isMouseOver()) {
 				mouseOverState = s;
 				return;
 			}
@@ -535,6 +537,16 @@ public class PFLAP extends PApplet {
 				} else {
 					DPA.debug();
 				}
+			case 122 : // F11
+				if (fullScreen) {
+					surface.setSize(Consts.WIDTH, Consts.HEIGHT);
+					surface.setLocation(displayWidth / 2 - width / 2, displayHeight / 2 - height / 2);
+					// constrain node loc? todo
+				} else {
+					surface.setSize(displayWidth, displayHeight);
+					surface.setLocation(0, 0);
+				}
+				fullScreen = !fullScreen;
 			default :
 				break;
 		}
