@@ -1,5 +1,6 @@
 package machines;
 
+import p5.Arrow;
 import p5.State;
 
 public interface Machine {
@@ -12,8 +13,8 @@ public interface Machine {
 	void setInitialState(State s);
 	State getInitialState();
 
-//	void addTransition(Arrow a); //infer transtion from arrow based on machine type
-//	void removeTransition(Arrow a); //infer transtion from arrow based on machine type
+	void addTransition(Arrow a); //infer transtion from arrow based on machine type
+	void removeTransition(Arrow a); //infer transtion from arrow based on machine type
 
 	boolean run(String input);
 

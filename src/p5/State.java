@@ -9,11 +9,7 @@ import controlP5.ControlListener;
 import controlP5.ControlP5;
 import controlP5.ScrollableList;
 import controlP5.Slider;
-import controlP5.Slider2D;
 import controlP5.Textfield;
-
-import machines.DFA;
-import machines.DPA;
 
 import static main.Consts.stateRadius;
 import static main.Consts.initialNodeIndicatorSize;
@@ -44,7 +40,7 @@ public class State {
 	private static Textfield rename;
 	private static State renameState;
 	private static PGraphics initialIndicator;
-	
+
 	static { // only one rename box for class
 		// @formatter:off
 		rename = PFLAP.cp5.addTextfield("Rename State");
@@ -63,46 +59,38 @@ public class State {
 			}
 		});
 		// @formatter:on
-		
+
 		initialIndicator = p.createGraphics(50, 50);
 		initialIndicator.beginDraw();
 		initialIndicator.fill(255, 0, 0);
 		initialIndicator.noStroke();
-		initialIndicator.triangle(0, 0, 0,
-				initialNodeIndicatorSize*2, initialNodeIndicatorSize, initialNodeIndicatorSize);
+		initialIndicator.triangle(0, 0, 0, initialNodeIndicatorSize * 2, initialNodeIndicatorSize,
+				initialNodeIndicatorSize);
 		initialIndicator.endDraw();
 	}
 
 	public State(PVector XY, int liveID) {
 		switch (PFLAP.mode) {
 			case DFA :
-//				DFA.addNode(this); TODO replaced in addState command
+				// DFA.addNode(this); TODO replaced in addState command
 				break;
 			case DPA :
 				machine.addNode(this);
 				break;
 		}
-		
+
 		label = "q" + liveID;
 		position = XY;
 		initCP5();
 	}
-	
+
 	private void initCP5() {
 		cp5 = new ControlP5(p);
 		cp5.hide();
 		resizeGUI = new ControlP5(p);
-		
-		sizeSlider = resizeGUI.addSlider("Size Slider")
-				.setWidth(100)
-				.setHeight(15)
-				.setValue(stateRadius)
-				.setMin(25)
-				.setMax(150)
-				.setPosition(-50, stateRadius/2 + 5)
-				.setSliderMode(Slider.FLEXIBLE)
-				.hide()
-				;
+
+		sizeSlider = resizeGUI.addSlider("Size Slider").setWidth(100).setHeight(15).setValue(stateRadius).setMin(25)
+				.setMax(150).setPosition(-50, stateRadius / 2 + 5).setSliderMode(Slider.FLEXIBLE).hide();
 		sizeSliderListener = new ControlListener() {
 			@Override
 			public void controlEvent(ControlEvent radiusChange) {
@@ -110,7 +98,7 @@ public class State {
 			}
 		};
 		sizeSlider.addListener(sizeSliderListener);
-		
+
 		listener = new ControlListener() {
 			@Override
 			public void controlEvent(ControlEvent optionSelected) {
@@ -139,13 +127,13 @@ public class State {
 						rename.setFocus(true);
 						rename.show();
 						break;
-					case 3 : 
+					case 3 :
 						// TODO
 						sizeSlider.bringToFront();
 						sizeSlider.show();
 						break;
 					case 4 :
-						//delete TODO
+						// delete TODO
 					default :
 						break;
 				}
@@ -162,26 +150,13 @@ public class State {
 	}
 
 	public void kill() {
-		switch (PFLAP.mode) {
-			case DFA :
-				for (Arrow a : arrowHeads) {
-					((DFA) machine).removeTransition(a.getTail(), a.getHead(), a.getSymbol());
-				}
-				machine.deleteNode(this);
-				if (initial) {
-					machine.setInitialState(null);
-				}
-				break;
 
-			case DPA :
-				for (Arrow a : arrowHeads) {
-					((DPA) machine).removeTransition(a.getTail(), a.getHead(), a.getSymbol(), a.getStackPop(), a.getStackPush());
-				}
-				machine.deleteNode(this);
-				if (initial) {
-					machine.setInitialState(null);
-				}
-				break;
+		for (Arrow a : arrowHeads) {
+			machine.removeTransition(a);
+		}
+		machine.deleteNode(this);
+		if (initial) {
+			machine.setInitialState(null);
 		}
 
 		arrowHeads.forEach(a -> a.parentKill());
@@ -189,21 +164,20 @@ public class State {
 		cp5.getAll().forEach(c -> c.remove());
 		resizeGUI.getAll().forEach(c -> c.remove());
 	}
-	
+
 	protected void childKill(Arrow a) {
 		// Transition arrows call this.
 		if (arrowHeads.contains(a)) {
 			arrowHeads.remove(a);
-		}
-		else {
+		} else {
 			arrowTails.remove(a);
 		}
 	}
 
 	public void draw() {
 		p.strokeWeight(3);
-		if (initial) {			
-			p.image(initialIndicator, position.x - radius/2 - 14, position.y - initialNodeIndicatorSize);
+		if (initial) {
+			p.image(initialIndicator, position.x - radius / 2 - 14, position.y - initialNodeIndicatorSize);
 		}
 		if (!selected) {
 			p.fill(stateColour.getRGB());
@@ -219,14 +193,14 @@ public class State {
 			p.strokeWeight(2);
 			p.ellipse(position.x, position.y, radius - 9, radius - 9);
 		}
-		p.textSize(16 + PApplet.sqrt(radius)*5 - 30);
+		p.textSize(16 + PApplet.sqrt(radius) * 5 - 30);
 		p.text(label, position.x, position.y);
 	}
 
 	public void setPosition(PVector position) {
 		this.position = position;
 		cp5.setPosition((int) this.position.x + 10, (int) this.position.y + 10);
-		resizeGUI.setPosition((int)(position.x), (int)(position.y));
+		resizeGUI.setPosition((int) (position.x), (int) (position.y));
 		arrowHeads.forEach(a -> a.update());
 		arrowTails.forEach(a -> a.update());
 	}
@@ -246,7 +220,7 @@ public class State {
 	public PVector getPosition() {
 		return position;
 	}
-	
+
 	public void setAsInitial() {
 		initial = true;
 	}
@@ -258,7 +232,7 @@ public class State {
 	public String getLabel() {
 		return label;
 	}
-	
+
 	public int getRadius() {
 		return radius;
 	}

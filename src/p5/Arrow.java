@@ -8,13 +8,9 @@ import controlP5.ControlP5;
 import controlP5.ScrollableList;
 import controlP5.Textfield;
 
-import machines.DFA;
-import machines.DPA;
-
 import main.Functions;
 import main.HistoryHandler;
 import main.PFLAP;
-import main.PFLAP.modes;
 
 import processing.core.PApplet;
 import processing.core.PVector;
@@ -138,8 +134,7 @@ public class Arrow {
 				if (PFLAP.mode == PFLAP.modes.DPA) {
 					entryType = entryTypes.POP;
 				} else {
-					// DFA //todo switch
-					((DFA)machine).addTransition(tail, head, transitionSymbol);
+					machine.addTransition(this); // don't add here if dpa
 					PFLAP.cp5.remove(String.valueOf(ID));
 					PFLAP.allowGUIInterraction = true;
 				}
@@ -150,7 +145,7 @@ public class Arrow {
 				break;
 			case PUSH :
 				stackPush = transitionSymbolEntry.getStringValue().charAt(0);
-				((DPA)machine).addTransition(tail, head, transitionSymbol, stackPop, stackPush);
+				machine.addTransition(this);
 				PFLAP.cp5.remove(String.valueOf(ID));
 				PFLAP.allowGUIInterraction = true;
 				break;
@@ -200,14 +195,14 @@ public class Arrow {
 	public void kill() {
 		head.childKill(this);
 		tail.childKill(this);
-		((DFA)machine).removeTransition(tail, head, transitionSymbol); //todo MAKE GENERIC
+		machine.removeTransition(this);
 		PFLAP.cp5.remove(String.valueOf(ID));
 		PFLAP.arrows.remove(this);
 	}
 	
 	public void unKill() {
 		PFLAP.arrows.add(this);
-		((DFA)machine).addTransition(tail, head, transitionSymbol); //todo MAKE GENERIC
+		machine.addTransition(this);
 		head.addArrowHead(this);
 		tail.addArrowTail(this);
 		// or call addTransition?

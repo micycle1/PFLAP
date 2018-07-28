@@ -137,7 +137,7 @@ public class PFLAP extends PApplet {
 		colorMode(RGB);
 		initCp5();
 		initMenuBar();
-		machine = new DFA(); // Change based on option.
+		machine = new DFA(); // TODO Change based on option.
 	}
 
 	@Override

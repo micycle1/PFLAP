@@ -7,6 +7,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import javafx.util.Pair;
+import p5.Arrow;
 import p5.State;
 
 public class DPA implements Machine {
@@ -45,46 +46,58 @@ public class DPA implements Machine {
 	public void deleteNode(State s) {
 		transitions.remove(s);
 	}
-
-	public void addTransition(State tail, State head, Character symbol, Character pop, Character push) {
-		Pair<Character, char[]> key = new Pair<Character, char[]>(symbol, new char[]{pop, push});
-		// if (!(transitions.get(tail).containsKey(symbol))) {
-		// transitions.get(tail).put(symbol, new HashMap<char[], State>());
-		// }
-		// if (!(transitions.get(tail).get(symbol).containsKey(new char[] {pop,
-		// push}))) { //indicate it replaces
-		// transitions.get(tail).get(symbol).put(new char[] {pop, push}, head);
-		// }
-		// else {
-		// //notify transition already exists (non-determinism)
-		// }
-
-		// transitions.get(tail).keySet().contains(key)
-
-		// System.out.println(key.getKey());
-		// System.out.println(key.getValue()[0]);
-		// System.out.println(key.getValue()[1]);
-		//
-		// if (!(transitions.get(tail).keySet().)) {
-		// transitions.get(tail).put(key, head);
-		// } else {
-		// System.out.println("already key");
-		// // notify transition already exists (non-determinism)
-		// }
-
-		if (transitions.get(tail).size()  == 0) {
-			transitions.get(tail).put(key, head);
-		}
-		check : for (Pair<Character, char[]> key1 : transitions.get(tail).keySet()) {
-			if (key1.equals(key)) {
-				System.out.println("already key");
-				break check;
-			}
-			transitions.get(tail).put(key, head);
-		}
+	
+	@Override
+	public void addTransition(Arrow a) {
+		// TODO Auto-generated method stub
+		
+	}
+	
+	@Override
+	public void removeTransition(Arrow a) {
+		// TODO Auto-generated method stub
+		
 	}
 
-	public void removeTransition(State tail, State head, Character symbol, Character pop, Character push) {
+//	public void addTransition(State tail, State head, Character symbol, Character pop, Character push) {
+//		Pair<Character, char[]> key = new Pair<Character, char[]>(symbol, new char[]{pop, push});
+//		// if (!(transitions.get(tail).containsKey(symbol))) {
+//		// transitions.get(tail).put(symbol, new HashMap<char[], State>());
+//		// }
+//		// if (!(transitions.get(tail).get(symbol).containsKey(new char[] {pop,
+//		// push}))) { //indicate it replaces
+//		// transitions.get(tail).get(symbol).put(new char[] {pop, push}, head);
+//		// }
+//		// else {
+//		// //notify transition already exists (non-determinism)
+//		// }
+//
+//		// transitions.get(tail).keySet().contains(key)
+//
+//		// System.out.println(key.getKey());
+//		// System.out.println(key.getValue()[0]);
+//		// System.out.println(key.getValue()[1]);
+//		//
+//		// if (!(transitions.get(tail).keySet().)) {
+//		// transitions.get(tail).put(key, head);
+//		// } else {
+//		// System.out.println("already key");
+//		// // notify transition already exists (non-determinism)
+//		// }
+//
+//		if (transitions.get(tail).size()  == 0) {
+//			transitions.get(tail).put(key, head);
+//		}
+//		check : for (Pair<Character, char[]> key1 : transitions.get(tail).keySet()) {
+//			if (key1.equals(key)) {
+//				System.out.println("already key");
+//				break check;
+//			}
+//			transitions.get(tail).put(key, head);
+//		}
+//	}
+
+//	public void removeTransition(State tail, State head, Character symbol, Character pop, Character push) {
 
 		// remove the state always
 		// remove
@@ -96,7 +109,7 @@ public class DPA implements Machine {
 		// else {
 		// transitions.get(tail).get(symbol).get(new char[] {pop, push});
 		// }
-	}
+//	}
 
 	public boolean run(String input) {
 //		State s = initial;

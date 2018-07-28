@@ -3,7 +3,6 @@ package machines;
 import java.util.HashMap;
 import java.util.Map;
 
-import main.Consts;
 import p5.Arrow;
 import p5.Notification;
 import p5.State;
@@ -36,16 +35,12 @@ public class DFA implements Machine {
 		transitions.remove(s);
 	}
 
-	public void addTransition(State tail, State head, Character symbol) {
-		transitions.get(tail).put(symbol, head); // OVerwrites same symbol
-	}
-	
 	public void addTransition(Arrow a) {
 		transitions.get(a.getTail()).put(a.getSymbol(), a.getHead()); // OVerwrites same symbol
 	}
-
-	public void removeTransition(State tail, State head, Character symbol) {
-		transitions.get(tail).remove(symbol);
+	
+	public void removeTransition(Arrow a) {
+		transitions.get(a.getTail()).remove(a.getSymbol());
 	}
 
 	public boolean run(String input) {
