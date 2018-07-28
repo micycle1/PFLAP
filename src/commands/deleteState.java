@@ -6,6 +6,7 @@ import java.util.HashSet;
 import machines.DFA;
 import main.PFLAP;
 import p5.State;
+import static main.PFLAP.machine;
 
 public class deleteState implements Command {
 
@@ -27,8 +28,8 @@ public class deleteState implements Command {
 
 	@Override
 	public void execute() {
-		if (deleteCache.contains(DFA.getInitialState())) {
-			initial = DFA.getInitialState();
+		if (deleteCache.contains(machine.getInitialState())) {
+			initial = machine.getInitialState();
 		}
 		deleteCache.forEach(s -> s.kill());
 		PFLAP.nodes.removeAll(deleteCache);

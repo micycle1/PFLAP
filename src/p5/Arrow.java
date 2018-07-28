@@ -27,6 +27,7 @@ import static main.Functions.numberBetween;
 
 import static main.PFLAP.p;
 import static main.PFLAP.PI;
+import static main.PFLAP.machine;
 
 import static processing.core.PApplet.dist;
 import static processing.core.PApplet.map;
@@ -138,7 +139,7 @@ public class Arrow {
 					entryType = entryTypes.POP;
 				} else {
 					// DFA //todo switch
-					DFA.addTransition(tail, head, transitionSymbol);
+					((DFA)machine).addTransition(tail, head, transitionSymbol);
 					PFLAP.cp5.remove(String.valueOf(ID));
 					PFLAP.allowGUIInterraction = true;
 				}
@@ -149,7 +150,7 @@ public class Arrow {
 				break;
 			case PUSH :
 				stackPush = transitionSymbolEntry.getStringValue().charAt(0);
-				DPA.addTransition(tail, head, transitionSymbol, stackPop, stackPush);
+				((DPA)machine).addTransition(tail, head, transitionSymbol, stackPop, stackPush);
 				PFLAP.cp5.remove(String.valueOf(ID));
 				PFLAP.allowGUIInterraction = true;
 				break;
@@ -199,14 +200,14 @@ public class Arrow {
 	public void kill() {
 		head.childKill(this);
 		tail.childKill(this);
-		DFA.removeTransition(tail, head, transitionSymbol); //todo MAKE GENERIC
+		((DFA)machine).removeTransition(tail, head, transitionSymbol); //todo MAKE GENERIC
 		PFLAP.cp5.remove(String.valueOf(ID));
 		PFLAP.arrows.remove(this);
 	}
 	
 	public void unKill() {
 		PFLAP.arrows.add(this);
-		DFA.addTransition(tail, head, transitionSymbol);
+		((DFA)machine).addTransition(tail, head, transitionSymbol); //todo MAKE GENERIC
 		head.addArrowHead(this);
 		tail.addArrowTail(this);
 		// or call addTransition?

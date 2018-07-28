@@ -22,7 +22,8 @@ import java.util.HashSet;
 
 import javax.swing.JOptionPane;
 
-import commands.addState;
+import commands.addState;
+
 import commands.moveState;
 import commands.setBackgroundColor;
 import commands.addTransition;
@@ -40,7 +41,7 @@ import controlP5.ControlP5;
 import controlP5.Textarea;
 import machines.DFA;
 import machines.DPA;
-
+import machines.Machine;
 import p5.Arrow;
 import p5.Notification;
 import p5.SelectionBox;
@@ -102,6 +103,8 @@ public class PFLAP extends PApplet {
 		DFA, DPA;
 	}
 
+	public static Machine machine;
+
 	public static modes mode = modes.DFA; // TODO change for test
 
 	public static Color stateColour = new Color(255, 220, 0), stateSelectedColour = new Color(0, 35, 255),
@@ -134,6 +137,7 @@ public class PFLAP extends PApplet {
 		colorMode(RGB);
 		initCp5();
 		initMenuBar();
+		machine = new DFA(); // Change based on option.
 	}
 
 	@Override
@@ -175,7 +179,7 @@ public class PFLAP extends PApplet {
 			dragState.setPosition(mouseCoords);
 			dragState.draw();
 		}
-		HistoryHandler.executeBufferedCommands(); //TODO
+		HistoryHandler.executeBufferedCommands(); // TODO
 		Notification.run();
 	}
 
@@ -350,9 +354,9 @@ public class PFLAP extends PApplet {
 					case "Step By State" :
 						switch (mode) {
 							case DFA :
-								if (DFA.getInitialState() != null) {
+								if (machine.getInitialState() != null) {
 									userInput = JOptionPane.showInputDialog("DFA Input: ");
-									DFA.run(userInput);
+									machine.run(userInput);
 									// /println();
 								} else {
 									Notification.addNotification(noInitialState);
@@ -361,11 +365,11 @@ public class PFLAP extends PApplet {
 								break;
 
 							case DPA :
-								if (DPA.getInitialState() != null) {
-									DPA.setInitialStackSymbol(
+								if (machine.getInitialState() != null) {
+									((DPA) machine).setInitialStackSymbol(
 											JOptionPane.showInputDialog("Initial Stack Symbol: ").charAt(0));
 									userInput = JOptionPane.showInputDialog("DPA Input: ");
-									println(DPA.run(userInput));
+									println(machine.run(userInput));
 								} else {
 									Notification.addNotification(noInitialState);
 									System.err.println("No Initial State Defined");
@@ -492,7 +496,7 @@ public class PFLAP extends PApplet {
 				;
 		// @formatter:on
 
-//		cp5.addConsole(trace); TODO uncomment
+		// cp5.addConsole(trace); TODO uncomment
 		System.out.println("Tracer: Traces machine transitions during operation.");
 	}
 
@@ -519,7 +523,7 @@ public class PFLAP extends PApplet {
 	@Override
 	public void keyPressed(KeyEvent e) {
 		keysDown.add(e.getKey());
-		switch (e.getKey()) { //TODO change hotkey
+		switch (e.getKey()) { // TODO change hotkey
 			case 'n' :
 				HistoryHandler.undo();
 				break;
@@ -541,11 +545,7 @@ public class PFLAP extends PApplet {
 				selected.clear();
 				break;
 			case 32 : // TODO remove (temp)
-				if (mode == modes.DFA) {
-					DFA.debug();
-				} else {
-					DPA.debug();
-				}
+				machine.debug();
 			case 122 : // F11
 				if (fullScreen) {
 					surface.setSize(Consts.WIDTH, Consts.HEIGHT);
@@ -646,11 +646,11 @@ public class PFLAP extends PApplet {
 					if (newState) {
 						HistoryHandler.buffer(new addState(dragState));
 						newState = false;
-					}
-					else {
+					} else {
 						// dragged existing state
 						HistoryHandler.buffer(new moveState(dragState, mouseClickXY));
-						nodes.add(dragState); //re-add dragstate to list but not command
+						nodes.add(dragState); // re-add dragstate to list but
+												// not command
 					}
 					selected.remove(dragState);
 					dragState.deselect();
@@ -676,8 +676,10 @@ public class PFLAP extends PApplet {
 						if (arrowTailState != arrowHeadState && (arrowHeadState != null) && drawingArrow != null) {
 							// TODO change logic for self transition
 							allowGUIInterraction = false;
-							HistoryHandler.buffer(new addTransition(arrowTailState, arrowHeadState)); //TODO change instantiation
-							
+							HistoryHandler.buffer(new addTransition(arrowTailState, arrowHeadState)); // TODO
+																										// change
+																										// instantiation
+
 						}
 						drawingArrow = null;
 						if (arrowHeadState == null) {

@@ -22,6 +22,7 @@ import main.PFLAP;
 import static main.PFLAP.p;
 import static main.PFLAP.stateColour;
 import static main.PFLAP.stateSelectedColour;
+import static main.PFLAP.machine;
 
 import processing.core.PApplet;
 import processing.core.PGraphics;
@@ -78,7 +79,7 @@ public class State {
 //				DFA.addNode(this); TODO replaced in addState command
 				break;
 			case DPA :
-				DPA.addNode(this);
+				machine.addNode(this);
 				break;
 		}
 		
@@ -120,10 +121,10 @@ public class State {
 						initial = true;
 						switch (PFLAP.mode) {
 							case DFA :
-								DFA.setInitialState(State.this);
+								machine.setInitialState(State.this);
 								break;
 							case DPA :
-								DPA.setInitialState(State.this);
+								machine.setInitialState(State.this);
 							default :
 								break;
 						}
@@ -164,21 +165,21 @@ public class State {
 		switch (PFLAP.mode) {
 			case DFA :
 				for (Arrow a : arrowHeads) {
-					DFA.removeTransition(a.getTail(), a.getHead(), a.getSymbol());
+					((DFA) machine).removeTransition(a.getTail(), a.getHead(), a.getSymbol());
 				}
-				DFA.deleteNode(this);
+				machine.deleteNode(this);
 				if (initial) {
-					DFA.setInitialState(null);
+					machine.setInitialState(null);
 				}
 				break;
 
 			case DPA :
 				for (Arrow a : arrowHeads) {
-					DPA.removeTransition(a.getTail(), a.getHead(), a.getSymbol(), a.getStackPop(), a.getStackPush());
+					((DPA) machine).removeTransition(a.getTail(), a.getHead(), a.getSymbol(), a.getStackPop(), a.getStackPush());
 				}
-				DPA.deleteNode(this);
+				machine.deleteNode(this);
 				if (initial) {
-					DPA.setInitialState(null);
+					machine.setInitialState(null);
 				}
 				break;
 		}

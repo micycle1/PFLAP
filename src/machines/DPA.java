@@ -9,41 +9,44 @@ import java.util.Map.Entry;
 import javafx.util.Pair;
 import p5.State;
 
-public class DPA {
+public class DPA implements Machine {
 	/**
-	 * Deterministic Pushdown Automaton Accept if accept state and stack empty
+	 * Deterministic Pushdown Automaton Accept iff accept state and stack empty
 	 */
 
-	private static Deque<Character> stack = new ArrayDeque<Character>();
-	private static State initial;
-	private static char initialStackSymbol;
-	private static Map<State, Map<Pair<Character, char[]>, State>> transitions = new HashMap<>();
+	private Deque<Character> stack = new ArrayDeque<Character>();
+	private State initial;
+	private char initialStackSymbol;
+	private Map<State, Map<Pair<Character, char[]>, State>> transitions = new HashMap<>();
+	
+	public DPA() {
+	}
 
-	public static void setInitialState(State s) {
+	public void setInitialState(State s) {
 		initial = s;
 	}
 
-	public static State getInitialState() {
+	public State getInitialState() {
 		return initial;
 	}
 
-	public static void setInitialStackSymbol(char ss) {
+	public void setInitialStackSymbol(char ss) {
 		initialStackSymbol = ss;
 	}
 
-	public static char getInitialStackSymbol() {
+	public char getInitialStackSymbol() {
 		return initialStackSymbol;
 	}
 
-	public static void addNode(State s) {
+	public void addNode(State s) {
 		transitions.put(s, new HashMap<>());
 	}
 
-	public static void deleteNode(State s) {
+	public void deleteNode(State s) {
 		transitions.remove(s);
 	}
 
-	public static void addTransition(State tail, State head, Character symbol, Character pop, Character push) {
+	public void addTransition(State tail, State head, Character symbol, Character pop, Character push) {
 		Pair<Character, char[]> key = new Pair<Character, char[]>(symbol, new char[]{pop, push});
 		// if (!(transitions.get(tail).containsKey(symbol))) {
 		// transitions.get(tail).put(symbol, new HashMap<char[], State>());
@@ -81,7 +84,7 @@ public class DPA {
 		}
 	}
 
-	public static void removeTransition(State tail, State head, Character symbol, Character pop, Character push) {
+	public void removeTransition(State tail, State head, Character symbol, Character pop, Character push) {
 
 		// remove the state always
 		// remove
@@ -95,7 +98,7 @@ public class DPA {
 		// }
 	}
 
-	public static boolean run(String input) {
+	public boolean run(String input) {
 //		State s = initial;
 //		stack.push(initialStackSymbol);
 //		while (!(input.isEmpty())) {
@@ -108,10 +111,11 @@ public class DPA {
 //				return false;
 //			}
 //		}
-		return s.isAccepting();
+//		return s.isAccepting();
+		return false;
 	}
 
-	public static int totalTransitions() {
+	public int totalTransitions() {
 		int n = 0;
 		for (Map<Pair<Character, char[]>, State> m : transitions.values()) {
 			n += m.size();
@@ -119,7 +123,7 @@ public class DPA {
 		return n;
 	}
 
-	public static void debug() {
+	public void debug() {
 		if (initial != null) {
 			System.out.println("Initial: " + initial.getLabel());
 		}

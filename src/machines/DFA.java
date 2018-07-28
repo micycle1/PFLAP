@@ -4,43 +4,51 @@ import java.util.HashMap;
 import java.util.Map;
 
 import main.Consts;
+import p5.Arrow;
 import p5.Notification;
 import p5.State;
 
-public class DFA {
+public class DFA implements Machine {
 	/**
 	 * Deterministic Finite Automaton
 	 */
 
-	private static Map<State, Map<Character, State>> transitions = new HashMap<>();
-	private static State initial;
-	private static String initialInput;
+	private Map<State, Map<Character, State>> transitions = new HashMap<>();
+	private State initial;
+	private String initialInput;
+	
+	public DFA() {
+	}
 
-	public static void setInitialState(State s) {
+	public void setInitialState(State s) {
 		initial = s;
 	}
 
-	public static State getInitialState() {
+	public State getInitialState() {
 		return initial;
 	}
 
-	public static void addNode(State s) {
+	public void addNode(State s) {
 		transitions.put(s, new HashMap<>());
 	}
 
-	public static void deleteNode(State s) {
+	public void deleteNode(State s) {
 		transitions.remove(s);
 	}
 
-	public static void addTransition(State tail, State head, Character symbol) {
+	public void addTransition(State tail, State head, Character symbol) {
 		transitions.get(tail).put(symbol, head); // OVerwrites same symbol
 	}
+	
+	public void addTransition(Arrow a) {
+		transitions.get(a.getTail()).put(a.getSymbol(), a.getHead()); // OVerwrites same symbol
+	}
 
-	public static void removeTransition(State tail, State head, Character symbol) {
+	public void removeTransition(State tail, State head, Character symbol) {
 		transitions.get(tail).remove(symbol);
 	}
 
-	public static boolean run(String input) {
+	public boolean run(String input) {
 		System.out.println("~~~~~~~~~~");
 		initialInput = input;
 		State s = initial;
@@ -72,14 +80,14 @@ public class DFA {
 		return s.isAccepting();
 	}
 
-	public static boolean step() { // TODO + DPA
+	public boolean step() { // TODO + DPA
 		return false;
 	}
-	public static boolean fastRun() { // TODO
+	public boolean fastRun() { // TODO
 		return false;
 	}
 
-	public static int totalTransitions() {
+	public int totalTransitions() {
 		int n = 0;
 		for (Map<Character, State> m : transitions.values()) {
 			n += m.size();
@@ -87,7 +95,7 @@ public class DFA {
 		return n;
 	}
 
-	public static void debug() {
+	public void debug() {
 		/**
 		 * Prints all transitions in machine.
 		 */
@@ -102,4 +110,5 @@ public class DFA {
 		}
 		System.out.println("");
 	}
+
 }
