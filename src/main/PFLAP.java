@@ -21,12 +21,15 @@ import java.util.ArrayList;
 import java.util.HashSet;
 
 import javax.swing.JOptionPane;
+
+import commands.addState;
+import commands.addTransition;
+import commands.deleteState;
+
 import javax.swing.JColorChooser;
 
 import processing.core.PApplet;
 import processing.core.PFont;
-import processing.core.PImage;
-import processing.core.PSurface;
 import processing.core.PVector;
 import processing.event.KeyEvent;
 import processing.event.MouseEvent;
@@ -132,7 +135,7 @@ public class PFLAP extends PApplet {
 	@Override
 	public void settings() {
 		size(Consts.WIDTH, Consts.HEIGHT);
-		smooth(4);
+		smooth(8);
 	}
 
 	@Override
@@ -168,7 +171,7 @@ public class PFLAP extends PApplet {
 			dragState.setPosition(mouseCoords);
 			dragState.draw();
 		}
-
+		HistoryHandler.executeBufferedCommands(); //TODO
 		Notification.run();
 	}
 
@@ -486,12 +489,8 @@ public class PFLAP extends PApplet {
 				;
 		// @formatter:on
 
-		cp5.addConsole(trace);
+//		cp5.addConsole(trace); TODO uncomment
 		System.out.println("Tracer: Traces machine transitions during operation.");
-	}
-
-	public void pushTrace(String entry) {
-		trace.append(entry + "\n\r");
 	}
 
 	public void nodeMouseOver() {
@@ -514,21 +513,26 @@ public class PFLAP extends PApplet {
 		mouseOverTransition = null;
 	}
 
-	public static void deleteState(State s) {
-		s.kill();
-		nodes.remove(s);
-	}
-
 	@Override
 	public void keyPressed(KeyEvent e) {
 		keysDown.add(e.getKey());
+		switch (e.getKey()) { //TODO change hotkey
+			case 'n' :
+				HistoryHandler.undo();
+				break;
+			case 'm' :
+				HistoryHandler.redo();
+				break;
+			default :
+				break;
+		}
 	}
 
 	@Override
 	public void keyReleased(KeyEvent key) {
 		switch (key.getKeyCode()) {
 			case 127 : // 127 == delete key
-				selected.forEach(s -> deleteState(s));
+				HistoryHandler.buffer(new deleteState(selected));
 				selected.clear();
 				break;
 			case 32 : // TODO remove (temp)
@@ -572,14 +576,17 @@ public class PFLAP extends PApplet {
 						selected.clear();
 					} else {
 						if (selectionBox == null) {
+							// create new state
 							cursor(HAND);
 							dragState = new State(mouseClickXY, nodes.size());
+
 						}
 					}
 
 				} else {
 					if (mouseOverState != null) {
 						if (!mouseOverState.isMouseOver()) {
+							// move existing state
 							cursor(HAND);
 							dragState = mouseOverState;
 							nodes.remove(dragState);
@@ -629,9 +636,11 @@ public class PFLAP extends PApplet {
 
 				nodeMouseOver();
 				if (dragState != null) {
+					// drop dragging state
+					// called when moving state + new state
 					selected.remove(dragState);
 					dragState.deselect();
-					nodes.add(dragState);
+					HistoryHandler.buffer(new addState(dragState));
 					dragState = null;
 				}
 				break;
@@ -659,7 +668,8 @@ public class PFLAP extends PApplet {
 							drawingArrow.update();
 							arrowTailState.addArrowTail(drawingArrow);
 							arrowHeadState.addArrowHead(drawingArrow);
-							arrows.add(drawingArrow);
+							HistoryHandler.buffer(new addTransition(drawingArrow));
+							
 						}
 						drawingArrow = null;
 						if (arrowHeadState == null) {

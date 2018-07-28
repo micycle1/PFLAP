@@ -172,12 +172,13 @@ public class Arrow {
 	public void parentKill() {
 		PFLAP.cp5.remove(String.valueOf(ID));
 		PFLAP.arrows.remove(this);
+		// remove references to this in states and machine
 	}
 
 	public void draw() {
 		p.line(tailXY.x, tailXY.y, headXY.x, headXY.y);
 		p.noFill(); // disable to fill arrow head
-		p.bezier(tailXY.x, tailXY.y, tailXY.x + 65, tailXY.y - 45, tailXY.x + 65, tailXY.y + 45, tailXY.x, tailXY.y); // TODO
+//		p.bezier(tailXY.x, tailXY.y, tailXY.x + 65, tailXY.y - 45, tailXY.x + 65, tailXY.y + 45, tailXY.x, tailXY.y); // TODO
 
 		p.pushMatrix();
 		p.translate(headXY.x, headXY.y);
