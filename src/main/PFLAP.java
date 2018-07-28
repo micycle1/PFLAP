@@ -22,7 +22,8 @@ import java.util.HashSet;
 
 import javax.swing.JOptionPane;
 
-import commands.addState;
+import commands.addState;
+import commands.moveState;
 import commands.addTransition;
 import commands.deleteState;
 
@@ -67,6 +68,7 @@ import static main.Functions.withinRegion;
  * PGraphics.begindraw for screenshot transparency
  * DFA: if adding transition w/ same head & tail, merge into existing
  * make machine non-static of type generic
+ * split arrow 2: temp arrow and final arrow, pass only head tail to constructor for final
  */
 //@formatter:on
 
@@ -89,7 +91,7 @@ public class PFLAP extends PApplet {
 	private PVector mouseClickXY, mouseReleasedXY, mouseCoords;
 	private static PFont comfortaaRegular, comfortaaBold, traceFont;
 
-	private static boolean fullScreen = false;
+	private static boolean fullScreen = false, newState = false;
 	public static boolean allowGUIInterraction = true;
 
 	public static PApplet p;
@@ -295,8 +297,7 @@ public class PFLAP extends PApplet {
 						nodes.forEach(s -> s.select());
 						break;
 					case "Delete All States" :
-						nodes.forEach(s -> s.kill());
-						nodes.clear();
+						HistoryHandler.buffer(new deleteState(nodes));
 						break;
 					case "Invert Selection" :
 						if (selected.size() > 0) { // only if >=1 selected
@@ -523,6 +524,8 @@ public class PFLAP extends PApplet {
 			case 'm' :
 				HistoryHandler.redo();
 				break;
+			case 'x' :
+				HistoryHandler.debug();
 			default :
 				break;
 		}
@@ -571,6 +574,7 @@ public class PFLAP extends PApplet {
 				nodeMouseOver();
 				transitionMouseOver();
 				if (mouseOverState == null && mouseOverTransition == null) {
+					// mouse over empty region
 					if (!(selected.isEmpty())) {
 						selected.forEach(s -> s.deselect());
 						selected.clear();
@@ -579,7 +583,7 @@ public class PFLAP extends PApplet {
 							// create new state
 							cursor(HAND);
 							dragState = new State(mouseClickXY, nodes.size());
-
+							newState = true;
 						}
 					}
 
@@ -636,11 +640,18 @@ public class PFLAP extends PApplet {
 
 				nodeMouseOver();
 				if (dragState != null) {
-					// drop dragging state
-					// called when moving state + new state
+					// drop dragged state
+					if (newState) {
+						HistoryHandler.buffer(new addState(dragState));
+						newState = false;
+					}
+					else {
+						// dragged existing state
+						HistoryHandler.buffer(new moveState(dragState, mouseClickXY));
+						nodes.add(dragState); //re-add dragstate to list but not command
+					}
 					selected.remove(dragState);
 					dragState.deselect();
-					HistoryHandler.buffer(new addState(dragState));
 					dragState = null;
 				}
 				break;
@@ -663,12 +674,7 @@ public class PFLAP extends PApplet {
 						if (arrowTailState != arrowHeadState && (arrowHeadState != null) && drawingArrow != null) {
 							// TODO change logic for self transition
 							allowGUIInterraction = false;
-							drawingArrow.setTail(arrowTailState);
-							drawingArrow.setHead(arrowHeadState);
-							drawingArrow.update();
-							arrowTailState.addArrowTail(drawingArrow);
-							arrowHeadState.addArrowHead(drawingArrow);
-							HistoryHandler.buffer(new addTransition(drawingArrow));
+							HistoryHandler.buffer(new addTransition(arrowTailState, arrowHeadState)); //TODO change instantiation
 							
 						}
 						drawingArrow = null;

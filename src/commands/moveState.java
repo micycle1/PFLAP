@@ -8,14 +8,14 @@ public class moveState implements Command {
 	private PVector oldPos, newPos;
 	private State s;
 	
-	public moveState(State s, PVector position) {
-		this.s = s ;
-		newPos = position;
+	public moveState(State s, PVector oldPosition) {
+		this.s = s;
+		oldPos = oldPosition;
+		newPos = s.getPosition();
 	}
 
 	@Override
 	public void execute() {
-		oldPos = s.getPosition();
 		s.setPosition(newPos);
 	}
 

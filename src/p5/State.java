@@ -190,6 +190,7 @@ public class State {
 	}
 	
 	public void childKill(Arrow a) {
+		// Transition arrows call this.
 		if (arrowHeads.contains(a)) {
 			arrowHeads.remove(a);
 		}

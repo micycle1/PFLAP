@@ -50,65 +50,81 @@ public class Arrow {
 	private entryTypes entryType = entryTypes.SYMBOL;
 
 	public Arrow(PVector startXY, State tail) {
+		// Constructor for creating transition
 		// PFLAP.allowGUIInterraction = false;
 		ID = this.hashCode();
 		this.tail = tail;
 		tailXY = startXY;
 		headXY = tailXY;
+		initCP5();
+	}
+	
+	public Arrow(State tail, State head) {
+		// Constructor for finalised transtions
+		// PFLAP.allowGUIInterraction = false;
+		ID = this.hashCode();
+		this.tail = tail;
+		this.head = head;
+		tailXY = tail.getPosition();
+		headXY = head.getPosition();
+		initCP5();
+		update();
+	}
+	
+	public void initCP5() {
 		// @formatter:off
-		transitionSymbolEntry = PFLAP.cp5.addTextfield(String.valueOf(ID)) //make static?
-				.setColorLabel(0)
-				.setLabel("")
-				.hide()
-				.keepFocus(true)
-				.setSize(30, 15)
-				.addCallback(new CallbackListener() {
-					// @formatter:on
+				transitionSymbolEntry = PFLAP.cp5.addTextfield(String.valueOf(ID)) //make static?
+						.setColorLabel(0)
+						.setLabel("")
+						.hide()
+						.keepFocus(true)
+						.setSize(30, 15)
+						.addCallback(new CallbackListener() {
+							// @formatter:on
+							@Override
+							public void controlEvent(CallbackEvent input) {
+								if (transitionSymbolEntry.getStringValue().length() == 1) {
+									// TODO && transition has unique symbol
+									entry();
+								} else {
+									Notification.addNotification(symbolNotValid);
+								}
+							}
+						});
+
+				cp5 = new ControlP5(p);
+				cp5.hide();
+				menuListener = new ControlListener() {
 					@Override
-					public void controlEvent(CallbackEvent input) {
-						if (transitionSymbolEntry.getStringValue().length() == 1) {
-							// TODO && transition has unique symbol
-							entry();
-						} else {
-							Notification.addNotification(symbolNotValid);
+					public void controlEvent(ControlEvent optionSelected) {
+						cp5.hide();
+						switch ((int) optionSelected.getValue()) {
+							case 0 :
+								System.err.println(optionSelected.getValue());
+								transitionSymbolEntry.show();
+								break;
+							case 1 :
+								// TODO interface for machines so call kill() on generic
+								head.childKill(Arrow.this);
+								tail.childKill(Arrow.this);
+								if (PFLAP.mode == modes.DFA) {
+									DFA.removeTransition(tail, head, transitionSymbol);
+								}
+								parentKill();
+								break;
+							default :
+								break;
 						}
 					}
-				});
 
-		cp5 = new ControlP5(p);
-		cp5.hide();
-		menuListener = new ControlListener() {
-			@Override
-			public void controlEvent(ControlEvent optionSelected) {
-				cp5.hide();
-				switch ((int) optionSelected.getValue()) {
-					case 0 :
-						System.err.println(optionSelected.getValue());
-						transitionSymbolEntry.show();
-						break;
-					case 1 :
-						// TODO interface for machines so call kill() on generic
-						head.childKill(Arrow.this);
-						tail.childKill(Arrow.this);
-						if (PFLAP.mode == modes.DFA) {
-							DFA.removeTransition(tail, head, transitionSymbol);
-						}
-						parentKill();
-						break;
-					default :
-						break;
-				}
-			}
-
-		};
-		stateOptions = cp5.addScrollableList("Options");
-		// @formatter:off
-		stateOptions.setType(1)
-				.addItems(new String[] {"Change Symbol", "Delete Transition"})
-				.open()
-				.addListener(menuListener);
-		// @formatter:on
-
+				};
+				stateOptions = cp5.addScrollableList("Options");
+				// @formatter:off
+				stateOptions.setType(1)
+						.addItems(new String[] {"Change Symbol", "Delete Transition"})
+						.open()
+						.addListener(menuListener);
+				// @formatter:on
 	}
 
 	private void entry() {
@@ -156,9 +172,6 @@ public class Arrow {
 		textSize = map(PVector.dist(tailXY, headXY), 0, 200, 10, 16);
 
 		rotationOffset = theta2;
-		transitionSymbolEntry.setPosition((headXY.x + tailXY.x) / 2, (headXY.y + tailXY.y) / 2).show().setFocus(true); // reposition
-		stateOptions.setPosition(headXY.x - dist(tailXY.x, tailXY.y, headXY.x, headXY.y) / 2,
-				(PApplet.abs(headXY.y) + PApplet.abs(tailXY.y)) / 2 + 7); // TOD
 
 		if (numberBetween(theta2, 0.5f * PI, -0.5f * PI)) {
 			labelRotationModifier = -1;
@@ -167,12 +180,26 @@ public class Arrow {
 			labelRotationModifier = 1;
 			rotationOffset = theta1;
 		}
+		
+		// Update cp5:
+		transitionSymbolEntry.setPosition((headXY.x + tailXY.x) / 2, (headXY.y + tailXY.y) / 2).show().setFocus(true); // reposition
+		stateOptions.setPosition(headXY.x - dist(tailXY.x, tailXY.y, headXY.x, headXY.y) / 2,
+				(PApplet.abs(headXY.y) + PApplet.abs(tailXY.y)) / 2 + 7); // TODO
 	}
 
 	public void parentKill() {
+		// States call this.
 		PFLAP.cp5.remove(String.valueOf(ID));
 		PFLAP.arrows.remove(this);
 		// remove references to this in states and machine
+	}
+	
+	public void kill() {
+		head.childKill(this);
+		tail.childKill(this);
+		DFA.removeTransition(tail, head, transitionSymbol); //todo MAKE GENERIC
+		PFLAP.cp5.remove(String.valueOf(ID));
+		PFLAP.arrows.remove(this);
 	}
 
 	public void draw() {
