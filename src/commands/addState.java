@@ -1,5 +1,6 @@
 package commands;
 
+import machines.DFA;
 import main.PFLAP;
 import p5.State;
 
@@ -14,7 +15,7 @@ public class addState implements Command {
 	@Override
 	public void execute() {
 		PFLAP.nodes.add(s);
-
+		DFA.addNode(s);
 	}
 
 	@Override

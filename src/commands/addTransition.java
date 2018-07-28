@@ -1,5 +1,6 @@
 package commands;
 
+import machines.DFA;
 import main.PFLAP;
 import p5.Arrow;
 import p5.State;

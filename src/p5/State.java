@@ -75,7 +75,7 @@ public class State {
 	public State(PVector XY, int liveID) {
 		switch (PFLAP.mode) {
 			case DFA :
-				DFA.addNode(this);
+//				DFA.addNode(this); TODO replaced in addState command
 				break;
 			case DPA :
 				DPA.addNode(this);
@@ -244,6 +244,10 @@ public class State {
 
 	public PVector getPosition() {
 		return position;
+	}
+	
+	public void setAsInitial() {
+		initial = true;
 	}
 
 	public PVector getSelectedPosition() {
