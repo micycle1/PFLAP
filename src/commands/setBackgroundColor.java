@@ -1,35 +1,34 @@
 package commands;
 
+import java.awt.Color;
+
+import main.PFLAP;
+
 //import main.appletVariables;
 
 public class setBackgroundColor implements Command {
 
-	private int oldColor = 255, color;
+	private Color oldColor, newColor;
 	
-	public setBackgroundColor() {
-		// TODO Auto-generated constructor stub
-	}
-
-	public setBackgroundColor(int color) {
-		this.color = color;
+	public setBackgroundColor(Color c) {
+		oldColor = PFLAP.bgColour;
+		this.newColor = c;
 
 	}
 
 	@Override
 	public void execute() {
-//		oldColor = appletVariables.backgroundColor;
-		// backgroundColorController.setbackgroundColor(this.color);
-//		appletVariables.backgroundColor = this.color;
+		PFLAP.bgColour = newColor;
 	}
 
 	@Override
 	public void undo() {
-//		appletVariables.backgroundColor = oldColor;
+		PFLAP.bgColour = oldColor;
 	}
 
 	@Override
 	public String description() {
-		return "Set background color: " + color;
+		return "Set background color: " + newColor;
 	}
 
 }

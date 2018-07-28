@@ -24,6 +24,7 @@ import javax.swing.JOptionPane;
 
 import commands.addState;
 import commands.moveState;
+import commands.setBackgroundColor;
 import commands.addTransition;
 import commands.deleteState;
 
@@ -61,14 +62,15 @@ import static main.Functions.withinRegion;
  * delete transitions
  * modify transitions
  * info about machine (#states, etc)
- * undo/redo
- * save/load : stateXY; encoding of transitions per machine
  * mutli selection creating transtion makes multiple transitions
  * state resize / transition thickness
  * PGraphics.begindraw for screenshot transparency
  * DFA: if adding transition w/ same head & tail, merge into existing
  * make machine non-static of type generic
  * split arrow 2: temp arrow and final arrow, pass only head tail to constructor for final
+ * BUG: symbol length > 1 notifcation multiple appearance
+ * history handler GUI for user
+ * initial state glitched
  */
 //@formatter:on
 
@@ -424,7 +426,7 @@ public class PFLAP extends PApplet {
 					case "Background Colour" :
 						temp = JColorChooser.showDialog(null, "Choose Background Colour", bgColour);
 						if (temp != null) {
-							bgColour = temp;
+							HistoryHandler.buffer(new setBackgroundColor(temp));
 						}
 						break;
 					default :

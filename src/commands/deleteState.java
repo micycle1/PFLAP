@@ -13,7 +13,7 @@ public class deleteState implements Command {
 	public deleteState(ArrayList<State> s) {
 		deleteCache = new ArrayList<>(s);
 	}
-	
+
 	public deleteState(HashSet<State> s) {
 		deleteCache = new ArrayList<>(s);
 	}
@@ -31,13 +31,17 @@ public class deleteState implements Command {
 
 	@Override
 	public void undo() {
-		//re add arrows?
+		// re add arrows?
 		PFLAP.nodes.addAll(deleteCache);
 	}
 
 	@Override
 	public String description() {
-		return "Delete" + deleteCache.get(0).getLabel();
+		if (deleteCache.size() > 1) {
+			return "Deleted " + deleteCache.size() +" states.";
+		} else {
+			return "Deleted state " + deleteCache.get(0).getLabel();
+		}
 	}
 
 }

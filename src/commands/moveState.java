@@ -1,5 +1,7 @@
 package commands;
 
+import java.util.ArrayList;
+
 import p5.State;
 import processing.core.PVector;
 
@@ -12,6 +14,10 @@ public class moveState implements Command {
 		this.s = s;
 		oldPos = oldPosition;
 		newPos = s.getPosition();
+	}
+	
+	public moveState(ArrayList<State> states, ArrayList<PVector> positions) {
+		// for MMB move
 	}
 
 	@Override

@@ -9,10 +9,6 @@ public class addTransition implements Command {
 	private Arrow a;
 	private State head, tail;
 
-	// public addTransition(Arrow a) {
-	// this.a = a;
-	// }
-
 	public addTransition(State tail, State head) {
 		this.head = head;
 		this.tail = tail;
@@ -35,6 +31,6 @@ public class addTransition implements Command {
 
 	@Override
 	public String description() {
-		return "New Transition: " + a.getSymbol();
+		return "New Transition: " + a.getSymbol(); //TODO
 	}
 }

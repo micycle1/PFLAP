@@ -12,6 +12,7 @@ import machines.DFA;
 import machines.DPA;
 
 import main.Functions;
+import main.HistoryHandler;
 import main.PFLAP;
 import main.PFLAP.modes;
 
@@ -30,6 +31,9 @@ import static main.PFLAP.PI;
 import static processing.core.PApplet.dist;
 import static processing.core.PApplet.map;
 import static processing.core.PApplet.sin;
+
+import commands.deleteTransition;
+
 import static processing.core.PApplet.cos;
 
 public class Arrow {
@@ -105,12 +109,10 @@ public class Arrow {
 								break;
 							case 1 :
 								// TODO interface for machines so call kill() on generic
-								head.childKill(Arrow.this);
-								tail.childKill(Arrow.this);
-								if (PFLAP.mode == modes.DFA) {
-									DFA.removeTransition(tail, head, transitionSymbol);
-								}
-								parentKill();
+								HistoryHandler.buffer(new deleteTransition(Arrow.this));
+//								if (PFLAP.mode == modes.DFA) {
+//									DFA.removeTransition(tail, head, transitionSymbol);
+//								}
 								break;
 							default :
 								break;
@@ -187,7 +189,7 @@ public class Arrow {
 				(PApplet.abs(headXY.y) + PApplet.abs(tailXY.y)) / 2 + 7); // TODO
 	}
 
-	public void parentKill() {
+	protected void parentKill() {
 		// States call this.
 		PFLAP.cp5.remove(String.valueOf(ID));
 		PFLAP.arrows.remove(this);
@@ -200,6 +202,15 @@ public class Arrow {
 		DFA.removeTransition(tail, head, transitionSymbol); //todo MAKE GENERIC
 		PFLAP.cp5.remove(String.valueOf(ID));
 		PFLAP.arrows.remove(this);
+	}
+	
+	public void unKill() {
+		PFLAP.arrows.add(this);
+		DFA.addTransition(tail, head, transitionSymbol);
+		head.addArrowHead(this);
+		tail.addArrowTail(this);
+		// or call addTransition?
+		// TODO make cp5 instance-related
 	}
 
 	public void draw() {

@@ -189,7 +189,7 @@ public class State {
 		resizeGUI.getAll().forEach(c -> c.remove());
 	}
 	
-	public void childKill(Arrow a) {
+	protected void childKill(Arrow a) {
 		// Transition arrows call this.
 		if (arrowHeads.contains(a)) {
 			arrowHeads.remove(a);

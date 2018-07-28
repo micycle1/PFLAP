@@ -1,6 +1,7 @@
 package commands;
 
 import p5.Arrow;
+import p5.State;
 
 /**
  * DELETE SINGLE TRANSITION NOT YET IMPLEMENTED TODO
@@ -9,6 +10,7 @@ import p5.Arrow;
 public class deleteTransition implements Command {
 
 	private Arrow a;
+	private State head, tail; //???
 
 	public deleteTransition(Arrow a) {
 		this.a = a;
@@ -16,11 +18,12 @@ public class deleteTransition implements Command {
 
 	@Override
 	public void execute() {
-		a.parentKill();
+		a.kill();
 	}
 
 	@Override
 	public void undo() {
+		a.unKill();
 	}
 
 	@Override
