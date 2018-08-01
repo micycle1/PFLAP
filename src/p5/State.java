@@ -95,6 +95,8 @@ public class State {
 			@Override
 			public void controlEvent(ControlEvent radiusChange) {
 				radius = (int) sizeSlider.getValue();
+				arrowHeads.forEach(a -> a.update());
+				arrowTails.forEach(a -> a.update());
 			}
 		};
 		sizeSlider.addListener(sizeSliderListener);
@@ -193,7 +195,7 @@ public class State {
 			p.strokeWeight(2);
 			p.ellipse(position.x, position.y, radius - 9, radius - 9);
 		}
-		p.textSize(16 + PApplet.sqrt(radius) * 5 - 30);
+		p.textSize(PApplet.max(14, (PApplet.sqrt(radius) * 10) - 50));
 		p.text(label, position.x, position.y);
 	}
 

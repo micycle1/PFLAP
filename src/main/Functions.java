@@ -60,8 +60,9 @@ public final class Functions {
 	 *            Range High
 	 * @return True if Low >= n >= High
 	 */
-	public static boolean numberBetween(float n, float a1, float a2) {
-		return (n >= min(a1, a2) && n <= max(a1, a2));
+	public static boolean numberBetween(double n, double a1, double a2) {
+		return (n >= Math.min(a1, a2) && n <= Math.max(a1, a2));
+
 	}
 
 	/**

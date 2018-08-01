@@ -15,15 +15,17 @@ import main.PFLAP;
 import processing.core.PApplet;
 import processing.core.PVector;
 
-import static main.Consts.stateRadius;
+//import static main.Consts.stateRadius;
 import static main.Consts.notificationData.symbolNotValid;
 
 import static main.Functions.angleBetween;
 import static main.Functions.numberBetween;
 
 import static main.PFLAP.p;
-import static main.PFLAP.PI;
 import static main.PFLAP.machine;
+//import static main.PFLAP.processing.cp5;
+
+import static java.lang.Math.PI;
 
 import static processing.core.PApplet.dist;
 import static processing.core.PApplet.map;
@@ -74,7 +76,7 @@ public class Arrow {
 	
 	public void initCP5() {
 		// @formatter:off
-				transitionSymbolEntry = PFLAP.cp5.addTextfield(String.valueOf(ID)) //make static?
+				transitionSymbolEntry = main.PFLAP.cp5.addTextfield(String.valueOf(ID)) //make static?
 						.setColorLabel(0)
 						.setLabel("")
 						.hide()
@@ -135,7 +137,7 @@ public class Arrow {
 					entryType = entryTypes.POP;
 				} else {
 					machine.addTransition(this); // don't add here if dpa
-					PFLAP.cp5.remove(String.valueOf(ID));
+					main.PFLAP.cp5.remove(String.valueOf(ID));
 					PFLAP.allowGUIInterraction = true;
 				}
 				break;
@@ -146,7 +148,7 @@ public class Arrow {
 			case PUSH :
 				stackPush = transitionSymbolEntry.getStringValue().charAt(0);
 				machine.addTransition(this);
-				PFLAP.cp5.remove(String.valueOf(ID));
+				main.PFLAP.cp5.remove(String.valueOf(ID));
 				PFLAP.allowGUIInterraction = true;
 				break;
 			default :
@@ -160,12 +162,12 @@ public class Arrow {
 	 */
 	public void update() {
 		theta1 = angleBetween(head.getPosition(), tail.getPosition());
-		headXY = new PVector(head.getPosition().x + stateRadius * 0.5f * cos(theta1),
-				head.getPosition().y + stateRadius * 0.5f * sin(theta1));
+		headXY = new PVector(head.getPosition().x + head.getRadius() * 0.5f * cos(theta1),
+				head.getPosition().y + head.getRadius() * 0.5f * sin(theta1));
 
 		theta2 = angleBetween(tail.getPosition(), head.getPosition());
-		tailXY = new PVector(tail.getPosition().x + stateRadius * 0.5f * cos(theta2),
-				tail.getPosition().y + stateRadius * 0.5f * sin(theta2));
+		tailXY = new PVector(tail.getPosition().x + tail.getRadius() * 0.5f * cos(theta2),
+				tail.getPosition().y + tail.getRadius() * 0.5f * sin(theta2));
 
 		textSize = map(PVector.dist(tailXY, headXY), 0, 200, 10, 16);
 
@@ -187,7 +189,7 @@ public class Arrow {
 
 	protected void parentKill() {
 		// States call this.
-		PFLAP.cp5.remove(String.valueOf(ID));
+		main.PFLAP.cp5.remove(String.valueOf(ID));
 		PFLAP.arrows.remove(this);
 		// remove references to this in states and machine
 	}
@@ -196,7 +198,7 @@ public class Arrow {
 		head.childKill(this);
 		tail.childKill(this);
 		machine.removeTransition(this);
-		PFLAP.cp5.remove(String.valueOf(ID));
+		main.PFLAP.cp5.remove(String.valueOf(ID));
 		PFLAP.arrows.remove(this);
 	}
 	
