@@ -333,7 +333,6 @@ final class InitUI {
 			.setVisible(false)
 			.setPosition(10, 670)
 			.setSize(200, 100)
-			//.setFont(createFont("", 12))
 			.setFont(traceFont)
 			.setLineHeight(14)
 			.setColor(p.color(255))

@@ -7,16 +7,19 @@ import p5.Arrow;
 import p5.Notification;
 import p5.State;
 
-public class DFA implements Machine {
-	/**
-	 * Deterministic Finite Automaton
-	 */
+/**
+ * <p> <b>Deterministic Finite Automaton</b></p>
+ * <p> Accepts iff accepting state and input consumed
+ */
 
-	private Map<State, Map<Character, State>> transitions = new HashMap<>();
+public class DFA implements Machine {
+
+	private Map<State, Map<Character, State>> transitions;
 	private State initial;
 	private String initialInput;
 	
 	public DFA() {
+		transitions = new HashMap<>();
 	}
 
 	public void setInitialState(State s) {

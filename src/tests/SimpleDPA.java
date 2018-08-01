@@ -1,86 +1,77 @@
-package machines;
+package tests;
 
 import java.util.LinkedList;
 import java.util.Queue;
-
 import com.google.common.graph.MutableNetwork;
 import com.google.common.graph.NetworkBuilder;
 
-import p5.Arrow;
-import p5.State;
+final class SimpleDPA {
 
-/**
- * <p>
- * <b>Deterministic Pushdown Automaton</b>
- * <p>
- * Accepts iff on accept state and stack empty.
- */
-
-public class DPA implements Machine {
+	/**
+	 * Deterministic Pushdown Automaton Accept iff accept state and stack empty
+	 */
 
 	private Queue<Character> stack;
-	private State initial;
-	private MutableNetwork<State, Arrow> transitionGraph;
+	private SimpleState initial;
+	private MutableNetwork<SimpleState, SimpleArrow> transitionGraph;
 	private Character initialStackSymbol;
 
-	public DPA() {
+	public SimpleDPA() {
 		stack = new LinkedList<Character>();
 		transitionGraph = NetworkBuilder.directed().allowsParallelEdges(true).expectedNodeCount(100)
 				.expectedEdgeCount(200).allowsSelfLoops(true).build();
 	}
 
-	public void setInitialState(State s) {
-		initial = s;
+	protected void setInitialState(SimpleState s1) {
+		initial = s1;
 	}
 
-	public State getInitialState() {
+	protected SimpleState getInitialState() {
 		return initial;
 	}
 
-	public void setInitialStackSymbol(char ss) {
+	protected void setInitialStackSymbol(char ss) {
 		initialStackSymbol = ss;
 	}
 
-	public void addNode(State s) {
-		transitionGraph.addNode(s);
+	protected void addNode(SimpleState s1) {
+		transitionGraph.addNode(s1);
 	}
 
-	public void deleteNode(State s) {
+	protected void deleteNode(SimpleState s) {
 		transitionGraph.removeNode(s);
 	}
 
-	@Override
-	public void addTransition(Arrow a) {
+	protected void addTransition(SimpleArrow a) {
 		transitionGraph.addEdge(a.getTail(), a.getHead(), a);
 	}
 
-	@Override
-	public void removeTransition(Arrow a) {
+	protected void removeTransition(SimpleArrow a) {
 		transitionGraph.removeEdge(a);
+
 	}
 
-	@Override
-	public boolean run(String input) {
+	protected boolean run(String input) {
 		stack.clear();
 		stack.add(initialStackSymbol);
-		State s = initial;
+		SimpleState s = initial;
 
 		while (!input.isEmpty()) {
 			char symbol = input.charAt(0);
 			input = input.substring(1);
 
 			checkOneState : {
-				for (Arrow a : transitionGraph.outEdges(s)) {
+				for (SimpleArrow a : transitionGraph.outEdges(s)) {
 					if ((a.getSymbol() == symbol || symbol == ' ')
 							&& (a.getStackPop() == stack.peek() || stack.peek() == ' ')) {
 						// catch stack empty
-//						System.out.println(input + ", " + a.getStackPop() + "/" + a.getStackPush() + "; " + stack.peek()
-//								+ "; " + stack.size());
+						System.out.println(input + ", " + a.getStackPop() + "/" + a.getStackPush()+"; "+stack.peek() + "; "+stack.size());
 						stack.poll();
 						if (!(a.getStackPush() == ' ')) {
 							stack.add(a.getStackPush());
 						}
 						s = a.getHead();
+
 						break checkOneState;
 					}
 				}
@@ -90,14 +81,10 @@ public class DPA implements Machine {
 		return (s.isAccepting() && (stack.isEmpty() || stack.poll() == ' '));
 	}
 
-	public int totalTransitions() {
+	protected int totalTransitions() {
 		return transitionGraph.edges().size();
 	}
 
-	@Override
-	public void debug() {
-		// TODO Auto-generated method stub
-
+	protected void debug() {
 	}
-
 }

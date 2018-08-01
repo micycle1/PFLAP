@@ -57,6 +57,8 @@ import static main.Functions.withinRegion;
  * history handler GUI for user
  * initial state glitched
  * make states arrows etc pgraphics objects 
+ * add undo redo hotkeys and button in edit menu
+ * multi-character DPA transition
  */
 //@formatter:on
 

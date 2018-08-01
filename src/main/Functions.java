@@ -16,6 +16,7 @@ import java.awt.Color;
 /**
  * Provides static geometry functions.
  */
+
 public final class Functions {
 
 	/**

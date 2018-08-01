@@ -26,7 +26,7 @@ public class NDFA extends DFA {
 		}
 	}
 	
-	public static boolean run(String input) {
+	public boolean run(String input) {
 		State s = initial;
 		while (!(input.isEmpty())) {
 			char symbol = input.charAt(0);
@@ -41,7 +41,7 @@ public class NDFA extends DFA {
 		// Notification?
 	}
 	
-	public static int totalTransitions() {
+	public int totalTransitions() {
 		int n = 0;
 		for (Map<Character, ArrayList<State>> m : transitions.values()) {
 			for (ArrayList<State> h : m.values()) {
@@ -51,7 +51,7 @@ public class NDFA extends DFA {
 		return n;
 	}
 
-	public static void debug() {
+	public void debug() {
 		if (initial != null) {
 			System.out.println("Initial: " + initial.getLabel());
 		}

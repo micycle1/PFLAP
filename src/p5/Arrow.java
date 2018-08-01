@@ -7,7 +7,7 @@ import controlP5.ControlListener;
 import controlP5.ControlP5;
 import controlP5.ScrollableList;
 import controlP5.Textfield;
-
+import machines.DPA;
 import main.Functions;
 import main.HistoryHandler;
 import main.PFLAP;
@@ -300,7 +300,7 @@ public class Arrow {
 	public char getStackPush() {
 		return stackPush;
 	}
-
+	
 	@Override
 	public String toString() {
 		return String.valueOf(ID) + tail.getLabel() + head.getLabel();
