@@ -59,7 +59,6 @@ public class Arrow {
 		this.tail = tail;
 		tailXY = startXY;
 		headXY = tailXY;
-		initCP5();
 	}
 	
 	public Arrow(State tail, State head) {

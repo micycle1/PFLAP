@@ -7,6 +7,7 @@ import com.google.common.graph.MutableNetwork;
 import com.google.common.graph.NetworkBuilder;
 
 import p5.Arrow;
+import p5.Notification;
 import p5.State;
 
 /**
@@ -84,6 +85,7 @@ public class DPA implements Machine {
 						break checkOneState;
 					}
 				}
+				Notification.addNotification(main.Consts.notificationData.machineRejected);
 				return false;
 			}
 		}

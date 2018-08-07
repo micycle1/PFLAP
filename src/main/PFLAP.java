@@ -366,10 +366,7 @@ public class PFLAP {
 							if (arrowTailState != arrowHeadState && (arrowHeadState != null) && drawingArrow != null) {
 								// TODO change logic for self transition
 								allowGUIInterraction = false;
-								HistoryHandler.buffer(new addTransition(arrowTailState, arrowHeadState)); // TODO
-																											// change
-																											// instantiation
-
+								HistoryHandler.buffer(new addTransition(arrowTailState, arrowHeadState));
 							}
 							drawingArrow = null;
 							if (arrowHeadState == null) {

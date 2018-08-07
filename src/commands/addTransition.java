@@ -1,6 +1,5 @@
 package commands;
 
-import machines.DFA;
 import main.PFLAP;
 import p5.Arrow;
 import p5.State;
@@ -18,8 +17,6 @@ public class addTransition implements Command {
 
 	@Override
 	public void execute() {
-		a.setTail(tail);
-		a.setHead(head);
 		head.addArrowHead(a);
 		tail.addArrowTail(a);
 		PFLAP.arrows.add(a);
@@ -32,6 +29,6 @@ public class addTransition implements Command {
 
 	@Override
 	public String description() {
-		return "New Transition: " + a.getSymbol(); //TODO
+		return "New Transition: " + a.getTail().getLabel() + " -> " + a.getSymbol() + " ->" + a.getHead().getLabel();
 	}
 }
