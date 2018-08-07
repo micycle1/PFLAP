@@ -1,5 +1,7 @@
 package commands;
 
+import static main.PFLAP.machine;
+
 import main.PFLAP;
 import p5.Arrow;
 import p5.State;
@@ -19,6 +21,9 @@ public class addTransition implements Command {
 	public void execute() {
 		head.addArrowHead(a);
 		tail.addArrowTail(a);
+		if (a.getSymbol() != '\u0000') {
+		machine.addTransition(a);
+		}
 		PFLAP.arrows.add(a);
 	}
 

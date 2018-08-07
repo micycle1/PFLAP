@@ -44,7 +44,7 @@ public class Arrow {
 	private PVector tailXY, headXY;
 	private float rotationOffset, theta1, theta2, textSize = 16;
 	private Textfield transitionSymbolEntry;
-	private char transitionSymbol = ' ', stackPop, stackPush;
+	private char transitionSymbol, stackPop, stackPush;
 	private int ID, labelRotationModifier = -1;
 
 	private static enum entryTypes {
@@ -60,7 +60,7 @@ public class Arrow {
 		tailXY = startXY;
 		headXY = tailXY;
 	}
-	
+
 	public Arrow(State tail, State head) {
 		// Constructor for finalised transtions
 		// PFLAP.allowGUIInterraction = false;
@@ -72,7 +72,7 @@ public class Arrow {
 		initCP5();
 		update();
 	}
-	
+
 	public void initCP5() {
 		// @formatter:off
 				transitionSymbolEntry = main.PFLAP.cp5.addTextfield(String.valueOf(ID)) //make static?
@@ -83,43 +83,43 @@ public class Arrow {
 						.setSize(30, 15)
 						.addCallback(new CallbackListener() {
 							// @formatter:on
-							@Override
-							public void controlEvent(CallbackEvent input) {
-								if (transitionSymbolEntry.getStringValue().length() == 1) {
-									// TODO && transition has unique symbol
-									entry();
-								} else {
-									Notification.addNotification(symbolNotValid);
-								}
-							}
-						});
-
-				cp5 = new ControlP5(p);
-				cp5.hide();
-				menuListener = new ControlListener() {
 					@Override
-					public void controlEvent(ControlEvent optionSelected) {
-						cp5.hide();
-						switch ((int) optionSelected.getValue()) {
-							case 0 :
-								System.err.println(optionSelected.getValue());
-								transitionSymbolEntry.show();
-								break;
-							case 1 :
-								// TODO interface for machines so call kill() on generic
-								HistoryHandler.buffer(new deleteTransition(Arrow.this));
-//								if (PFLAP.mode == modes.DFA) {
-//									DFA.removeTransition(tail, head, transitionSymbol);
-//								}
-								break;
-							default :
-								break;
+					public void controlEvent(CallbackEvent input) {
+						if (transitionSymbolEntry.getStringValue().length() == 1) {
+							// TODO && transition has unique symbol
+							entry();
+						} else {
+							Notification.addNotification(symbolNotValid);
 						}
 					}
+				});
 
-				};
-				stateOptions = cp5.addScrollableList("Options");
-				// @formatter:off
+		cp5 = new ControlP5(p);
+		cp5.hide();
+		menuListener = new ControlListener() {
+			@Override
+			public void controlEvent(ControlEvent optionSelected) {
+				cp5.hide();
+				switch ((int) optionSelected.getValue()) {
+					case 0 :
+						System.err.println(optionSelected.getValue());
+						transitionSymbolEntry.show();
+						break;
+					case 1 :
+						// TODO interface for machines so call kill() on generic
+						HistoryHandler.buffer(new deleteTransition(Arrow.this));
+						// if (PFLAP.mode == modes.DFA) {
+						// DFA.removeTransition(tail, head, transitionSymbol);
+						// }
+						break;
+					default :
+						break;
+				}
+			}
+
+		};
+		stateOptions = cp5.addScrollableList("Options");
+		// @formatter:off
 				stateOptions.setType(1)
 						.addItems(new String[] {"Change Symbol", "Delete Transition"})
 						.open()
@@ -179,7 +179,7 @@ public class Arrow {
 			labelRotationModifier = 1;
 			rotationOffset = theta1;
 		}
-		
+
 		// Update cp5:
 		transitionSymbolEntry.setPosition((headXY.x + tailXY.x) / 2, (headXY.y + tailXY.y) / 2).show().setFocus(true); // reposition
 		stateOptions.setPosition(headXY.x - dist(tailXY.x, tailXY.y, headXY.x, headXY.y) / 2,
@@ -192,28 +192,20 @@ public class Arrow {
 		PFLAP.arrows.remove(this);
 		// remove references to this in states and machine
 	}
-	
+
 	public void kill() {
 		head.childKill(this);
 		tail.childKill(this);
 		machine.removeTransition(this);
-		main.PFLAP.cp5.remove(String.valueOf(ID));
+		main.PFLAP.cp5.remove(String.valueOf(ID)); // TODO make cp5 instance-related
 		PFLAP.arrows.remove(this);
-	}
-	
-	public void unKill() {
-		PFLAP.arrows.add(this);
-		machine.addTransition(this);
-		head.addArrowHead(this);
-		tail.addArrowTail(this);
-		// or call addTransition?
-		// TODO make cp5 instance-related
 	}
 
 	public void draw() {
 		p.line(tailXY.x, tailXY.y, headXY.x, headXY.y);
 		p.noFill(); // disable to fill arrow head
-//		p.bezier(tailXY.x, tailXY.y, tailXY.x + 65, tailXY.y - 45, tailXY.x + 65, tailXY.y + 45, tailXY.x, tailXY.y); // TODO
+		// p.bezier(tailXY.x, tailXY.y, tailXY.x + 65, tailXY.y - 45, tailXY.x +
+		// 65, tailXY.y + 45, tailXY.x, tailXY.y); // TODO
 
 		p.pushMatrix();
 		p.translate(headXY.x, headXY.y);
@@ -299,7 +291,7 @@ public class Arrow {
 	public char getStackPush() {
 		return stackPush;
 	}
-	
+
 	@Override
 	public String toString() {
 		return String.valueOf(ID) + tail.getLabel() + head.getLabel();

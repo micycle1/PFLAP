@@ -1,5 +1,8 @@
 package commands;
 
+import static main.PFLAP.machine;
+
+import main.PFLAP;
 import p5.Arrow;
 import p5.State;
 
@@ -18,12 +21,17 @@ public class deleteTransition implements Command {
 
 	@Override
 	public void execute() {
+		head = a.getHead();
+		tail = a.getTail();
 		a.kill();
 	}
 
 	@Override
 	public void undo() {
-		a.unKill();
+		head.addArrowHead(a);
+		tail.addArrowTail(a);
+		machine.addTransition(a);
+		PFLAP.arrows.add(a);
 	}
 
 	@Override

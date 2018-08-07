@@ -51,7 +51,6 @@ import static main.Functions.withinRegion;
  * state resize / transition thickness
  * PGraphics.begindraw for screenshot transparency
  * DFA: if adding transition w/ same head & tail, merge into existing
- * make machine non-static of type generic
  * split arrow 2: temp arrow and final arrow, pass only head tail to constructor for final
  * BUG: symbol length > 1 notifcation multiple appearance
  * history handler GUI for user
