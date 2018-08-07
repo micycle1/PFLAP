@@ -10,6 +10,7 @@ import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.HashSet;
 
+import commands.Batch;
 import commands.addState;
 
 import commands.moveState;
@@ -229,7 +230,8 @@ public class PFLAP {
 		public void keyReleased(KeyEvent key) {
 			switch (key.getKeyCode()) {
 				case 127 : // 127 == delete key
-					HistoryHandler.buffer(new deleteState(selected));
+//					HistoryHandler.buffer(new deleteState(selected));
+					HistoryHandler.buffer(new Batch(Batch.createDeleteBatch(selected)));
 					selected.clear();
 					break;
 				case 32 : // TODO remove (temp)

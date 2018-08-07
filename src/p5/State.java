@@ -14,6 +14,7 @@ import controlP5.Textfield;
 import static main.Consts.stateRadius;
 import static main.Consts.initialNodeIndicatorSize;
 
+import main.HistoryHandler;
 import main.PFLAP;
 import static main.PFLAP.p;
 import static main.PFLAP.stateColour;
@@ -135,7 +136,7 @@ public class State {
 						sizeSlider.show();
 						break;
 					case 4 :
-						// delete TODO
+						HistoryHandler.buffer(new commands.deleteState(State.this));
 					default :
 						break;
 				}
@@ -152,7 +153,6 @@ public class State {
 	}
 
 	public void kill() {
-
 		for (Arrow a : arrowHeads) {
 			machine.removeTransition(a);
 		}
@@ -160,7 +160,6 @@ public class State {
 		if (initial) {
 			machine.setInitialState(null);
 		}
-
 		arrowHeads.forEach(a -> a.parentKill());
 		arrowTails.forEach(a -> a.parentKill());
 		cp5.getAll().forEach(c -> c.remove());
@@ -225,6 +224,7 @@ public class State {
 
 	public void setAsInitial() {
 		initial = true;
+		machine.setInitialState(this);
 	}
 
 	public PVector getSelectedPosition() {

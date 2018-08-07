@@ -10,7 +10,7 @@ import p5.State;
  * DELETE SINGLE TRANSITION NOT YET IMPLEMENTED TODO
  */
 
-public class deleteTransition implements Command {
+public final class deleteTransition implements Command {
 
 	private Arrow a;
 	private State head, tail; //???

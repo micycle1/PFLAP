@@ -6,14 +6,13 @@ import main.PFLAP;
 
 //import main.appletVariables;
 
-public class setBackgroundColor implements Command {
+public final class setBackgroundColor implements Command {
 
-	private Color oldColor, newColor;
+	private final Color oldColor, newColor;
 	
 	public setBackgroundColor(Color c) {
 		oldColor = PFLAP.bgColour;
 		this.newColor = c;
-
 	}
 
 	@Override

@@ -1,56 +1,39 @@
 package commands;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-
-import machines.DFA;
-import main.PFLAP;
-import p5.State;
 import static main.PFLAP.machine;
 
-public class deleteState implements Command {
+import main.PFLAP;
+import p5.State;
 
-	private ArrayList<State> deleteCache;
-	private State initial;
+public final class deleteState implements Command {
 
-	public deleteState(ArrayList<State> s) {
-		deleteCache = new ArrayList<>(s);
-	}
-
-	public deleteState(HashSet<State> s) {
-		deleteCache = new ArrayList<>(s);
-	}
+	private final State s;
+	private boolean initial;
 
 	public deleteState(State s) {
-		deleteCache = new ArrayList<>();
-		deleteCache.add(s);
+		this.s = s;
+		// initial = s.in
 	}
 
 	@Override
 	public void execute() {
-		if (deleteCache.contains(machine.getInitialState())) {
-			initial = machine.getInitialState();
-		}
-		deleteCache.forEach(s -> s.kill());
-		PFLAP.nodes.removeAll(deleteCache);
+		s.kill();
+		PFLAP.nodes.remove(s);
 	}
 
 	@Override
 	public void undo() {
 		// re add arrows? TODO
-		if (initial != null) {
-			initial.setAsInitial();
+		machine.addNode(s);
+		if (initial) {
+			s.setAsInitial();
 		}
-		PFLAP.nodes.addAll(deleteCache);
+		PFLAP.nodes.add(s);
 	}
 
 	@Override
 	public String description() {
-		if (deleteCache.size() > 1) {
-			return "Deleted " + deleteCache.size() + " states.";
-		} else {
-			return "Deleted state " + deleteCache.get(0).getLabel();
-		}
+		return "Deleted the state " + s.getLabel();
 	}
 
 }

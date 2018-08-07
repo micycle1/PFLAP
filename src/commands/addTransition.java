@@ -6,7 +6,7 @@ import main.PFLAP;
 import p5.Arrow;
 import p5.State;
 
-public class addTransition implements Command {
+public final class addTransition implements Command {
 
 	private Arrow a;
 	private State head, tail;

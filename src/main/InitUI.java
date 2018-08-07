@@ -24,6 +24,7 @@ import java.util.ArrayList;
 import javax.swing.JColorChooser;
 import javax.swing.JOptionPane;
 
+import commands.Batch;
 import commands.deleteState;
 import commands.setBackgroundColor;
 
@@ -159,7 +160,7 @@ final class InitUI {
 						PFLAP.nodes.forEach(s -> s.select());
 						break;
 					case "Delete All States" :
-						HistoryHandler.buffer(new deleteState(PFLAP.nodes));
+						HistoryHandler.buffer(new Batch(Batch.createDeleteBatch(PFLAP.nodes)));
 						break;
 					case "Invert Selection" :
 						if (PFLAP.selected.size() > 0) { // only if >=1 selected

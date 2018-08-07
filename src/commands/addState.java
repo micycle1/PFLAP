@@ -4,9 +4,9 @@ import main.PFLAP;
 import p5.State;
 import static main.PFLAP.machine;
 
-public class addState implements Command {
+public final class addState implements Command {
 
-	private State s;
+	private final State s;
 
 	public addState(State s) {
 		this.s = s;
