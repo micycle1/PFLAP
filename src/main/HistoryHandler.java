@@ -52,6 +52,7 @@ public final class HistoryHandler {
 
 	public static void executeBufferedCommands() {
 		if (!(pendingExecute.isEmpty())) {
+			InitUI.undo.setEnabled(true);
 			if (historyStateIndex != history.size() - 1) {
 				// if index not at end clear history from then
 				for (int i = history.size() - 1; i > historyStateIndex; i--) {
@@ -72,6 +73,10 @@ public final class HistoryHandler {
 			// can undo first command
 			history.get(historyStateIndex).undo();
 			historyStateIndex -= 1;
+			InitUI.redo.setEnabled(true);
+		}
+		else {
+			InitUI.undo.setEnabled(false);
 		}
 	}
 
@@ -80,7 +85,15 @@ public final class HistoryHandler {
 			// if not at end of history
 			historyStateIndex += 1;
 			history.get(historyStateIndex).execute();
+			InitUI.undo.setEnabled(true);
 		}
+		else {
+			InitUI.redo.setEnabled(false);
+		}
+	}
+	
+	public static int getHistoryStateIndex() {
+		return historyStateIndex;
 	}
 
 	public static void saveHistory() {

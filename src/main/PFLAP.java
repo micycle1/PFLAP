@@ -15,7 +15,6 @@ import commands.addState;
 
 import commands.moveState;
 import commands.addTransition;
-import commands.deleteState;
 
 import processing.core.PApplet;
 import processing.core.PFont;
@@ -113,8 +112,13 @@ public class PFLAP {
 			surface.setLocation(displayWidth / 2 - width / 2, displayHeight / 2 - height / 2);
 			surface.setResizable(false);
 			surface.setResizable(true);
-			comfortaaRegular = createFont("Comfortaa Regular", 24, true);
-			comfortaaBold = createFont("Comfortaa Bold", Consts.stateFontSize, true);
+			try {
+				surface.setIcon(loadImage("assets\\icon_small.png"));
+			} catch (NullPointerException e) {
+				System.err.println("Icon file not found.");
+			}
+			comfortaaRegular = createFont("Comfortaa.ttf", 24, true);
+			comfortaaBold = createFont("Comfortaa-Bold.ttf", Consts.stateFontSize, true);
 			textFont(comfortaaBold);
 			frameRate(60);
 			strokeJoin(MITER);

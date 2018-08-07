@@ -25,7 +25,6 @@ import javax.swing.JColorChooser;
 import javax.swing.JOptionPane;
 
 import commands.Batch;
-import commands.deleteState;
 import commands.setBackgroundColor;
 
 import controlP5.ControlP5;
@@ -41,7 +40,12 @@ import processing.core.PVector;
 
 final class InitUI {
 
+	public static final MenuItem undo = new MenuItem("Undo"), redo = new MenuItem("Redo");
+
 	public static void initMenuBar(Frame f) {
+		
+		undo.setEnabled(false);
+		redo.setEnabled(false);
 
 		f.addComponentListener(new ComponentAdapter() {
 			public void componentResized(ComponentEvent event) {
@@ -49,25 +53,25 @@ final class InitUI {
 			}
 		});
 
-		MenuBar menuBar = new MenuBar();
+		final MenuBar menuBar = new MenuBar();
 
-		MenuItem fileMenuItem0, fileMenuItem1, fileMenuItem2;
-		MenuItem editMenuItem0, editMenuItem1, editMenuItem2;
-		MenuItem viewMenuItem0, viewMenuItem1;
-		CheckboxMenuItem viewMenuCheckboxItem0;
-		MenuItem inputMenuItem0, inputMenuItem1;
-		MenuItem helpMenuItem0, helpMenuItem1;
-		MenuItem defineColoursItem0, defineColoursItem1, defineColoursItem2, defineColoursItem3;
+		final MenuItem fileMenuItem0, fileMenuItem1, fileMenuItem2;
+		final MenuItem editMenuItem0, editMenuItem1, editMenuItem2;
+		final MenuItem viewMenuItem0, viewMenuItem1;
+		final CheckboxMenuItem viewMenuCheckboxItem0;
+		final MenuItem inputMenuItem0, inputMenuItem1;
+		final MenuItem helpMenuItem0, helpMenuItem1;
+		final MenuItem defineColoursItem0, defineColoursItem1, defineColoursItem2, defineColoursItem3;
 
 		// Top-Level Menus
-		Menu fileMenu = new Menu("File");
-		Menu editMenu = new Menu("Edit");
-		Menu viewMenu = new Menu("View");
-		Menu inputMenu = new Menu("Input");
-		Menu helpMenu = new Menu("Help");
+		final Menu fileMenu = new Menu("File");
+		final Menu editMenu = new Menu("Edit");
+		final Menu viewMenu = new Menu("View");
+		final Menu inputMenu = new Menu("Input");
+		final Menu helpMenu = new Menu("Help");
 
 		// Second-Level Menus
-		Menu defineColours = new Menu("Redefine Colours");
+		final Menu defineColours = new Menu("Redefine Colours");
 		defineColoursItem0 = new MenuItem("State Colour");
 		defineColoursItem1 = new MenuItem("State Selected Colour");
 		defineColoursItem2 = new MenuItem("Transition Arrow Colour");
@@ -107,6 +111,8 @@ final class InitUI {
 		fileMenu.add(fileMenuItem2);
 
 		// Add edit items to edit menu
+		editMenu.add(undo);
+		editMenu.add(redo);
 		editMenu.add(editMenuItem0);
 		editMenu.add(editMenuItem1);
 		editMenu.add(editMenuItem2);
@@ -125,9 +131,9 @@ final class InitUI {
 		helpMenu.add(helpMenuItem1);
 
 		// Menu Action Listeners
-		ActionListener fileMenuListener, editMenuListener, viewMenuListener, inputMenuListener, helpMenuListener,
+		final ActionListener fileMenuListener, editMenuListener, viewMenuListener, inputMenuListener, helpMenuListener,
 				defineColoursListener;
-		ItemListener tracerListener;
+		final ItemListener tracerListener;
 
 		fileMenuListener = new ActionListener() {
 			@Override
@@ -171,6 +177,17 @@ final class InitUI {
 							PFLAP.selected.addAll(temp);
 							PFLAP.selected.forEach(s -> s.select());
 						}
+						break;
+					case "Undo" :
+						HistoryHandler.undo();
+						redo.setEnabled(true);
+						if (HistoryHandler.getHistoryStateIndex() < -1) {
+							undo.setEnabled(false);
+						}
+						break;
+					case "Redo" :
+						HistoryHandler.redo();
+						undo.setEnabled(true);
 						break;
 					default :
 						System.err.println("Unhandled Menuitem.");
