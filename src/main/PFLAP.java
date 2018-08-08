@@ -73,7 +73,7 @@ public class PFLAP {
 	public static ControlP5 cp5;
 
 	public static enum modes {
-		DFA, DPA;
+		DFA, DPA, MEALY, MOORE;
 	}
 
 	public static Machine machine;
@@ -85,6 +85,11 @@ public class PFLAP {
 
 	public static void main(String[] args) {
 		processing.init();
+	}
+
+	public static void changeMode(modes newMode) {
+		mode = newMode;
+		PFLAP.processing.reset();
 	}
 
 	public final static class processing extends PApplet {
@@ -189,6 +194,35 @@ public class PFLAP {
 			return frame;
 		}
 
+		public static void reset() {
+			HistoryHandler.resetAll();
+			arrows.clear();
+			nodes.clear();
+			selected.clear();
+			Notification.clear();
+			mouseOverState  = null;
+			arrowTailState = null;
+			arrowHeadState = null;
+			dragState = null;
+			drawingArrow = null;
+			mouseOverTransition = null;
+			switch (mode) {
+				case DFA :
+					machine = new DFA();
+					break;
+				case DPA :
+					machine = new DPA();
+					break;
+				// TODO
+				case MEALY :
+					break;
+				case MOORE :
+					break;
+				default :
+					break;
+			}
+		}
+
 		private void nodeMouseOver() {
 			for (State s : nodes) {
 				if (withinRange(s.getPosition().x, s.getPosition().y, s.getRadius(), mouseX, mouseY)
@@ -256,6 +290,7 @@ public class PFLAP {
 		@Override
 		public void mousePressed(MouseEvent m) {
 			if (cp5.isMouseOver() || !allowGUIInterraction) {
+
 				return;
 			}
 
@@ -279,7 +314,6 @@ public class PFLAP {
 								newState = true;
 							}
 						}
-
 					} else {
 						if (mouseOverState != null) {
 							if (!mouseOverState.isMouseOver()) {

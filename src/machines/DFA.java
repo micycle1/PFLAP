@@ -42,7 +42,6 @@ public class DFA implements Machine {
 	}
 
 	public void addTransition(Arrow a) {
-		System.out.print("add");
 		transitionTable.put(a.getTail(), a.getSymbol(), a.getHead());
 	}
 

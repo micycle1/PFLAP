@@ -45,7 +45,8 @@ public final class Consts {
 	public static final String about = "PFLAP: Processing Formal Languages and Automata Package.\r\n" + 
 			"A JFLAP alternative using the Processing library as the graphics backend.",
 
-			help = "Mouse:\r\n" + 
+			help = "In PFLAP, spaces (' ') are read as lambda (blank) transitions.\r\n" +
+					"Mouse:\r\n" + 
 					"\r\n" + 
 					"Left-Click (press): Add New State / Select State.\r\n" + 
 					"Left-Click (hold & drag): Move State.\r\n" + 

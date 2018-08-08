@@ -12,6 +12,7 @@ public final class moveState implements Command {
 		this.s = s;
 		oldPos = oldPosition;
 		newPos = s.getPosition();
+		// use state selected position
 	}
 	
 	@Override

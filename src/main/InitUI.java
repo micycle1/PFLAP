@@ -30,14 +30,13 @@ import commands.setBackgroundColor;
 import controlP5.ControlP5;
 
 import machines.DPA;
-
+import main.PFLAP.modes;
 import p5.Notification;
 import p5.State;
 
 import processing.core.PApplet;
 import processing.core.PFont;
 import processing.core.PGraphics;
-import processing.core.PImage;
 import processing.core.PVector;
 
 final class InitUI {
@@ -45,7 +44,7 @@ final class InitUI {
 	public static final MenuItem undo = new MenuItem("Undo"), redo = new MenuItem("Redo");
 
 	public static void initMenuBar(Frame f) {
-		
+
 		undo.setEnabled(false);
 		redo.setEnabled(false);
 
@@ -61,6 +60,7 @@ final class InitUI {
 		final MenuItem editMenuItem0, editMenuItem1, editMenuItem2;
 		final MenuItem viewMenuItem0, viewMenuItem1;
 		final CheckboxMenuItem viewMenuCheckboxItem0;
+		final MenuItem machineMenuItem0, machineMenuItem1, machineMenuItem2, machineMenuItem3;
 		final MenuItem inputMenuItem0, inputMenuItem1;
 		final MenuItem helpMenuItem0, helpMenuItem1;
 		final MenuItem defineColoursItem0, defineColoursItem1, defineColoursItem2, defineColoursItem3;
@@ -69,6 +69,7 @@ final class InitUI {
 		final Menu fileMenu = new Menu("File");
 		final Menu editMenu = new Menu("Edit");
 		final Menu viewMenu = new Menu("View");
+		final Menu machineMenu = new Menu("Machine");
 		final Menu inputMenu = new Menu("Input");
 		final Menu helpMenu = new Menu("Help");
 
@@ -99,6 +100,12 @@ final class InitUI {
 		viewMenuCheckboxItem0 = new CheckboxMenuItem("Action Tracer", false);
 		// TODO view machine information (# states)
 
+		// Machine Menu
+		machineMenuItem0 = new MenuItem("DFA");
+		machineMenuItem1 = new MenuItem("DPA");
+		machineMenuItem2 = new MenuItem("Mealy");
+		machineMenuItem3 = new MenuItem("Moore");
+
 		// Input Menu
 		inputMenuItem0 = new MenuItem("Step By State");
 		inputMenuItem1 = new MenuItem("Fast Run");
@@ -124,6 +131,12 @@ final class InitUI {
 		viewMenu.add(viewMenuItem1);
 		viewMenu.add(defineColours);
 
+		// Add input items to machine menu
+		machineMenu.add(machineMenuItem0);
+		machineMenu.add(machineMenuItem1);
+		machineMenu.add(machineMenuItem2);
+		machineMenu.add(machineMenuItem3);
+
 		// Add input items to input menu
 		inputMenu.add(inputMenuItem0);
 		inputMenu.add(inputMenuItem1);
@@ -133,8 +146,8 @@ final class InitUI {
 		helpMenu.add(helpMenuItem1);
 
 		// Menu Action Listeners
-		final ActionListener fileMenuListener, editMenuListener, viewMenuListener, inputMenuListener, helpMenuListener,
-				defineColoursListener;
+		final ActionListener fileMenuListener, editMenuListener, viewMenuListener, machineMenuListener,
+				inputMenuListener, helpMenuListener, defineColoursListener;
 		final ItemListener tracerListener;
 
 		fileMenuListener = new ActionListener() {
@@ -211,14 +224,47 @@ final class InitUI {
 							String file = fg.getDirectory() + fg.getFile() + ".png";
 							p.saveFrame(file);
 						}
-						PGraphics screenshot = p.createGraphics(p.width, p.height); //todo transparent screenshot
+						PGraphics screenshot = p.createGraphics(p.width, p.height); // todo
+																					// transparent
+																					// screenshot
 						break;
 					case "Reorder States" :
-				
+
 						// TODO into grid?
 						break;
 					default :
 						System.err.println("Unhandled Menuitem.");
+						break;
+				}
+			}
+		};
+		
+		machineMenuListener = new ActionListener() {
+			private final void enableAll() {
+				machineMenuItem0.setEnabled(true);
+				machineMenuItem1.setEnabled(true);
+				machineMenuItem2.setEnabled(true);
+				machineMenuItem3.setEnabled(true);
+			}
+			@Override
+			public void actionPerformed(ActionEvent event) {
+				enableAll();
+				switch (event.getActionCommand()) {
+					case "DFA" :
+						PFLAP.changeMode(PFLAP.modes.DFA);
+						machineMenuItem0.setEnabled(false);
+						break;
+					case "DPA" :
+						PFLAP.changeMode(PFLAP.modes.DPA);
+						machineMenuItem1.setEnabled(false);
+						break;
+					case "Mealy" :
+						machineMenuItem2.setEnabled(false);
+						break;
+					case "Moore" :
+						machineMenuItem3.setEnabled(false);
+						break;
+					default :
 						break;
 				}
 			}
@@ -328,6 +374,7 @@ final class InitUI {
 		fileMenu.addActionListener(fileMenuListener);
 		editMenu.addActionListener(editMenuListener);
 		viewMenu.addActionListener(viewMenuListener);
+		machineMenu.addActionListener(machineMenuListener);
 		inputMenu.addActionListener(inputMenuListener);
 		helpMenu.addActionListener(helpMenuListener);
 		defineColours.addActionListener(defineColoursListener);
@@ -339,6 +386,7 @@ final class InitUI {
 		menuBar.add(fileMenu);
 		menuBar.add(editMenu);
 		menuBar.add(viewMenu);
+		menuBar.add(machineMenu);
 		menuBar.add(inputMenu);
 		menuBar.add(helpMenu);
 

@@ -43,6 +43,10 @@ public class Notification {
 		this.title = title;
 		this.message = message;
 	}
+	
+	public static void clear() {
+		notifications.clear();
+	}
 
 	public static void addNotification(Consts.notificationData data) {
 		notifications.add(new Notification(data.title(), data.message()));
