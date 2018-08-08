@@ -50,7 +50,6 @@ import static main.Functions.withinRegion;
  * state resize / transition thickness
  * PGraphics.begindraw for screenshot transparency
  * DFA: if adding transition w/ same head & tail, merge into existing
- * split arrow 2: temp arrow and final arrow, pass only head tail to constructor for final
  * BUG: symbol length > 1 notifcation multiple appearance
  * history handler GUI for user
  * initial state glitched
@@ -151,9 +150,10 @@ public class PFLAP {
 			background(bgColour.getRGB());
 
 			if (drawingArrow != null) {
-				stroke(0, 0, 0, 80);
+				stroke(transitionColour.getRed(), transitionColour.getGreen(), transitionColour.getBlue(), 80);
 				strokeWeight(2);
 				drawingArrow.setHeadXY(mouseCoords);
+				drawingArrow.tempUpdate();
 				drawingArrow.draw();
 			}
 			if (selectionBox != null) {
@@ -200,7 +200,7 @@ public class PFLAP {
 			nodes.clear();
 			selected.clear();
 			Notification.clear();
-			mouseOverState  = null;
+			mouseOverState = null;
 			arrowTailState = null;
 			arrowHeadState = null;
 			dragState = null;

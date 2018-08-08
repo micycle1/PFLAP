@@ -85,11 +85,14 @@ public class Arrow {
 							// @formatter:on
 					@Override
 					public void controlEvent(CallbackEvent input) {
-						if (transitionSymbolEntry.getStringValue().length() == 1) {
-							// TODO && transition has unique symbol
-							entry();
-						} else {
-							Notification.addNotification(symbolNotValid);
+						if (input.getAction() == 100) {
+							if (transitionSymbolEntry.getStringValue().length() == 1) {
+								// TODO && transition has unique symbol
+								entry();
+							} else {
+
+								Notification.addNotification(symbolNotValid);
+							}
 						}
 					}
 				});
@@ -102,15 +105,11 @@ public class Arrow {
 				cp5.hide();
 				switch ((int) optionSelected.getValue()) {
 					case 0 :
-						System.err.println(optionSelected.getValue());
+						// TODO CHANGE TRANSITION SYMBOL + COMMAND?
 						transitionSymbolEntry.show();
 						break;
 					case 1 :
-						// TODO interface for machines so call kill() on generic
 						HistoryHandler.buffer(new deleteTransition(Arrow.this));
-						// if (PFLAP.mode == modes.DFA) {
-						// DFA.removeTransition(tail, head, transitionSymbol);
-						// }
 						break;
 					default :
 						break;
@@ -120,11 +119,11 @@ public class Arrow {
 		};
 		stateOptions = cp5.addScrollableList("Options");
 		// @formatter:off
-				stateOptions.setType(1)
-						.addItems(new String[] {"Change Symbol", "Delete Transition"})
-						.open()
-						.addListener(menuListener);
-				// @formatter:on
+		stateOptions.setType(1)
+		.addItems(new String[]{"Change Symbol", "Delete Transition"})
+		.open()
+		.addListener(menuListener);
+		// @formatter:on
 	}
 
 	private void entry() {
@@ -170,8 +169,6 @@ public class Arrow {
 
 		textSize = map(PVector.dist(tailXY, headXY), 0, 200, 10, 16);
 
-		rotationOffset = theta2;
-
 		if (numberBetween(theta2, 0.5f * PI, -0.5f * PI)) {
 			labelRotationModifier = -1;
 			rotationOffset = theta2;
@@ -186,6 +183,11 @@ public class Arrow {
 				(PApplet.abs(headXY.y) + PApplet.abs(tailXY.y)) / 2 + 7); // TODO
 	}
 
+	public void tempUpdate() {
+		theta2 = angleBetween(tail.getPosition(), new PVector(headXY.x, headXY.y));
+
+	}
+
 	protected void parentKill() {
 		// States call this.
 		main.PFLAP.cp5.remove(String.valueOf(ID));
@@ -197,7 +199,8 @@ public class Arrow {
 		head.childKill(this);
 		tail.childKill(this);
 		machine.removeTransition(this);
-		main.PFLAP.cp5.remove(String.valueOf(ID)); // TODO make cp5 instance-related
+		main.PFLAP.cp5.remove(String.valueOf(ID)); // TODO make cp5
+													// instance-related
 		PFLAP.arrows.remove(this);
 	}
 
@@ -218,6 +221,12 @@ public class Arrow {
 			case DPA :
 				p.text(transitionSymbol + "; " + stackPop + "/" + stackPush,
 						+labelRotationModifier * dist(tailXY.x, tailXY.y, headXY.x, headXY.y) / 2, 7);
+				break;
+			case MEALY :
+				break;
+			case MOORE :
+				break;
+			default :
 				break;
 		}
 		p.popMatrix();

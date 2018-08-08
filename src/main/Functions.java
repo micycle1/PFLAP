@@ -12,9 +12,10 @@ import static processing.core.PApplet.min;
 import java.awt.Color;
 
 
-
 /**
- * Provides static geometry functions.
+ * <b>Functions</b>
+ * <p>Provides static geometry functions.</p>
+ * <p>Mainly used to draw the transitions between states.</p>
  */
 
 public final class Functions {

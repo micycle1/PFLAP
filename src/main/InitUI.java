@@ -41,6 +41,10 @@ import processing.core.PVector;
 
 final class InitUI {
 
+	private InitUI() {
+		throw new AssertionError();
+	}
+
 	public static final MenuItem undo = new MenuItem("Undo"), redo = new MenuItem("Redo");
 
 	public static void initMenuBar(Frame f) {
@@ -238,7 +242,7 @@ final class InitUI {
 				}
 			}
 		};
-		
+
 		machineMenuListener = new ActionListener() {
 			private final void enableAll() {
 				machineMenuItem0.setEnabled(true);
