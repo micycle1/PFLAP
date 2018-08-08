@@ -36,6 +36,8 @@ import p5.State;
 
 import processing.core.PApplet;
 import processing.core.PFont;
+import processing.core.PGraphics;
+import processing.core.PImage;
 import processing.core.PVector;
 
 final class InitUI {
@@ -209,8 +211,10 @@ final class InitUI {
 							String file = fg.getDirectory() + fg.getFile() + ".png";
 							p.saveFrame(file);
 						}
+						PGraphics screenshot = p.createGraphics(p.width, p.height); //todo transparent screenshot
 						break;
 					case "Reorder States" :
+				
 						// TODO into grid?
 						break;
 					default :

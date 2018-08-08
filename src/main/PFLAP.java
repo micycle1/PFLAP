@@ -4,7 +4,6 @@ package main;
 import java.awt.Color;
 import java.awt.Frame;
 
-
 import java.lang.reflect.Field;
 
 import java.util.ArrayList;
@@ -66,13 +65,13 @@ public class PFLAP {
 	public static ArrayList<Arrow> arrows = new ArrayList<>();
 	public static ArrayList<State> nodes = new ArrayList<>();
 	public static HashSet<State> selected = new HashSet<>();
-	
+
 	public static boolean allowGUIInterraction = true;
 
 	public static PApplet p;
-	
+
 	public static ControlP5 cp5;
-	
+
 	public static enum modes {
 		DFA, DPA;
 	}
@@ -89,7 +88,7 @@ public class PFLAP {
 	}
 
 	public final static class processing extends PApplet {
-		
+
 		private static HashSet<Character> keysDown = new HashSet<Character>();
 		private static HashSet<Integer> mouseDown = new HashSet<Integer>();
 		private static PFont comfortaaRegular, comfortaaBold;
@@ -99,7 +98,7 @@ public class PFLAP {
 		private static boolean fullScreen = false, newState = false;
 		private static PVector mouseClickXY, mouseReleasedXY, mouseCoords;
 		protected static Textarea trace;
-		
+
 		public static void init() {
 			PApplet.main(processing.class);
 		}
@@ -190,8 +189,6 @@ public class PFLAP {
 			return frame;
 		}
 
-
-
 		private void nodeMouseOver() {
 			for (State s : nodes) {
 				if (withinRange(s.getPosition().x, s.getPosition().y, s.getRadius(), mouseX, mouseY)
@@ -234,7 +231,7 @@ public class PFLAP {
 		public void keyReleased(KeyEvent key) {
 			switch (key.getKeyCode()) {
 				case 127 : // 127 == delete key
-//					HistoryHandler.buffer(new deleteState(selected));
+					// HistoryHandler.buffer(new deleteState(selected));
 					HistoryHandler.buffer(new Batch(Batch.createDeleteBatch(selected)));
 					selected.clear();
 					break;
@@ -302,15 +299,21 @@ public class PFLAP {
 					break;
 
 				case RIGHT :
-					nodeMouseOver();
-					transitionMouseOver();
-					if (!(mouseOverState == null) && allowGUIInterraction && mouseOverTransition == null) {
-						arrowTailState = mouseOverState;
-						drawingArrow = new Arrow(mouseClickXY, arrowTailState);
-						cursor(CROSS);
+					if (dragState == null) {
+						nodeMouseOver();
+						selected.forEach(s -> s.deselect());
+						selected.clear();
+						if (mouseOverState != null) {
+							selected.add(mouseOverState);
+						}
+						transitionMouseOver();
+						if (!(mouseOverState == null) && allowGUIInterraction && mouseOverTransition == null) {
+							arrowTailState = mouseOverState;
+							drawingArrow = new Arrow(mouseClickXY, arrowTailState);
+							cursor(CROSS);
+						}
 					}
 					break;
-
 				default :
 					break;
 			}
@@ -326,14 +329,6 @@ public class PFLAP {
 
 			switch (m.getButton()) {
 				case LEFT :
-					// selected.forEach(s -> {
-					// if (!(s.UIOpen())) {
-					// println("asd");
-					// s.deselect();
-					// selected.remove(s); //TODO
-					// }
-					// });
-
 					nodeMouseOver();
 					if (dragState != null) {
 						// drop dragged state
@@ -433,6 +428,5 @@ public class PFLAP {
 			super.exit();
 		}
 	}
-	
-	
+
 }

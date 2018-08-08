@@ -264,6 +264,6 @@ public class State {
 	}
 
 	public boolean isMouseOver() {
-		return cp5.isMouseOver() || resizeGUI.isMouseOver();
+		return (cp5.isMouseOver() && cp5.isVisible()) || (resizeGUI.isMouseOver() && sizeSlider.isVisible());
 	}
 }
