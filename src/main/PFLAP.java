@@ -131,6 +131,7 @@ public class PFLAP {
 			textAlign(CENTER, CENTER);
 			rectMode(CORNER);
 			ellipseMode(CENTER);
+			curveTightness(-4);
 			cursor(ARROW);
 			colorMode(RGB);
 			InitUI.initCp5();
@@ -290,7 +291,6 @@ public class PFLAP {
 		@Override
 		public void mousePressed(MouseEvent m) {
 			if (cp5.isMouseOver() || !allowGUIInterraction) {
-
 				return;
 			}
 
@@ -462,5 +462,4 @@ public class PFLAP {
 			super.exit();
 		}
 	}
-
 }

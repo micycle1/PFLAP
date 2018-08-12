@@ -1,5 +1,7 @@
 package main;
 
+import processing.core.PApplet;
+import processing.core.PConstants;
 import processing.core.PVector;
 import static processing.core.PApplet.atan2;
 import static processing.core.PApplet.PI;
@@ -28,10 +30,13 @@ public final class Functions {
 	 * @param head
 	 *            PVector Coordinate 2.
 	 * @return float θ in radians.
-	 */
+	 */	
 	public static float angleBetween(PVector tail, PVector head) {
-		float theta = -atan2(tail.x - head.x, tail.y - head.y) - (PI / 2);
-		return theta;
+		float a = PApplet.atan2(tail.y - head.y, tail.x - head.x);
+		if (a < 0) {
+			a += PConstants.TWO_PI;
+		}
+		return a;
 	}
 
 	/**

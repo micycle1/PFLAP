@@ -7,32 +7,31 @@ import controlP5.ControlListener;
 import controlP5.ControlP5;
 import controlP5.ScrollableList;
 import controlP5.Textfield;
-import machines.DPA;
+
+import commands.deleteTransition;
+
 import main.Functions;
 import main.HistoryHandler;
 import main.PFLAP;
 
 import processing.core.PApplet;
+import processing.core.PConstants;
 import processing.core.PVector;
 
-//import static main.Consts.stateRadius;
 import static main.Consts.notificationData.symbolNotValid;
+import static main.Consts.transitionBezierCurve;
 
 import static main.Functions.angleBetween;
 import static main.Functions.numberBetween;
 
 import static main.PFLAP.p;
 import static main.PFLAP.machine;
-//import static main.PFLAP.processing.cp5;
 
 import static java.lang.Math.PI;
 
 import static processing.core.PApplet.dist;
 import static processing.core.PApplet.map;
 import static processing.core.PApplet.sin;
-
-import commands.deleteTransition;
-
 import static processing.core.PApplet.cos;
 
 public class Arrow {
@@ -41,11 +40,13 @@ public class Arrow {
 	private ControlP5 cp5;
 	private ScrollableList stateOptions;
 	private ControlListener menuListener;
-	private PVector tailXY, headXY;
-	private float rotationOffset, theta1, theta2, textSize = 16;
+	private PVector tailXY, headXY, midPoint, bezierCPoint, bezierApex, arrowTip;
+	private float rotationOffset, theta1, theta2, arrowTipAngle, textSize = 16;
 	private Textfield transitionSymbolEntry;
 	private char transitionSymbol, stackPop, stackPush;
 	private int ID, labelRotationModifier = -1;
+
+	private static int bezierDir = -1;
 
 	private static enum entryTypes {
 		SYMBOL, POP, PUSH
@@ -162,38 +163,50 @@ public class Arrow {
 	 * movement.
 	 */
 	public void update() {
-		theta1 = angleBetween(head.getPosition(), tail.getPosition());
-		headXY = new PVector(head.getPosition().x + head.getRadius() * 0.5f * cos(theta1),
-				head.getPosition().y + head.getRadius() * 0.5f * sin(theta1));
-
 		theta2 = angleBetween(tail.getPosition(), head.getPosition());
 		tailXY = new PVector(tail.getPosition().x + tail.getRadius() * 0.5f * cos(theta2),
 				tail.getPosition().y + tail.getRadius() * 0.5f * sin(theta2));
+		
+		theta1 = (theta2 + PConstants.PI) % PConstants.TWO_PI;
+		headXY = new PVector(head.getPosition().x + head.getRadius() * 0.5f * cos(theta1),
+				head.getPosition().y + head.getRadius() * 0.5f * sin(theta1));
+
+		midPoint = new PVector((head.getPosition().x + tail.getPosition().x) / 2,
+				(head.getPosition().y + tail.getPosition().y) / 2);
+
+		bezierCPoint = new PVector(midPoint.x + (PApplet.sin(-theta2) * (transitionBezierCurve * 2 * -1)),
+				midPoint.y + (PApplet.cos(-theta2) * (transitionBezierCurve * 2 * bezierDir)));
+
+		bezierApex = new PVector(midPoint.x - (bezierCPoint.x - midPoint.x),
+				midPoint.y - (bezierCPoint.y - midPoint.y));
+
+		arrowTipAngle = angleBetween(head.getPosition(), bezierApex);
+		arrowTip = new PVector(head.getPosition().x + (head.getRadius() + 2) * -0.5f * cos(arrowTipAngle),
+				head.getPosition().y + (head.getRadius() + 2) * -0.5f * sin(arrowTipAngle)); // +2
 
 		textSize = map(PVector.dist(tailXY, headXY), 0, 200, 10, 16);
 
-		if (numberBetween(theta2, 0.5f * PI, -0.5f * PI)) {
-			labelRotationModifier = -1;
-			rotationOffset = theta2;
-		} else {
+		if (numberBetween(theta2, PConstants.HALF_PI, 3/2 * PI)) { // TODO change
 			labelRotationModifier = 1;
 			rotationOffset = theta1;
+		} else {
+			labelRotationModifier = -1;
+			rotationOffset = theta2;
 		}
 
 		// Update cp5:
-		transitionSymbolEntry.setPosition((headXY.x + tailXY.x) / 2, (headXY.y + tailXY.y) / 2); // reposition
+		transitionSymbolEntry.setPosition((headXY.x + tailXY.x) / 2, (headXY.y + tailXY.y) / 2); // TODO
 		stateOptions.setPosition(headXY.x - dist(tailXY.x, tailXY.y, headXY.x, headXY.y) / 2,
 				(PApplet.abs(headXY.y) + PApplet.abs(tailXY.y)) / 2 + 7); // TODO
 	}
 
 	public void tempUpdate() {
+		// Called when arrow is drawn to rotate arrow head properly
 		theta2 = angleBetween(tail.getPosition(), new PVector(headXY.x, headXY.y));
-
 	}
 
 	protected void parentKill() {
 		// States call this.
-		main.PFLAP.cp5.remove(String.valueOf(ID));
 		PFLAP.arrows.remove(this);
 		// remove references to this in states and machine
 	}
@@ -202,19 +215,21 @@ public class Arrow {
 		head.childKill(this);
 		tail.childKill(this);
 		machine.removeTransition(this);
-		main.PFLAP.cp5.remove(String.valueOf(ID)); // TODO make cp5
-													// instance-related
 		PFLAP.arrows.remove(this);
 	}
 
 	public void draw() {
-		p.line(tailXY.x, tailXY.y, headXY.x, headXY.y);
-		p.noFill(); // disable to fill arrow head
-		// p.bezier(tailXY.x, tailXY.y, tailXY.x + 65, tailXY.y - 45, tailXY.x +
-		// 65, tailXY.y + 45, tailXY.x, tailXY.y); // TODO
+		// p.line(tailXY.x, tailXY.y, headXY.x, headXY.y);
+		if (head != null) {
+			p.noFill();
+			p.curve(bezierCPoint.x, bezierCPoint.y, tail.getPosition().x, tail.getPosition().y, head.getPosition().x,
+					head.getPosition().y, bezierCPoint.x, bezierCPoint.y);
+			drawArrowTip();
+		}
 
+		p.noFill(); // disable to fill arrow head
 		p.pushMatrix();
-		p.translate(headXY.x, headXY.y);
+		p.translate(tailXY.x, tailXY.y);
 		p.rotate(rotationOffset);
 		p.textSize(textSize);
 		switch (PFLAP.mode) {
@@ -233,10 +248,12 @@ public class Arrow {
 				break;
 		}
 		p.popMatrix();
+	}
 
+	private void drawArrowTip() {
 		p.pushMatrix();
-		p.translate(headXY.x, headXY.y);
-		p.rotate(theta2); // TODO theta2 not working when arrow is created
+		p.translate(arrowTip.x, arrowTip.y);
+		p.rotate(arrowTipAngle);
 		p.beginShape();
 		p.vertex(-10, -7);
 		p.vertex(0, 0);
@@ -246,15 +263,13 @@ public class Arrow {
 	}
 
 	public boolean isMouseOver(PVector mousePos) {
-		float cx = (headXY.x + tailXY.x) / 2;
-		float cy = (headXY.y + tailXY.y) / 2;
-		float dx = mousePos.x - cx;
-		float dy = mousePos.y - cy;
+		float dx = mousePos.x - midPoint.x;
+		float dy = mousePos.y - midPoint.y;
 		float nx = dx * cos(-theta2) - (dy * sin(-theta2));
 		float ny = dy * cos(-theta2) + (dx * sin(-theta2));
 		float dist = dist(tailXY.x, tailXY.y, headXY.x, headXY.y) / 2;
 		boolean inside = (PApplet.abs(nx) < dist * 2 / 2) && (PApplet.abs(ny) < 10 / 2);
-		return inside || Functions.withinRange(mousePos.x, mousePos.y, 20, cx, cy) || cp5.isMouseOver();
+		return inside || Functions.withinRange(mousePos.x, mousePos.y, 20, midPoint.x, midPoint.y) || cp5.isMouseOver();
 	}
 
 	public void hideUI() {
