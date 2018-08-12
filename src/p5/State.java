@@ -47,7 +47,7 @@ public class State {
 		rename = PFLAP.cp5.addTextfield("Rename State");
 		rename.hide()
 		.setSize(45, 20)
-		.setFocus(false)
+		.setFocus(false) //TODO change for state size?
 		.addCallback(new CallbackListener() {
 			@Override
 			public void controlEvent(CallbackEvent input) {

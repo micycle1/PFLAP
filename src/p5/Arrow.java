@@ -74,15 +74,16 @@ public class Arrow {
 	}
 
 	public void initCP5() {
+		cp5 = new ControlP5(p);
+		cp5.show();
 		// @formatter:off
-				transitionSymbolEntry = main.PFLAP.cp5.addTextfield(String.valueOf(ID)) //make static?
-						.setColorLabel(0)
-						.setLabel("")
-						.hide()
-						.keepFocus(true)
-						.setSize(30, 15)
-						.addCallback(new CallbackListener() {
-							// @formatter:on
+		transitionSymbolEntry = cp5.addTextfield("Symbol Entry")
+				.setColorLabel(0)
+				.setLabel("")
+				.keepFocus(true)
+				.setSize(30, 15)
+				.addCallback(new CallbackListener() {
+		// @formatter:on
 					@Override
 					public void controlEvent(CallbackEvent input) {
 						if (input.getAction() == 100) {
@@ -90,23 +91,24 @@ public class Arrow {
 								// TODO && transition has unique symbol
 								entry();
 							} else {
-
 								Notification.addNotification(symbolNotValid);
 							}
 						}
 					}
 				});
 
-		cp5 = new ControlP5(p);
-		cp5.hide();
 		menuListener = new ControlListener() {
 			@Override
 			public void controlEvent(ControlEvent optionSelected) {
-				cp5.hide();
 				switch ((int) optionSelected.getValue()) {
 					case 0 :
 						// TODO CHANGE TRANSITION SYMBOL + COMMAND?
+						machine.removeTransition(Arrow.this);
+						stateOptions.hide();
 						transitionSymbolEntry.show();
+						PFLAP.allowGUIInterraction = false;
+						transitionSymbolEntry.unlock();
+						transitionSymbolEntry.setFocus(true);
 						break;
 					case 1 :
 						HistoryHandler.buffer(new deleteTransition(Arrow.this));
@@ -122,6 +124,7 @@ public class Arrow {
 		stateOptions.setType(1)
 		.addItems(new String[]{"Change Symbol", "Delete Transition"})
 		.open()
+		.hide()
 		.addListener(menuListener);
 		// @formatter:on
 	}
@@ -135,7 +138,6 @@ public class Arrow {
 					entryType = entryTypes.POP;
 				} else {
 					machine.addTransition(this); // don't add here if dpa
-					main.PFLAP.cp5.remove(String.valueOf(ID));
 					PFLAP.allowGUIInterraction = true;
 				}
 				break;
@@ -146,12 +148,13 @@ public class Arrow {
 			case PUSH :
 				stackPush = transitionSymbolEntry.getStringValue().charAt(0);
 				machine.addTransition(this);
-				main.PFLAP.cp5.remove(String.valueOf(ID));
 				PFLAP.allowGUIInterraction = true;
 				break;
 			default :
 				break;
 		}
+		transitionSymbolEntry.hide();
+		transitionSymbolEntry.lock();
 	}
 
 	/**
@@ -178,7 +181,7 @@ public class Arrow {
 		}
 
 		// Update cp5:
-		transitionSymbolEntry.setPosition((headXY.x + tailXY.x) / 2, (headXY.y + tailXY.y) / 2).show().setFocus(true); // reposition
+		transitionSymbolEntry.setPosition((headXY.x + tailXY.x) / 2, (headXY.y + tailXY.y) / 2); // reposition
 		stateOptions.setPosition(headXY.x - dist(tailXY.x, tailXY.y, headXY.x, headXY.y) / 2,
 				(PApplet.abs(headXY.y) + PApplet.abs(tailXY.y)) / 2 + 7); // TODO
 	}
@@ -259,8 +262,10 @@ public class Arrow {
 	}
 
 	public void showUI() {
-		stateOptions.open();
 		cp5.show();
+		stateOptions.show();
+		stateOptions.open();
+
 	}
 
 	public PVector getTailXY() {
