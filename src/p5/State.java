@@ -78,6 +78,12 @@ public class State {
 			case DPA :
 				machine.addNode(this);
 				break;
+			case MEALY :
+				break;
+			case MOORE :
+				break;
+			default :
+				break;
 		}
 
 		label = "q" + liveID;
@@ -162,8 +168,6 @@ public class State {
 		}
 		arrowHeads.forEach(a -> a.parentKill());
 		arrowTails.forEach(a -> a.parentKill());
-		cp5.getAll().forEach(c -> c.remove());
-		resizeGUI.getAll().forEach(c -> c.remove());
 	}
 
 	protected void childKill(Arrow a) {
@@ -261,6 +265,10 @@ public class State {
 
 	public boolean isAccepting() {
 		return accepting;
+	}
+	
+	public int connectedTailCount() {
+		return arrowTails.size();
 	}
 
 	public boolean isMouseOver() {

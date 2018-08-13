@@ -37,11 +37,11 @@ import processing.awt.*;
 
 import static main.Functions.withinRange;
 import static main.Functions.withinRegion;
+import static main.Consts.CTRL;
 
 //@formatter:off
 /**
  * State self bezier-arrows. 
- * Right-click menu on arrows 
  * DPA fully integrated with states and transitions.
  * delete transitions
  * modify transitions
@@ -50,12 +50,10 @@ import static main.Functions.withinRegion;
  * state resize / transition thickness
  * PGraphics.begindraw for screenshot transparency
  * DFA: if adding transition w/ same head & tail, merge into existing
- * BUG: symbol length > 1 notifcation multiple appearance
- * history handler GUI for user
  * initial state glitched
  * make states arrows etc pgraphics objects 
- * add undo redo hotkeys and button in edit menu
  * multi-character DPA transition
+ * CTRL Z undo
  */
 //@formatter:on
 
@@ -93,7 +91,7 @@ public class PFLAP {
 
 	public final static class processing extends PApplet {
 
-		private static HashSet<Character> keysDown = new HashSet<Character>();
+		private static HashSet<Integer> keysDown = new HashSet<Integer>();
 		private static HashSet<Integer> mouseDown = new HashSet<Integer>();
 		private static PFont comfortaaRegular, comfortaaBold;
 		private static State mouseOverState, arrowTailState, arrowHeadState, dragState;
@@ -247,18 +245,21 @@ public class PFLAP {
 
 		@Override
 		public void keyPressed(KeyEvent e) {
-			keysDown.add(e.getKey());
+			println(e.getKey());
+			keysDown.add(e.getKeyCode());
 			switch (e.getKey()) { // TODO change hotkey
-				case 'n' :
-					HistoryHandler.undo();
-					break;
-				case 'm' :
-					HistoryHandler.redo();
-					break;
 				case 'x' :
 					HistoryHandler.debug();
 				default :
 					break;
+			}
+			if (keysDown.contains(CTRL)) {
+				if (e.getKey() == 'z') {
+					HistoryHandler.undo();
+				}
+				if (e.getKey() == 'y') {
+					HistoryHandler.redo();
+				}
 			}
 		}
 
@@ -285,7 +286,7 @@ public class PFLAP {
 				default :
 					break;
 			}
-			keysDown.remove(key.getKey());
+			keysDown.remove(key.getKeyCode());
 		}
 
 		@Override

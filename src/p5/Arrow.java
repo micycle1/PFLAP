@@ -164,12 +164,12 @@ public class Arrow {
 	 */
 	public void update() {
 		theta2 = angleBetween(tail.getPosition(), head.getPosition());
-		tailXY = new PVector(tail.getPosition().x + tail.getRadius() * 0.5f * cos(theta2),
-				tail.getPosition().y + tail.getRadius() * 0.5f * sin(theta2));
+		tailXY = new PVector(tail.getPosition().x + tail.getRadius() * -0.5f * cos(theta2),
+				tail.getPosition().y + tail.getRadius() * -0.5f * sin(theta2));
 		
 		theta1 = (theta2 + PConstants.PI) % PConstants.TWO_PI;
-		headXY = new PVector(head.getPosition().x + head.getRadius() * 0.5f * cos(theta1),
-				head.getPosition().y + head.getRadius() * 0.5f * sin(theta1));
+		headXY = new PVector(head.getPosition().x + head.getRadius() * -0.5f * cos(theta1),
+				head.getPosition().y + head.getRadius() * -0.5f * sin(theta1));
 
 		midPoint = new PVector((head.getPosition().x + tail.getPosition().x) / 2,
 				(head.getPosition().y + tail.getPosition().y) / 2);
@@ -186,7 +186,8 @@ public class Arrow {
 
 		textSize = map(PVector.dist(tailXY, headXY), 0, 200, 10, 16);
 
-		if (numberBetween(theta2, PConstants.HALF_PI, 3/2 * PI)) { // TODO change
+
+		if (numberBetween(theta2, PConstants.HALF_PI, 1.5 * PI)) { // TODO change
 			labelRotationModifier = 1;
 			rotationOffset = theta1;
 		} else {
@@ -202,7 +203,8 @@ public class Arrow {
 
 	public void tempUpdate() {
 		// Called when arrow is drawn to rotate arrow head properly
-		theta2 = angleBetween(tail.getPosition(), new PVector(headXY.x, headXY.y));
+		theta2 = angleBetween(tail.getPosition(), new PVector(p.mouseX, p.mouseY));
+		theta1 = (theta2 + PConstants.PI) % PConstants.TWO_PI;
 	}
 
 	protected void parentKill() {
@@ -219,15 +221,17 @@ public class Arrow {
 	}
 
 	public void draw() {
-		// p.line(tailXY.x, tailXY.y, headXY.x, headXY.y);
-		if (head != null) {
-			p.noFill();
+		p.noFill();
+		if (head != null && head.connectedTailCount() > 1) {
 			p.curve(bezierCPoint.x, bezierCPoint.y, tail.getPosition().x, tail.getPosition().y, head.getPosition().x,
 					head.getPosition().y, bezierCPoint.x, bezierCPoint.y);
-			drawArrowTip();
+			drawArrowTip(arrowTip,arrowTipAngle);
 		}
-
-		p.noFill(); // disable to fill arrow head
+		else {
+			p.line(tailXY.x, tailXY.y, headXY.x, headXY.y);
+			drawArrowTip(headXY, theta1);
+		}
+		
 		p.pushMatrix();
 		p.translate(tailXY.x, tailXY.y);
 		p.rotate(rotationOffset);
@@ -250,10 +254,10 @@ public class Arrow {
 		p.popMatrix();
 	}
 
-	private void drawArrowTip() {
+	private void drawArrowTip(PVector translate, float angle) {
 		p.pushMatrix();
-		p.translate(arrowTip.x, arrowTip.y);
-		p.rotate(arrowTipAngle);
+		p.translate(translate.x, translate.y);
+		p.rotate(angle);
 		p.beginShape();
 		p.vertex(-10, -7);
 		p.vertex(0, 0);

@@ -21,6 +21,7 @@ public final class addState implements Command {
 	@Override
 	public void undo() {
 		s.kill();
+		s.deselect();
 		PFLAP.nodes.remove(s);
 	}
 

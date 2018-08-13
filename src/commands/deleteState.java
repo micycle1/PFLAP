@@ -18,6 +18,7 @@ public final class deleteState implements Command {
 	@Override
 	public void execute() {
 		s.kill();
+		s.deselect();
 		PFLAP.nodes.remove(s);
 	}
 
