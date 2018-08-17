@@ -27,6 +27,8 @@ import controlP5.Textarea;
 import machines.DFA;
 import machines.DPA;
 import machines.Machine;
+import machines.Mealy;
+import machines.Moore;
 import p5.Arrow;
 
 import p5.Notification;
@@ -50,10 +52,11 @@ import static main.Consts.CTRL;
  * state resize / transition thickness
  * PGraphics.begindraw for screenshot transparency
  * DFA: if adding transition w/ same head & tail, merge into existing
- * initial state glitched
  * make states arrows etc pgraphics objects 
  * multi-character DPA transition
- * CTRL Z undo
+ * CTRL-Z undo
+ * cp5 tooltips
+ * disable resizable below certain dimensions (200x200)?
  */
 //@formatter:on
 
@@ -86,7 +89,7 @@ public class PFLAP {
 
 	public static void changeMode(modes newMode) {
 		mode = newMode;
-		PFLAP.processing.reset();
+		processing.reset();
 	}
 
 	public final static class processing extends PApplet {
@@ -111,7 +114,6 @@ public class PFLAP {
 			frame = getFrame();
 			surface.setTitle(Consts.title);
 			surface.setLocation(displayWidth / 2 - width / 2, displayHeight / 2 - height / 2);
-			surface.setResizable(false);
 			surface.setResizable(true);
 			try {
 				surface.setIcon(loadImage("assets\\icon_small.png"));
@@ -159,7 +161,7 @@ public class PFLAP {
 				selectionBox.setEndPosition(mouseCoords);
 				selectionBox.draw();
 			}
-
+			textAlign(CENTER, CENTER);
 			fill(0);
 			strokeWeight(2);
 			stroke(transitionColour.getRGB());
@@ -179,6 +181,7 @@ public class PFLAP {
 			}
 			HistoryHandler.executeBufferedCommands(); // TODO
 			Notification.run();
+			Step.draw();
 		}
 
 		private Frame getFrame() {
@@ -212,10 +215,11 @@ public class PFLAP {
 				case DPA :
 					machine = new DPA();
 					break;
-				// TODO
 				case MEALY :
+					machine = new Mealy();// TODO
 					break;
 				case MOORE :
+					machine = new Moore();
 					break;
 				default :
 					break;
@@ -245,7 +249,6 @@ public class PFLAP {
 
 		@Override
 		public void keyPressed(KeyEvent e) {
-			println(e.getKey());
 			keysDown.add(e.getKeyCode());
 			switch (e.getKey()) { // TODO change hotkey
 				case 'x' :
@@ -273,6 +276,12 @@ public class PFLAP {
 					break;
 				case 32 : // TODO remove (temp)
 					machine.debug();
+				case LEFT :
+					Step.stepBackward();
+					break;
+				case RIGHT :
+					Step.stepForward();
+					break;
 				case 122 : // F11
 					if (fullScreen) {
 						surface.setSize(Consts.WIDTH, Consts.HEIGHT);

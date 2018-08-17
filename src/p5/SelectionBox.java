@@ -2,13 +2,12 @@ package p5;
 
 import garciadelcastillo.dashedlines.DashedLines;
 
-import processing.core.PApplet;
 import processing.core.PVector;
 
 import static main.Consts.SBNodeRadius;
 import static main.PFLAP.p;
 
-public class SelectionBox {
+public final class SelectionBox {
 
 	DashedLines d;
 	int dist = 0, width, height;

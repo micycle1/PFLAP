@@ -6,6 +6,7 @@ import static main.Consts.notificationData.machineRejected;
 import com.google.common.collect.HashBasedTable;
 import com.google.common.collect.Table;
 
+import main.Step;
 import p5.Arrow;
 import p5.Notification;
 import p5.State;
@@ -21,7 +22,8 @@ import p5.State;
 public class DFA implements Machine {
 
 	private Table<State, Character, State> transitionTable;
-	private State initial;
+	private State initial, stepState;
+	private String stepInput;
 
 	public DFA() {
 		transitionTable = HashBasedTable.create();
@@ -49,10 +51,41 @@ public class DFA implements Machine {
 		transitionTable.remove(a.getTail(), a.getSymbol());
 	}
 
+	public void beginStep(String input) {
+		stepState = initial;
+		stepInput = input;
+	}
+
+	@Override
+	public State stepForward() {
+		State prevState = stepState;
+		if (!stepInput.isEmpty()) {
+			char symbol = stepInput.charAt(0);
+			stepInput = stepInput.substring(1);
+			stepState = transitionTable.get(stepState, symbol);
+			if (stepState == null) {
+				Step.setMachineOutcome(false);
+				stepState = prevState;
+				return prevState;
+			}
+			return stepState;
+		} else {
+			Step.setMachineOutcome(stepState.isAccepting());
+			stepState = prevState;
+			return prevState;
+		}
+	}
+	
+	@Override
+	public void stepBackward(State s, String input) {
+		stepState = s;
+		stepInput = input;
+	}
+
 	@Override
 	public boolean run(String input) {
 		System.out.println("~~~~~~~~~~");
-		
+
 		final String initialInput = input;
 		State s = initial;
 
@@ -78,14 +111,11 @@ public class DFA implements Machine {
 					+ " is not accepting).");
 			Notification.addNotification(machineRejected);
 		}
-		
+
 		System.out.println("~~~~~~~~~~");
 		return s.isAccepting();
 	}
 
-	public boolean step() { // TODO + DPA
-		return false;
-	}
 	public boolean fastRun() { // TODO
 		return false;
 	}

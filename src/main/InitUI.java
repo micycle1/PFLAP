@@ -1,7 +1,5 @@
 package main;
 
-import static main.Consts.notificationHeight;
-import static main.Consts.notificationWidth;
 import static main.Consts.notificationData.noInitialState;
 import static main.PFLAP.p;
 
@@ -45,16 +43,17 @@ final class InitUI {
 		throw new AssertionError();
 	}
 
-	public static final MenuItem undo = new MenuItem("Undo"), redo = new MenuItem("Redo");
+	protected static final MenuItem undo = new MenuItem("Undo"), redo = new MenuItem("Redo");
 
-	public static void initMenuBar(Frame f) {
+	protected static void initMenuBar(Frame f) {
 
 		undo.setEnabled(false);
 		redo.setEnabled(false);
 
 		f.addComponentListener(new ComponentAdapter() {
 			public void componentResized(ComponentEvent event) {
-				Notification.positionTarget = new PVector(p.width - notificationWidth, p.height - notificationHeight);
+				Notification.stageResized();
+				Step.stageResized();
 			}
 		});
 
@@ -229,11 +228,8 @@ final class InitUI {
 							p.saveFrame(file);
 						}
 						PGraphics screenshot = p.createGraphics(p.width, p.height); // todo
-																					// transparent
-																					// screenshot
 						break;
 					case "Reorder States" :
-
 						// TODO into grid?
 						break;
 					default :
@@ -277,41 +273,57 @@ final class InitUI {
 		inputMenuListener = new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent event) {
-				String userInput;
-				switch (event.getActionCommand()) {
-					case "Step By State" :
-						switch (PFLAP.mode) {
-							case DFA :
-								if (PFLAP.machine.getInitialState() != null) {
-									userInput = JOptionPane.showInputDialog("DFA Input: ");
-									PFLAP.machine.run(userInput);
-									// /println();
-								} else {
-									Notification.addNotification(noInitialState);
-									System.err.println("No Initial State Defined");
-								}
-								break;
-
-							case DPA :
-								if (PFLAP.machine.getInitialState() != null) {
+				if (PFLAP.machine.getInitialState() != null) {
+					String userInput = JOptionPane.showInputDialog("Machine Input: ");
+					if (userInput == null)
+						return;
+					switch (event.getActionCommand()) {
+						case "Step By State" :
+							Step.endStep();
+							switch (PFLAP.mode) {
+								case DFA :
+									Step.beginStep(userInput);
+									break;
+								case DPA :
 									((DPA) PFLAP.machine).setInitialStackSymbol(
 											JOptionPane.showInputDialog("Initial Stack Symbol: ").charAt(0));
-									userInput = JOptionPane.showInputDialog("DPA Input: ");
+									Step.beginStep(userInput);
+									break;
+								case MEALY :
+									break;
+								case MOORE :
+									break;
+								default :
+									break;
+							}
+							break;
+						case "Fast Run" :
+							switch (PFLAP.mode) {
+								case DFA :
+									PFLAP.machine.run(userInput);
+									break;
+								case DPA :
+									((DPA) PFLAP.machine).setInitialStackSymbol(
+											JOptionPane.showInputDialog("Initial Stack Symbol: ").charAt(0));
 									PApplet.println(PFLAP.machine.run(userInput));
-								} else {
-									Notification.addNotification(noInitialState);
-									System.err.println("No Initial State Defined");
-								}
-								break;
-						}
-						break;
-					case "Fast Run" :
-						// TODO implement
-						break;
-					default :
-						System.err.println("Unhandled Menuitem.");
-						break;
+									break;
+								case MEALY :
+									break;
+								case MOORE :
+									break;
+								default :
+									break;
+							}
+							break;
+						default :
+							System.err.println("Unhandled Menuitem.");
+							break;
+					}
+				} else {
+					Notification.addNotification(noInitialState);
+					System.err.println("No Initial State Defined");
 				}
+
 			}
 		};
 
@@ -320,10 +332,11 @@ final class InitUI {
 			public void actionPerformed(ActionEvent event) {
 				switch (event.getActionCommand()) {
 					case "About PFLAP" :
-						JOptionPane.showMessageDialog(f, Consts.about);
+						JOptionPane.showMessageDialog(f, Consts.about, "About", JOptionPane.INFORMATION_MESSAGE);
 						break;
 					case "Help" :
-						JOptionPane.showMessageDialog(f, Consts.help);
+						JOptionPane.showMessageDialog(f, Consts.helpPFLAP, "PFLAP: Help",
+								JOptionPane.INFORMATION_MESSAGE);
 						break;
 					default :
 						System.err.println("Unhandled Menuitem.");
@@ -398,7 +411,7 @@ final class InitUI {
 		f.setMenuBar(menuBar);
 	}
 
-	public static void initCp5() {
+	protected static void initCp5() {
 		PFont traceFont = p.createFont("Comfortaa Regular", 12, true);
 		PFLAP.cp5 = new ControlP5(p);
 		PFLAP.processing.trace = PFLAP.cp5.addTextarea("Trace")

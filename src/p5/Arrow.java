@@ -33,6 +33,7 @@ import static processing.core.PApplet.dist;
 import static processing.core.PApplet.map;
 import static processing.core.PApplet.sin;
 import static processing.core.PApplet.cos;
+import static processing.core.PApplet.*;
 
 public class Arrow {
 
@@ -74,6 +75,16 @@ public class Arrow {
 		update();
 	}
 
+	public Arrow(State tail, State head, char transitionSymbol) {
+		ID = this.hashCode();
+		this.tail = tail;
+		this.head = head;
+		tailXY = tail.getPosition();
+		headXY = head.getPosition();
+		this.transitionSymbol = transitionSymbol;
+		update();
+	}
+
 	public void initCP5() {
 		cp5 = new ControlP5(p);
 		cp5.show();
@@ -90,7 +101,7 @@ public class Arrow {
 						if (input.getAction() == 100) {
 							if (transitionSymbolEntry.getStringValue().length() == 1) {
 								// TODO && transition has unique symbol
-								entry();
+									entry();
 							} else {
 								Notification.addNotification(symbolNotValid);
 							}
@@ -166,7 +177,7 @@ public class Arrow {
 		theta2 = angleBetween(tail.getPosition(), head.getPosition());
 		tailXY = new PVector(tail.getPosition().x + tail.getRadius() * -0.5f * cos(theta2),
 				tail.getPosition().y + tail.getRadius() * -0.5f * sin(theta2));
-		
+
 		theta1 = (theta2 + PConstants.PI) % PConstants.TWO_PI;
 		headXY = new PVector(head.getPosition().x + head.getRadius() * -0.5f * cos(theta1),
 				head.getPosition().y + head.getRadius() * -0.5f * sin(theta1));
@@ -186,8 +197,8 @@ public class Arrow {
 
 		textSize = map(PVector.dist(tailXY, headXY), 0, 200, 10, 16);
 
-
-		if (numberBetween(theta2, PConstants.HALF_PI, 1.5 * PI)) { // TODO change
+		if (numberBetween(theta2, PConstants.HALF_PI, 1.5 * PI)) { // TODO
+																	// change
 			labelRotationModifier = 1;
 			rotationOffset = theta1;
 		} else {
@@ -196,9 +207,12 @@ public class Arrow {
 		}
 
 		// Update cp5:
+		if (transitionSymbol == '\u0000') {
 		transitionSymbolEntry.setPosition((headXY.x + tailXY.x) / 2, (headXY.y + tailXY.y) / 2); // TODO
 		stateOptions.setPosition(headXY.x - dist(tailXY.x, tailXY.y, headXY.x, headXY.y) / 2,
 				(PApplet.abs(headXY.y) + PApplet.abs(tailXY.y)) / 2 + 7); // TODO
+		}
+
 	}
 
 	public void tempUpdate() {
@@ -225,13 +239,12 @@ public class Arrow {
 		if (head != null && head.connectedTailCount() > 1) {
 			p.curve(bezierCPoint.x, bezierCPoint.y, tail.getPosition().x, tail.getPosition().y, head.getPosition().x,
 					head.getPosition().y, bezierCPoint.x, bezierCPoint.y);
-			drawArrowTip(arrowTip,arrowTipAngle);
-		}
-		else {
+			drawArrowTip(arrowTip, arrowTipAngle);
+		} else {
 			p.line(tailXY.x, tailXY.y, headXY.x, headXY.y);
 			drawArrowTip(headXY, theta1);
 		}
-		
+
 		p.pushMatrix();
 		p.translate(tailXY.x, tailXY.y);
 		p.rotate(rotationOffset);

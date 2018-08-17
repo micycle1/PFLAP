@@ -23,6 +23,7 @@ public class DPA implements Machine {
 	private State initial;
 	private MutableNetwork<State, Arrow> transitionGraph;
 	private Character initialStackSymbol;
+	private String stepInput;
 
 	public DPA() {
 		stack = new LinkedList<Character>();
@@ -58,6 +59,24 @@ public class DPA implements Machine {
 	@Override
 	public void removeTransition(Arrow a) {
 		transitionGraph.removeEdge(a);
+	}
+	
+	public void beginStep(String input) {
+		stack.clear();
+		stack.add(initialStackSymbol);
+		State s = initial;
+		stepInput = input;
+	}
+	
+	@Override
+	public boolean stepForward() {
+		if (!stepInput.isEmpty()) {
+//			char symbol = input.charAt(0);
+//			stepInput = input.substring(1);
+			
+		}
+		
+		return false;
 	}
 
 	@Override

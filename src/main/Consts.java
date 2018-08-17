@@ -10,6 +10,8 @@ public final class Consts {
 
 	public static final int notificationWidth = 275, notificationHeight = 125, notificationTextPadding = 10,
 			notificationLifetime = 240, notificationLifetimeFast = 150, notificationLifetimeVeryFast = 60;
+	
+	public static final int stepGUIPadding = 20;
 
 	public static final boolean arrowLabelTextRotate = true; // TODO
 
@@ -45,7 +47,7 @@ public final class Consts {
 	public static final String about = "PFLAP: Processing Formal Languages and Automata Package.\r\n" + 
 			"A JFLAP alternative using the Processing library as the graphics backend.",
 
-			help = "In PFLAP, spaces (' ') are read as lambda (blank) transitions.\r\n" +
+			helpPFLAP = "In PFLAP, spaces (' ') are read as lambda (blank) transitions.\r\n" +
 					"Mouse:\r\n" + 
 					"\r\n" + 
 					"Left-Click (press): Add New State / Select State.\r\n" + 
@@ -59,6 +61,13 @@ public final class Consts {
 					"\r\n" + 
 					"DEL: Delete Selected States.\r\n" + 
 					"ESC: Exit Program.\r\n";
+	
+	public static final String helpStep = "Step forward and backward with the left and right arrow keys respectively.\r\n" +
+	"Once the machine terminates, the terminating state will turn green to indicate acceptance or red to indicate the contrary.\r\n" +
+	"A pink-colored state indicates the progress of the current step procedure; this is the state the machine is currently at.\r\n" +
+	"\r\n" +
+	"Note: Step mode will not automatically terminate upon the machine terminating, \r\n allowing you to step backwards. " +
+	"Use the cross button to exit step mode.";
 	// @formatter:on
 
 	private Consts() {

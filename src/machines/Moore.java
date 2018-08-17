@@ -65,4 +65,16 @@ public final class Moore implements Machine {
 
 	}
 
+	@Override
+	public void beginStep(String input) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public boolean stepForward() {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
 }

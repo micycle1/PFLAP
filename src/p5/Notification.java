@@ -25,13 +25,14 @@ public class Notification {
 	private static LinkedList<Notification> notifications = new LinkedList<>();
 
 	private static PImage background;
-	public static PVector positionTarget = new PVector(p.width - notificationWidth,
-			p.height - notificationHeight);
+	private static PVector positionTarget;
 	private PVector position = new PVector(p.width - notificationWidth, p.height);
 	private String title, message;
 	private int lifetime, startTime, alpha = 255;
 
 	static {
+		positionTarget = new PVector(p.width - notificationWidth,
+				p.height - notificationHeight);
 		background = p.createImage(notificationWidth, notificationHeight, PApplet.ARGB);
 		for (int i = 0; i < background.pixels.length; i++) {
 			float a = PApplet.map(i, 0, background.pixels.length, 255, 0);
@@ -39,7 +40,13 @@ public class Notification {
 		}
 	}
 
-	public Notification(String title, String message) {
+	/**
+	 * Private method; creates GUI notifications internally.
+	 * <p>Call the static method {@link #addNotification(String, String) addNotification} to create notifications.
+	 * @param title
+	 * @param message
+	 */
+	private Notification(String title, String message) {
 		this.title = title;
 		this.message = message;
 	}
@@ -54,14 +61,19 @@ public class Notification {
 	public static void addNotification(String title, String message) {
 		notifications.add(new Notification(title, message));
 	}
-
+	
+	/**
+	 * Call this within PApplet's draw() loop.
+	 */
 	public static void run() {
-		/**
-		 * Call this within PApplet's draw() loop.
-		 */
 		if (!(notifications.isEmpty())) {
 			notifications.getFirst().draw();
 		}
+	}
+	
+	public static void stageResized() {
+		positionTarget = new PVector(p.width - notificationWidth,
+				p.height - notificationHeight);
 	}
 
 	private void draw() {
@@ -108,5 +120,6 @@ public class Notification {
 				notificationHeight - notificationTextPadding);
 		 // @formatter:on
 		p.textAlign(PApplet.CENTER, PApplet.CENTER);
+		p.noTint();
 	}
 }

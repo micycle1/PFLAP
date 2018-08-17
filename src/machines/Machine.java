@@ -16,9 +16,10 @@ public interface Machine {
 	void addTransition(Arrow a); //infer transtion from arrow based on machine type
 	void removeTransition(Arrow a); //infer transtion from arrow based on machine type
 
+	void beginStep(String input);
 	boolean run(String input);
-
-
+	State stepForward();
+	void stepBackward(State s, String input);
 
 	void debug();
 }

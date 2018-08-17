@@ -17,12 +17,18 @@ public final class addTransition implements Command {
 		a = new Arrow(tail, head);
 	}
 
+	public addTransition(State tail, State head, char transitionSymbol) {
+		this.head = head;
+		this.tail = tail;
+		a = new Arrow(tail, head, transitionSymbol);
+	}
+
 	@Override
 	public void execute() {
 		head.addArrowHead(a);
 		tail.addArrowTail(a);
 		if (a.getSymbol() != '\u0000') {
-		machine.addTransition(a);
+			machine.addTransition(a);
 		}
 		PFLAP.arrows.add(a);
 	}

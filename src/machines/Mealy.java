@@ -52,7 +52,7 @@ public final class Mealy implements Machine {
 		// TODO Auto-generated method stub
 
 	}
-
+	
 	@Override
 	public boolean run(String input) {
 		// TODO Auto-generated method stub
@@ -63,6 +63,18 @@ public final class Mealy implements Machine {
 	public void debug() {
 		// TODO Auto-generated method stub
 
+	}
+
+	@Override
+	public void beginStep(String input) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public boolean stepForward() {
+		// TODO Auto-generated method stub
+		return false;
 	}
 
 }

@@ -35,9 +35,9 @@ public class State {
 	private PVector position, selectedPosition;
 	private ArrayList<Arrow> arrowHeads = new ArrayList<>();
 	private ArrayList<Arrow> arrowTails = new ArrayList<>();
-	private boolean selected = false, accepting = false, initial = false;
+	private boolean selected = false, accepting = false, initial = false, highlighted = false;
 	// private boolean running; //TODO
-	private int radius = stateRadius;
+	private int radius = stateRadius, highlightColor;
 	private static Textfield rename;
 	private static State renameState;
 	private static PGraphics initialIndicator;
@@ -185,7 +185,11 @@ public class State {
 			p.image(initialIndicator, position.x - radius / 2 - 14, position.y - initialNodeIndicatorSize);
 		}
 		if (!selected) {
-			p.fill(stateColour.getRGB());
+			if (highlighted) {
+				p.fill(highlightColor);
+			} else {
+				p.fill(stateColour.getRGB());
+			}
 			p.ellipse(position.x, position.y, radius, radius);
 			p.fill(0);
 		} else {
@@ -200,6 +204,7 @@ public class State {
 		}
 		p.textSize(PApplet.max(14, (PApplet.sqrt(radius) * 10) - 50));
 		p.text(label, position.x, position.y);
+		highlighted = false;
 	}
 
 	public void setPosition(PVector position) {
@@ -220,6 +225,16 @@ public class State {
 		cp5.hide();
 		selected = false;
 		selectedPosition = null;
+	}
+	
+	public void toggleAccepting() {
+		accepting = !accepting;
+	}
+
+	public void highLight(int highlightColor) {
+		this.highlightColor = highlightColor;
+		highlighted = true;
+		deselect();
 	}
 
 	public PVector getPosition() {
@@ -266,7 +281,7 @@ public class State {
 	public boolean isAccepting() {
 		return accepting;
 	}
-	
+
 	public int connectedTailCount() {
 		return arrowTails.size();
 	}
