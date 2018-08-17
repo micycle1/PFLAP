@@ -1,6 +1,5 @@
 package main;
 
-//import java.io.File;
 import java.awt.Color;
 import java.awt.Frame;
 
@@ -29,8 +28,8 @@ import machines.DPA;
 import machines.Machine;
 import machines.Mealy;
 import machines.Moore;
-import p5.Arrow;
 
+import p5.Arrow;
 import p5.Notification;
 import p5.SelectionBox;
 import p5.State;
@@ -99,7 +98,7 @@ public class PFLAP {
 		private static PFont comfortaaRegular, comfortaaBold;
 		private static State mouseOverState, arrowTailState, arrowHeadState, dragState;
 		private static Arrow drawingArrow, mouseOverTransition;
-		private static SelectionBox selectionBox = null;
+		private static SelectionBox selectionBox;
 		private static boolean fullScreen = false, newState = false;
 		private static PVector mouseClickXY, mouseReleasedXY, mouseCoords;
 		protected static Textarea trace;
@@ -111,7 +110,6 @@ public class PFLAP {
 		@Override
 		public void setup() {
 			p = this;
-			frame = getFrame();
 			surface.setTitle(Consts.title);
 			surface.setLocation(displayWidth / 2 - width / 2, displayHeight / 2 - height / 2);
 			surface.setResizable(true);
@@ -135,7 +133,7 @@ public class PFLAP {
 			cursor(ARROW);
 			colorMode(RGB);
 			InitUI.initCp5();
-			InitUI.initMenuBar(getFrame());
+			InitUI.initMenuBar();
 			machine = new DFA(); // TODO Change based on option.
 		}
 
@@ -182,18 +180,6 @@ public class PFLAP {
 			HistoryHandler.executeBufferedCommands(); // TODO
 			Notification.run();
 			Step.draw();
-		}
-
-		private Frame getFrame() {
-			Frame frame = null;
-			try {
-				Field f = ((PSurfaceAWT) surface).getClass().getDeclaredField("frame");
-				f.setAccessible(true);
-				frame = (Frame) (f.get(((PSurfaceAWT) surface)));
-			} catch (Exception e) {
-				println(e);
-			}
-			return frame;
 		}
 
 		public static void reset() {
@@ -274,8 +260,9 @@ public class PFLAP {
 					HistoryHandler.buffer(new Batch(Batch.createDeleteBatch(selected)));
 					selected.clear();
 					break;
-				case 32 : // TODO remove (temp)
-					machine.debug();
+				case 32 : 
+					machine.debug(); // TODO remove (temp)
+					break;
 				case LEFT :
 					Step.stepBackward();
 					break;
@@ -292,6 +279,7 @@ public class PFLAP {
 						surface.setLocation(0, 0);
 					}
 					fullScreen = !fullScreen;
+					break;
 				default :
 					break;
 			}

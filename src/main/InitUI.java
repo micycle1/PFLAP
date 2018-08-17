@@ -5,11 +5,13 @@ import static main.PFLAP.p;
 
 import java.awt.CheckboxMenuItem;
 import java.awt.Color;
+import java.awt.Dimension;
 import java.awt.FileDialog;
 import java.awt.Frame;
 import java.awt.Menu;
 import java.awt.MenuBar;
 import java.awt.MenuItem;
+
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ComponentAdapter;
@@ -17,6 +19,7 @@ import java.awt.event.ComponentEvent;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 
+import java.lang.reflect.Field;
 import java.util.ArrayList;
 
 import javax.swing.JColorChooser;
@@ -28,14 +31,14 @@ import commands.setBackgroundColor;
 import controlP5.ControlP5;
 
 import machines.DPA;
-import main.PFLAP.modes;
+
 import p5.Notification;
 import p5.State;
 
+import processing.awt.PSurfaceAWT;
 import processing.core.PApplet;
 import processing.core.PFont;
 import processing.core.PGraphics;
-import processing.core.PVector;
 
 final class InitUI {
 
@@ -43,15 +46,31 @@ final class InitUI {
 		throw new AssertionError();
 	}
 
+	
+	private static Frame getFrame() {
+		Frame frame = null;
+		try {
+			Field f = ((PSurfaceAWT) p.getSurface()).getClass().getDeclaredField("frame");
+			f.setAccessible(true);
+			frame = (Frame) (f.get(((PSurfaceAWT) p.getSurface())));
+		} catch (Exception e) {
+		}
+		return frame;
+	}
+	
 	protected static final MenuItem undo = new MenuItem("Undo"), redo = new MenuItem("Redo");
 
-	protected static void initMenuBar(Frame f) {
+	protected static void initMenuBar() {
+		
+		Frame f = getFrame();
 
 		undo.setEnabled(false);
 		redo.setEnabled(false);
+		
+		f.setMinimumSize(new Dimension(Consts.miniumWidth, Consts.minimumHeight));
 
 		f.addComponentListener(new ComponentAdapter() {
-			public void componentResized(ComponentEvent event) {
+			public void componentResized(ComponentEvent resized) {
 				Notification.stageResized();
 				Step.stageResized();
 			}
