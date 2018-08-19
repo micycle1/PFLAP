@@ -2,6 +2,7 @@ package p5;
 
 import java.util.ArrayList;
 
+import commands.addTransition;
 import controlP5.CallbackEvent;
 import controlP5.CallbackListener;
 import controlP5.ControlEvent;
@@ -37,7 +38,7 @@ public class State {
 	private ArrayList<Arrow> arrowTails = new ArrayList<>();
 	private boolean selected = false, accepting = false, initial = false, highlighted = false;
 	// private boolean running; //TODO
-	private int radius = stateRadius, highlightColor;
+	private int radius = stateRadius, highlightColor, liveID;
 	private static Textfield rename;
 	private static State renameState;
 	private static PGraphics initialIndicator;
@@ -76,7 +77,7 @@ public class State {
 				// DFA.addNode(this); TODO replaced in addState command
 				break;
 			case DPA :
-				machine.addNode(this);
+//				machine.addNode(this); TODO replaced in addState command?
 				break;
 			case MEALY :
 				break;
@@ -87,6 +88,7 @@ public class State {
 		}
 
 		label = "q" + liveID;
+		this.liveID = liveID;
 		position = XY;
 		initCP5();
 	}
@@ -94,8 +96,8 @@ public class State {
 	private void initCP5() {
 		cp5 = new ControlP5(p);
 		cp5.hide();
-		resizeGUI = new ControlP5(p);
 
+		resizeGUI = new ControlP5(p);
 		sizeSlider = resizeGUI.addSlider("Size Slider").setWidth(100).setHeight(15).setValue(stateRadius).setMin(25)
 				.setMax(150).setPosition(-50, stateRadius / 2 + 5).setSliderMode(Slider.FLEXIBLE).hide();
 		sizeSliderListener = new ControlListener() {
@@ -114,34 +116,28 @@ public class State {
 				cp5.hide();
 				switch ((int) optionSelected.getValue()) {
 					case 0 :
-						PFLAP.nodes.forEach(s -> s.initial = false);
-						initial = true;
-						switch (PFLAP.mode) {
-							case DFA :
-								machine.setInitialState(State.this);
-								break;
-							case DPA :
-								machine.setInitialState(State.this);
-							default :
-								break;
-						}
-
+						HistoryHandler.buffer(new addTransition(State.this, State.this));
 						break;
 					case 1 :
-						accepting = !accepting;
+						PFLAP.nodes.forEach(s -> s.initial = false);
+						initial = true;
+						machine.setInitialState(State.this);
 						break;
 					case 2 :
+						accepting = !accepting;
+						break;
+					case 3 :
 						renameState = State.this;
 						rename.setPosition(position.x - rename.getWidth() / 2, position.y + 30);
 						rename.setFocus(true);
 						rename.show();
 						break;
-					case 3 :
+					case 4 :
 						// TODO
 						sizeSlider.bringToFront();
 						sizeSlider.show();
 						break;
-					case 4 :
+					case 5 :
 						HistoryHandler.buffer(new commands.deleteState(State.this));
 					default :
 						break;
@@ -152,7 +148,7 @@ public class State {
 		stateOptions = cp5.addScrollableList("Options");
 		// @formatter:off
 		stateOptions.setType(1)
-				.addItems(new String[]{"Set As Inititial", "Toggle Accepting", "Relabel", "Resize", "Delete"})
+				.addItems(new String[]{"Add Self-Transition.", "Set As Inititial", "Toggle Accepting", "Relabel", "Resize", "Delete"})
 				.open()
 				.addListener(listener);
 		// @formatter:on
@@ -226,7 +222,7 @@ public class State {
 		selected = false;
 		selectedPosition = null;
 	}
-	
+
 	public void toggleAccepting() {
 		accepting = !accepting;
 	}
@@ -257,6 +253,10 @@ public class State {
 	public int getRadius() {
 		return radius;
 	}
+	
+	public int getID() {
+		return liveID;
+	}
 
 	public void addArrowHead(Arrow a) {
 		arrowHeads.add(a);
@@ -284,6 +284,10 @@ public class State {
 
 	public int connectedTailCount() {
 		return arrowTails.size();
+	}
+	
+	public int connectedHeadCount() {
+		return arrowHeads.size();
 	}
 
 	public boolean isMouseOver() {

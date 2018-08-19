@@ -20,6 +20,7 @@ import processing.core.PVector;
 
 import static main.Consts.notificationData.symbolNotValid;
 import static main.Consts.transitionBezierCurve;
+import static main.Consts.selfTransitionLength;
 
 import static main.Functions.angleBetween;
 import static main.Functions.numberBetween;
@@ -42,7 +43,8 @@ public class Arrow {
 	private ScrollableList stateOptions;
 	private ControlListener menuListener;
 	private PVector tailXY, headXY, midPoint, bezierCPoint, bezierApex, arrowTip;
-	private float rotationOffset, theta1, theta2, arrowTipAngle, textSize = 16;
+	private PVector selfBezierCP1, selfBezierCP2, selfBezierTranslate, selfBezierTextLoc;
+	private float rotationOffset, theta1, theta2, arrowTipAngle, textSize = 16, selfTransitionAngle, selfBezierAngle;
 	private Textfield transitionSymbolEntry;
 	private char transitionSymbol, stackPop, stackPush;
 	private int ID, labelRotationModifier = -1;
@@ -61,6 +63,7 @@ public class Arrow {
 		this.tail = tail;
 		tailXY = startXY;
 		headXY = tailXY;
+
 	}
 
 	public Arrow(State tail, State head) {
@@ -69,6 +72,7 @@ public class Arrow {
 		ID = this.hashCode();
 		this.tail = tail;
 		this.head = head;
+		selfTransitionAngle = radians((PFLAP.arrows.size() * 20));
 		tailXY = tail.getPosition();
 		headXY = head.getPosition();
 		initCP5();
@@ -79,6 +83,7 @@ public class Arrow {
 		ID = this.hashCode();
 		this.tail = tail;
 		this.head = head;
+		selfTransitionAngle = radians((PFLAP.arrows.size() * 20));
 		tailXY = tail.getPosition();
 		headXY = head.getPosition();
 		this.transitionSymbol = transitionSymbol;
@@ -101,7 +106,7 @@ public class Arrow {
 						if (input.getAction() == 100) {
 							if (transitionSymbolEntry.getStringValue().length() == 1) {
 								// TODO && transition has unique symbol
-									entry();
+								entry();
 							} else {
 								Notification.addNotification(symbolNotValid);
 							}
@@ -197,6 +202,19 @@ public class Arrow {
 
 		textSize = map(PVector.dist(tailXY, headXY), 0, 200, 10, 16);
 
+		selfBezierCP1 = new PVector(head.getPosition().x + selfTransitionLength * sin(selfTransitionAngle),
+				head.getPosition().y + selfTransitionLength * cos(selfTransitionAngle));
+		selfBezierCP2 = new PVector(
+				head.getPosition().x + selfTransitionLength * sin(selfTransitionAngle + radians(45)),
+				head.getPosition().y + selfTransitionLength * cos(selfTransitionAngle + radians(45)));
+		selfBezierTranslate = new PVector(head.getPosition().x + head.getRadius() / 2 * sin(selfTransitionAngle),
+				head.getPosition().y + head.getRadius() / 2 * cos(selfTransitionAngle));
+		selfBezierAngle = angleBetween(head.getPosition(), selfBezierCP1) - 0.3f;
+		selfBezierTextLoc = new PVector(
+				p.bezierPoint(head.getPosition().x, selfBezierCP1.x, selfBezierCP2.x, head.getPosition().x, 0.5f)
+						+ 15 * sin(selfTransitionAngle),
+				p.bezierPoint(head.getPosition().y, selfBezierCP1.y, selfBezierCP2.y, head.getPosition().y, 0.5f)
+						+ 15 * cos(selfTransitionAngle));
 		if (numberBetween(theta2, PConstants.HALF_PI, 1.5 * PI)) { // TODO
 																	// change
 			labelRotationModifier = 1;
@@ -208,9 +226,9 @@ public class Arrow {
 
 		// Update cp5:
 		if (transitionSymbol == '\u0000') {
-		transitionSymbolEntry.setPosition((headXY.x + tailXY.x) / 2, (headXY.y + tailXY.y) / 2); // TODO
-		stateOptions.setPosition(headXY.x - dist(tailXY.x, tailXY.y, headXY.x, headXY.y) / 2,
-				(PApplet.abs(headXY.y) + PApplet.abs(tailXY.y)) / 2 + 7); // TODO
+			transitionSymbolEntry.setPosition((headXY.x + tailXY.x) / 2, (headXY.y + tailXY.y) / 2); // TODO
+			stateOptions.setPosition(headXY.x - dist(tailXY.x, tailXY.y, headXY.x, headXY.y) / 2,
+					(PApplet.abs(headXY.y) + PApplet.abs(tailXY.y)) / 2 + 7); // TODO
 		}
 
 	}
@@ -236,13 +254,21 @@ public class Arrow {
 
 	public void draw() {
 		p.noFill();
-		if (head != null && head.connectedTailCount() > 1) {
-			p.curve(bezierCPoint.x, bezierCPoint.y, tail.getPosition().x, tail.getPosition().y, head.getPosition().x,
-					head.getPosition().y, bezierCPoint.x, bezierCPoint.y);
-			drawArrowTip(arrowTip, arrowTipAngle);
+		p.textAlign(CENTER, CENTER);
+		if (head == tail) {
+			p.bezier(head.getPosition().x, head.getPosition().y, selfBezierCP1.x, selfBezierCP1.y, selfBezierCP2.x,
+					selfBezierCP2.y, head.getPosition().x, head.getPosition().y);
+			drawArrowTip(selfBezierTranslate, selfBezierAngle);
+			p.text(transitionSymbol, selfBezierTextLoc.x, selfBezierTextLoc.y);
 		} else {
-			p.line(tailXY.x, tailXY.y, headXY.x, headXY.y);
-			drawArrowTip(headXY, theta1);
+			if (head != null && head.connectedTailCount() > 1) { // TODO
+				p.curve(bezierCPoint.x, bezierCPoint.y, tail.getPosition().x, tail.getPosition().y,
+						head.getPosition().x, head.getPosition().y, bezierCPoint.x, bezierCPoint.y);
+				drawArrowTip(arrowTip, arrowTipAngle);
+			} else {
+				p.line(tailXY.x, tailXY.y, headXY.x, headXY.y);
+				drawArrowTip(headXY, theta1);
+			}
 		}
 
 		p.pushMatrix();

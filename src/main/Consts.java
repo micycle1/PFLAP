@@ -7,7 +7,7 @@ public final class Consts {
 
 	public static final int stateRadius = 50, WIDTH = 800, HEIGHT = 800, SBNodeRadius = 5, stateFontSize = 18,
 			initialNodeIndicatorSize = 12, transitionBezierCurve = 20, CTRL = 17, miniumWidth = 300,
-			minimumHeight = 300;
+			minimumHeight = 300, selfTransitionLength = 105;
 
 	public static final int notificationWidth = 275, notificationHeight = 125, notificationTextPadding = 10,
 			notificationLifetime = 240, notificationLifetimeFast = 150, notificationLifetimeVeryFast = 60;

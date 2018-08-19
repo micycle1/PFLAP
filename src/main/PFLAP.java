@@ -1,9 +1,6 @@
 package main;
 
 import java.awt.Color;
-import java.awt.Frame;
-
-import java.lang.reflect.Field;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -34,15 +31,11 @@ import p5.Notification;
 import p5.SelectionBox;
 import p5.State;
 
-import processing.awt.*;
-
 import static main.Functions.withinRange;
 import static main.Functions.withinRegion;
-import static main.Consts.CTRL;
 
 //@formatter:off
 /**
- * State self bezier-arrows. 
  * DPA fully integrated with states and transitions.
  * delete transitions
  * modify transitions
@@ -55,7 +48,6 @@ import static main.Consts.CTRL;
  * multi-character DPA transition
  * CTRL-Z undo
  * cp5 tooltips
- * disable resizable below certain dimensions (200x200)?
  */
 //@formatter:on
 
@@ -242,18 +234,16 @@ public class PFLAP {
 				default :
 					break;
 			}
-			if (keysDown.contains(CTRL)) {
-				if (e.getKey() == 'z') {
-					HistoryHandler.undo();
-				}
-				if (e.getKey() == 'y') {
-					HistoryHandler.redo();
-				}
-			}
 		}
 
 		@Override
 		public void keyReleased(KeyEvent key) {
+			if (this.key == 26) { //CTRL-Z
+				HistoryHandler.undo();
+			}
+			if (this.key == 25) { //CTRL-Y
+				HistoryHandler.redo();
+			}
 			switch (key.getKeyCode()) {
 				case 127 : // 127 == delete key
 					// HistoryHandler.buffer(new deleteState(selected));
