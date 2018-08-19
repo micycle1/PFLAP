@@ -38,11 +38,9 @@ import static main.Functions.withinRegion;
 /**
  * DPA fully integrated with states and transitions.
  * info about machine (#states, etc)
- * mutli selection creating transtion makes multiple transitions
- * PGraphics.begindraw for screenshot transparency
  * DFA: if adding transition w/ same head & tail, merge into existing
- * make states arrows etc pgraphics objects 
  * multi-character DPA transition
+ * undo delete-states > bring back transitions
  */
 //@formatter:on
 
@@ -77,7 +75,7 @@ public class PFLAP {
 		mode = newMode;
 		processing.reset();
 	}
-
+	
 	public final static class processing extends PApplet {
 
 		private static HashSet<Integer> keysDown = new HashSet<Integer>();
@@ -198,7 +196,7 @@ public class PFLAP {
 					break;
 			}
 		}
-
+		
 		private void nodeMouseOver() {
 			for (State s : nodes) {
 				if (withinRange(s.getPosition().x, s.getPosition().y, s.getRadius(), mouseX, mouseY)

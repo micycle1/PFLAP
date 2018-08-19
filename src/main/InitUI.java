@@ -29,7 +29,6 @@ import commands.Batch;
 import commands.setBackgroundColor;
 
 import controlP5.ControlP5;
-
 import machines.DPA;
 
 import p5.Notification;
@@ -38,7 +37,6 @@ import p5.State;
 import processing.awt.PSurfaceAWT;
 import processing.core.PApplet;
 import processing.core.PFont;
-import processing.core.PGraphics;
 
 final class InitUI {
 
@@ -46,7 +44,6 @@ final class InitUI {
 		throw new AssertionError();
 	}
 
-	
 	private static Frame getFrame() {
 		Frame frame = null;
 		try {
@@ -57,16 +54,16 @@ final class InitUI {
 		}
 		return frame;
 	}
-	
+
 	protected static final MenuItem undo = new MenuItem("Undo"), redo = new MenuItem("Redo");
 
 	protected static void initMenuBar() {
-		
+
 		Frame f = getFrame();
 
 		undo.setEnabled(false);
 		redo.setEnabled(false);
-		
+
 		f.setMinimumSize(new Dimension(Consts.miniumWidth, Consts.minimumHeight));
 
 		f.addComponentListener(new ComponentAdapter() {
@@ -80,7 +77,7 @@ final class InitUI {
 
 		final MenuItem fileMenuItem0, fileMenuItem1, fileMenuItem2;
 		final MenuItem editMenuItem0, editMenuItem1, editMenuItem2;
-		final MenuItem viewMenuItem0, viewMenuItem1;
+		final MenuItem viewMenuItem0, viewMenuItem1, viewMenuItem2;
 		final CheckboxMenuItem viewMenuCheckboxItem0;
 		final MenuItem machineMenuItem0, machineMenuItem1, machineMenuItem2, machineMenuItem3;
 		final MenuItem inputMenuItem0, inputMenuItem1;
@@ -120,10 +117,12 @@ final class InitUI {
 		viewMenuItem0 = new MenuItem("Save Stage As Image");
 		viewMenuItem1 = new MenuItem("Reorder States");
 		viewMenuCheckboxItem0 = new CheckboxMenuItem("Action Tracer", false);
-		// TODO view machine information (# states)
+		viewMenuItem2 = new MenuItem("Machine Information");
 
 		// Machine Menu
 		machineMenuItem0 = new MenuItem("DFA");
+		machineMenuItem0.setEnabled(false); // DFA is initial mode, change if
+											// load in mode at boot
 		machineMenuItem1 = new MenuItem("DPA");
 		machineMenuItem2 = new MenuItem("Mealy");
 		machineMenuItem3 = new MenuItem("Moore");
@@ -151,6 +150,7 @@ final class InitUI {
 		// Add view items to view menu
 		viewMenu.add(viewMenuItem0);
 		viewMenu.add(viewMenuItem1);
+		viewMenu.add(viewMenuItem2);
 		viewMenu.add(defineColours);
 
 		// Add input items to machine menu
@@ -243,13 +243,19 @@ final class InitUI {
 						fg.setTitle("Save Frame");
 						fg.setVisible(true);
 						if (fg.getFile() != null) {
-							String file = fg.getDirectory() + fg.getFile() + ".png";
-							p.saveFrame(file);
+							String directory = fg.getDirectory() + fg.getFile() + ".png";
+							p.saveFrame(directory);
+							Notification.addNotification("Screenshot", "Image saved to " + directory);
 						}
-						PGraphics screenshot = p.createGraphics(p.width, p.height); // todo
+
 						break;
 					case "Reorder States" :
 						// TODO into grid?
+						break;
+					case "Machine Information" :
+						String info = "Transitions: " + PFLAP.arrows.size() + "\r\n" + "States: "
+								+ PFLAP.nodes.size() + "\r\n" + "Type: " + PFLAP.mode;
+						JOptionPane.showMessageDialog(f, info, "Machine Info", JOptionPane.INFORMATION_MESSAGE);
 						break;
 					default :
 						System.err.println("Unhandled Menuitem.");

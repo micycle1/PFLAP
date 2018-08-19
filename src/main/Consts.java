@@ -24,6 +24,7 @@ public final class Consts {
 		symbolNotValid(new String[] {"Symbol Entry Invalid", "Symbols must be one character in length."}),
 		machineAccepted(new String[] {"String Accepted", "The automaton accepted the input."}),
 		machineRejected(new String[] {"String Rejected", "The automaton rejected the input."}),
+		screenShot(new String[] {"String Rejected", "The automaton rejected the input."}),
 		;
 		// @formatter:on
 

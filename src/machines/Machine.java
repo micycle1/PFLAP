@@ -20,6 +20,5 @@ public interface Machine {
 	boolean run(String input);
 	State stepForward();
 	void stepBackward(State s, String input);
-
 	void debug();
 }
