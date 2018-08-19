@@ -126,6 +126,7 @@ public class Arrow {
 						break;
 					case 1 :
 						HistoryHandler.buffer(new deleteTransition(Arrow.this));
+						stateOptions.hide();
 						break;
 					default :
 						break;
@@ -239,6 +240,7 @@ public class Arrow {
 	protected void parentKill() {
 		// States call this.
 		PFLAP.arrows.remove(this);
+		machine.removeTransition(this);
 		// remove references to this in states and machine
 	}
 
@@ -247,6 +249,7 @@ public class Arrow {
 		tail.childKill(this);
 		machine.removeTransition(this);
 		PFLAP.arrows.remove(this);
+		disableUI();
 	}
 
 	public void draw() {
@@ -320,7 +323,16 @@ public class Arrow {
 		cp5.show();
 		stateOptions.show();
 		stateOptions.open();
-
+	}
+	
+	public void enableUI() {
+		cp5.show();
+		cp5.setUpdate(true);
+	}
+	
+	public void disableUI() {
+		cp5.hide();
+		cp5.setUpdate(false);
 	}
 
 	public PVector getTailXY() {

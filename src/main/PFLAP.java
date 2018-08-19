@@ -37,8 +37,6 @@ import static main.Functions.withinRegion;
 //@formatter:off
 /**
  * DPA fully integrated with states and transitions.
- * delete transitions
- * modify transitions
  * info about machine (#states, etc)
  * mutli selection creating transtion makes multiple transitions
  * PGraphics.begindraw for screenshot transparency
@@ -278,10 +276,8 @@ public class PFLAP {
 			if (cp5.isMouseOver() || !allowGUIInterraction) {
 				return;
 			}
-
 			mouseDown.add(m.getButton());
 			mouseClickXY = mouseCoords.copy();
-
 			switch (m.getButton()) {
 				case LEFT :
 					nodeMouseOver();
@@ -289,6 +285,7 @@ public class PFLAP {
 					if (mouseOverState == null && mouseOverTransition == null) {
 						// mouse over empty region
 						if (!(selected.isEmpty())) {
+							print(selected.size());
 							selected.forEach(s -> s.deselect());
 							selected.clear();
 						} else {
@@ -322,9 +319,6 @@ public class PFLAP {
 						nodeMouseOver();
 						selected.forEach(s -> s.deselect());
 						selected.clear();
-						if (mouseOverState != null) {
-							selected.add(mouseOverState);
-						}
 						transitionMouseOver();
 						if (!(mouseOverState == null) && allowGUIInterraction && mouseOverTransition == null) {
 							arrowTailState = mouseOverState;
@@ -345,7 +339,6 @@ public class PFLAP {
 			if (cp5.isMouseOver() || !allowGUIInterraction) {
 				return;
 			}
-
 			switch (m.getButton()) {
 				case LEFT :
 					nodeMouseOver();
@@ -361,12 +354,12 @@ public class PFLAP {
 													// but
 													// not command
 						}
+
 						selected.remove(dragState);
 						dragState.deselect();
 						dragState = null;
 					}
 					break;
-
 				case RIGHT :
 					if (selectionBox != null) {
 						selected.forEach(s -> s.deselect());

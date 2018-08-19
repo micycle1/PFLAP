@@ -28,6 +28,7 @@ public final class deleteTransition implements Command {
 
 	@Override
 	public void undo() {
+		a.enableUI();
 		head.addArrowHead(a);
 		tail.addArrowTail(a);
 		machine.addTransition(a);
