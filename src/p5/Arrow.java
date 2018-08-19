@@ -58,17 +58,14 @@ public class Arrow {
 
 	public Arrow(PVector startXY, State tail) {
 		// Constructor for creating transition
-		// PFLAP.allowGUIInterraction = false;
 		ID = this.hashCode();
 		this.tail = tail;
 		tailXY = startXY;
 		headXY = tailXY;
-
 	}
 
 	public Arrow(State tail, State head) {
 		// Constructor for finalised transtions
-		// PFLAP.allowGUIInterraction = false;
 		ID = this.hashCode();
 		this.tail = tail;
 		this.head = head;

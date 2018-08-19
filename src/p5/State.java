@@ -98,8 +98,17 @@ public class State {
 		cp5.hide();
 
 		resizeGUI = new ControlP5(p);
-		sizeSlider = resizeGUI.addSlider("Size Slider").setWidth(100).setHeight(15).setValue(stateRadius).setMin(25)
-				.setMax(150).setPosition(-50, stateRadius / 2 + 5).setSliderMode(Slider.FLEXIBLE).hide();
+		// @formatter:off
+		sizeSlider = resizeGUI.addSlider("Size Slider")
+				.setWidth(100)
+				.setHeight(15)
+				.setValue(stateRadius)
+				.setMin(25)
+				.setMax(150)
+				.setSliderMode(Slider.FLEXIBLE)
+				.hide()
+				;
+		// @formatter:on
 		sizeSliderListener = new ControlListener() {
 			@Override
 			public void controlEvent(ControlEvent radiusChange) {
@@ -115,31 +124,31 @@ public class State {
 			public void controlEvent(ControlEvent optionSelected) {
 				cp5.hide();
 				switch ((int) optionSelected.getValue()) {
-					case 0 :
+					case 0 : // Add Self-Transition
 						HistoryHandler.buffer(new addTransition(State.this, State.this));
 						break;
-					case 1 :
+					case 1 : // Set As Initial
 						PFLAP.nodes.forEach(s -> s.initial = false);
 						initial = true;
 						machine.setInitialState(State.this);
 						break;
-					case 2 :
+					case 2 : // Toggle Accepting
 						accepting = !accepting;
 						break;
-					case 3 :
+					case 3 : // Relabel
 						renameState = State.this;
 						rename.setPosition(position.x - rename.getWidth() / 2, position.y + 30);
 						rename.setFocus(true);
 						rename.show();
 						break;
-					case 4 :
+					case 4 : // Resize
 						// TODO
 						sizeSlider.bringToFront();
+						resizeGUI.show();
 						sizeSlider.show();
 						break;
-					case 5 :
+					case 5 : // Delete
 						HistoryHandler.buffer(new commands.deleteState(State.this));
-					default :
 						break;
 				}
 
@@ -206,7 +215,7 @@ public class State {
 	public void setPosition(PVector position) {
 		this.position = position;
 		cp5.setPosition((int) this.position.x + 10, (int) this.position.y + 10);
-		resizeGUI.setPosition((int) (position.x), (int) (position.y));
+		resizeGUI.setPosition((int) (position.x)-50, (int) (position.y));
 		arrowHeads.forEach(a -> a.update());
 		arrowTails.forEach(a -> a.update());
 	}
@@ -219,6 +228,7 @@ public class State {
 
 	public void deselect() {
 		cp5.hide();
+		resizeGUI.hide();
 		selected = false;
 		selectedPosition = null;
 	}

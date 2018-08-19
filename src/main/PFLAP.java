@@ -41,13 +41,10 @@ import static main.Functions.withinRegion;
  * modify transitions
  * info about machine (#states, etc)
  * mutli selection creating transtion makes multiple transitions
- * state resize / transition thickness
  * PGraphics.begindraw for screenshot transparency
  * DFA: if adding transition w/ same head & tail, merge into existing
  * make states arrows etc pgraphics objects 
  * multi-character DPA transition
- * CTRL-Z undo
- * cp5 tooltips
  */
 //@formatter:on
 
