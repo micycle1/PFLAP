@@ -24,6 +24,7 @@ import static main.Consts.selfTransitionLength;
 
 import static main.Functions.angleBetween;
 import static main.Functions.numberBetween;
+import static main.Functions.testForLambda;
 
 import static main.PFLAP.p;
 import static main.PFLAP.machine;
@@ -103,7 +104,7 @@ public class Arrow {
 						if (input.getAction() == 100) {
 							if (transitionSymbolEntry.getStringValue().length() == 1) {
 								// TODO && transition has unique symbol
-								entry();
+								entry(entryType);
 							} else {
 								Notification.addNotification(symbolNotValid);
 							}
@@ -120,9 +121,9 @@ public class Arrow {
 						machine.removeTransition(Arrow.this);
 						stateOptions.hide();
 						transitionSymbolEntry.show();
-						PFLAP.allowGUIInterraction = false;
 						transitionSymbolEntry.unlock();
 						transitionSymbolEntry.setFocus(true);
+						PFLAP.allowGUIInterraction = false;
 						break;
 					case 1 :
 						HistoryHandler.buffer(new deleteTransition(Arrow.this));
@@ -144,32 +145,34 @@ public class Arrow {
 		// @formatter:on
 	}
 
-	private void entry() {
+	private void entry(entryTypes entryType) {
 		transitionSymbolEntry.clear();
 		switch (entryType) {
 			case SYMBOL :
-				transitionSymbol = transitionSymbolEntry.getStringValue().charAt(0);
+				transitionSymbol = testForLambda(transitionSymbolEntry.getStringValue().charAt(0));
 				if (PFLAP.mode == PFLAP.modes.DPA) {
-					entryType = entryTypes.POP;
+					this.entryType = entryTypes.POP;
 				} else {
-					machine.addTransition(this); // don't add here if dpa
+					machine.addTransition(this);
 					PFLAP.allowGUIInterraction = true;
+					transitionSymbolEntry.hide();
+					transitionSymbolEntry.lock();
 				}
 				break;
 			case POP :
-				stackPop = transitionSymbolEntry.getStringValue().charAt(0);
-				entryType = entryTypes.PUSH;
+				stackPop = testForLambda(transitionSymbolEntry.getStringValue().charAt(0));
+				this.entryType = entryTypes.PUSH;
 				break;
 			case PUSH :
-				stackPush = transitionSymbolEntry.getStringValue().charAt(0);
+				stackPush = testForLambda(transitionSymbolEntry.getStringValue().charAt(0));
 				machine.addTransition(this);
 				PFLAP.allowGUIInterraction = true;
+				transitionSymbolEntry.hide();
+				transitionSymbolEntry.lock();
 				break;
 			default :
 				break;
 		}
-		transitionSymbolEntry.hide();
-		transitionSymbolEntry.lock();
 	}
 
 	/**
@@ -324,12 +327,12 @@ public class Arrow {
 		stateOptions.show();
 		stateOptions.open();
 	}
-	
+
 	public void enableUI() {
 		cp5.show();
 		cp5.setUpdate(true);
 	}
-	
+
 	public void disableUI() {
 		cp5.hide();
 		cp5.setUpdate(false);

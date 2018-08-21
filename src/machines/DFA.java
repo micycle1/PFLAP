@@ -6,6 +6,7 @@ import static main.Consts.notificationData.machineRejected;
 import com.google.common.collect.HashBasedTable;
 import com.google.common.collect.Table;
 
+import main.Consts;
 import main.Step;
 import p5.Arrow;
 import p5.Notification;
@@ -62,20 +63,26 @@ public class DFA implements Machine {
 		if (!stepInput.isEmpty()) {
 			char symbol = stepInput.charAt(0);
 			stepInput = stepInput.substring(1);
-			stepState = transitionTable.get(stepState, symbol);
-			if (stepState == null) {
-				Step.setMachineOutcome(false);
-				stepState = prevState;
-				return prevState;
+
+			if (transitionTable.row(prevState).containsKey(symbol)) {
+				stepState = transitionTable.get(stepState, symbol);
+			} else {
+				if (transitionTable.row(prevState).containsKey(Consts.lambda)) {
+					stepState = transitionTable.get(prevState, Consts.lambda);
+					return stepState;
+				} else {
+					Step.setMachineOutcome(false);
+				}
 			}
 			return stepState;
+
 		} else {
 			Step.setMachineOutcome(stepState.isAccepting());
 			stepState = prevState;
 			return prevState;
 		}
 	}
-	
+
 	@Override
 	public void stepBackward(State s, String input) {
 		stepState = s;
@@ -100,7 +107,10 @@ public class DFA implements Machine {
 				return false;
 			}
 			System.out.println("[" + input + "] " + old.getLabel() + " -> " + symbol + " -> " + s.getLabel());
-			input = input.substring(1);
+			if (symbol != Consts.lambda) {
+				input = input.substring(1);
+			}
+
 		}
 
 		if (s.isAccepting()) {

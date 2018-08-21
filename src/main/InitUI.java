@@ -105,7 +105,9 @@ final class InitUI {
 
 		// File Menu
 		fileMenuItem0 = new MenuItem("Open");
+		fileMenuItem0.setEnabled(false);
 		fileMenuItem1 = new MenuItem("Save");
+		fileMenuItem1.setEnabled(false);
 		fileMenuItem2 = new MenuItem("Exit");
 
 		// Edit Menu
@@ -125,7 +127,9 @@ final class InitUI {
 											// load in mode at boot
 		machineMenuItem1 = new MenuItem("DPA");
 		machineMenuItem2 = new MenuItem("Mealy");
+		machineMenuItem2.setEnabled(false);
 		machineMenuItem3 = new MenuItem("Moore");
+		machineMenuItem3.setEnabled(false);
 
 		// Input Menu
 		inputMenuItem0 = new MenuItem("Step By State");
@@ -225,7 +229,6 @@ final class InitUI {
 					case "Redo" :
 						HistoryHandler.redo();
 						undo.setEnabled(true);
-						break;
 					default :
 						System.err.println("Unhandled Menuitem.");
 						break;
@@ -253,8 +256,8 @@ final class InitUI {
 						// TODO into grid?
 						break;
 					case "Machine Information" :
-						String info = "Transitions: " + PFLAP.arrows.size() + "\r\n" + "States: "
-								+ PFLAP.nodes.size() + "\r\n" + "Type: " + PFLAP.mode;
+						String info = "Transitions: " + PFLAP.arrows.size() + "\r\n" + "States: " + PFLAP.nodes.size()
+								+ "\r\n" + "Type: " + PFLAP.mode;
 						JOptionPane.showMessageDialog(f, info, "Machine Info", JOptionPane.INFORMATION_MESSAGE);
 						break;
 					default :
@@ -284,9 +287,11 @@ final class InitUI {
 						machineMenuItem1.setEnabled(false);
 						break;
 					case "Mealy" :
+						PFLAP.changeMode(PFLAP.modes.MEALY);
 						machineMenuItem2.setEnabled(false);
 						break;
 					case "Moore" :
+						PFLAP.changeMode(PFLAP.modes.MOORE);
 						machineMenuItem3.setEnabled(false);
 						break;
 					default :
@@ -299,9 +304,16 @@ final class InitUI {
 			@Override
 			public void actionPerformed(ActionEvent event) {
 				if (PFLAP.machine.getInitialState() != null) {
-					String userInput = JOptionPane.showInputDialog("Machine Input: ");
-					if (userInput == null)
-						return;
+					String userInput;
+					do {
+						userInput = JOptionPane.showInputDialog("Machine Input: ");
+						if (userInput == null) {
+							return;
+						}
+						if (userInput.contains(" ")) {
+							Notification.addNotification("Invalid Input", "Input cannot contain ' ' characters.");
+						}
+					} while (userInput.contains(" "));
 					switch (event.getActionCommand()) {
 						case "Step By State" :
 							Step.endStep();

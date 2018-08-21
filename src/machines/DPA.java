@@ -69,14 +69,20 @@ public class DPA implements Machine {
 	}
 	
 	@Override
-	public boolean stepForward() {
+	public State stepForward() {
 		if (!stepInput.isEmpty()) {
 //			char symbol = input.charAt(0);
 //			stepInput = input.substring(1);
 			
 		}
 		
-		return false;
+		return initial;
+	}
+	
+	@Override
+	public void stepBackward(State s, String input) {
+		// TODO Auto-generated method stub
+		
 	}
 
 	@Override
@@ -120,5 +126,4 @@ public class DPA implements Machine {
 		// TODO Auto-generated method stub
 
 	}
-
 }

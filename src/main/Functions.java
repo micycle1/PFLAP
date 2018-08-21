@@ -4,6 +4,7 @@ import processing.core.PApplet;
 import processing.core.PConstants;
 import processing.core.PVector;
 import static processing.core.PApplet.atan2;
+import static org.hamcrest.CoreMatchers.is;
 import static processing.core.PApplet.PI;
 import static processing.core.PApplet.pow;
 import static processing.core.PApplet.sq;
@@ -16,10 +17,8 @@ import java.awt.Color;
 
 /**
  * <b>Functions</b>
- * <p>Provides static geometry functions.</p>
- * <p>Mainly used to draw the transitions between states.</p>
+ * <p>Provides static functions. Mostly geometry related.</p>
  */
-
 public final class Functions {
 
 	/**
@@ -108,6 +107,21 @@ public final class Functions {
 			return (L1 + 0.05) / (L2 + 0.05);
 		} else {
 			return (L2 + 0.05) / (L1 + 0.05);
+		}
+	}
+	
+	/**
+	 * In PFLAP, spaces represent an empty (lambda transition).
+	 * This method substitutes ' ' chars with 'λ'.
+	 * @param test
+	 * @return
+	 */
+	public static char testForLambda(char test) {
+		if (test == ' ') {
+			return Consts.lambda;
+		}
+		else {
+			return test;
 		}
 	}
 

@@ -18,6 +18,8 @@ public final class Consts {
 
 	public static final String title = "PFLAP: Processing Formal Languages and Automata Package";
 
+	public static final char lambda = 'λ';
+
 	public static enum notificationData {
 		// @formatter:off
 		noInitialState(new String[] {"No Initial State", "Elect an initial state before running."}),

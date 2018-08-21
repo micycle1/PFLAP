@@ -41,6 +41,7 @@ import static main.Functions.withinRegion;
  * DFA: if adding transition w/ same head & tail, merge into existing
  * multi-character DPA transition
  * undo delete-states > bring back transitions
+ * lambda transitions (space)
  */
 //@formatter:on
 
@@ -62,7 +63,7 @@ public class PFLAP {
 
 	public static Machine machine;
 
-	public static modes mode = modes.DFA; // TODO change for test
+	public static modes mode = modes.DPA; // TODO change for test
 
 	public static Color stateColour = new Color(255, 220, 0), stateSelectedColour = new Color(0, 35, 255),
 			transitionColour = new Color(0, 0, 0), bgColour = new Color(255, 255, 255);
@@ -74,6 +75,7 @@ public class PFLAP {
 	public static void changeMode(modes newMode) {
 		mode = newMode;
 		processing.reset();
+		Notification.addNotification("Mode Changed", mode + " mode selected.");
 	}
 	
 	public final static class processing extends PApplet {
@@ -120,6 +122,7 @@ public class PFLAP {
 			InitUI.initCp5();
 			InitUI.initMenuBar();
 			machine = new DFA(); // TODO Change based on option.
+			changeMode(mode.DPA);
 		}
 
 		@Override
