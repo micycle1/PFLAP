@@ -17,7 +17,7 @@ PFLAP
 <img src="/assets/screen.PNG"/>
 
 ## Libraries
-- 'processing' [github](https://github.com/processing/processing)
+- `processing` [github](https://github.com/processing/processing)
 - `controlP5` [github](https://github.com/sojamo/controlp5)
 - `dashedlines` [github](https://github.com/garciadelcastillo/-dashed-lines-for-processing-)
-- 'guava' [github](https://github.com/google/guava)
+- `guava` [github](https://github.com/google/guava)
