@@ -87,6 +87,8 @@ public class DPA implements Machine {
 
 	@Override
 	public boolean run(String input) {
+		debug(); //remove
+		
 		stack.clear();
 		stack.add(initialStackSymbol);
 		State s = initial;
@@ -123,7 +125,8 @@ public class DPA implements Machine {
 
 	@Override
 	public void debug() {
-		// TODO Auto-generated method stub
-
+		for (char c :stack) {
+			System.out.println(c);
+		}
 	}
 }

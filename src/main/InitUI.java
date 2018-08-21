@@ -421,7 +421,7 @@ final class InitUI {
 		tracerListener = new ItemListener() {
 			@Override
 			public void itemStateChanged(ItemEvent event) {
-				PFLAP.processing.trace.setVisible(viewMenuCheckboxItem0.getState());
+				PFLAP.PApplet.trace.setVisible(viewMenuCheckboxItem0.getState());
 			}
 		};
 
@@ -451,7 +451,7 @@ final class InitUI {
 	protected static void initCp5() {
 		PFont traceFont = p.createFont("Comfortaa Regular", 12, true);
 		PFLAP.cp5 = new ControlP5(p);
-		PFLAP.processing.trace = PFLAP.cp5.addTextarea("Trace")
+		PFLAP.PApplet.trace = PFLAP.cp5.addTextarea("Trace")
 
 		// @formatter:off
 			.setVisible(false)

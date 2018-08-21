@@ -11,7 +11,6 @@ import commands.addState;
 import commands.moveState;
 import commands.addTransition;
 
-import processing.core.PApplet;
 import processing.core.PFont;
 import processing.core.PVector;
 import processing.event.KeyEvent;
@@ -19,7 +18,6 @@ import processing.event.MouseEvent;
 
 import controlP5.ControlP5;
 import controlP5.Textarea;
-
 import machines.DFA;
 import machines.DPA;
 import machines.Machine;
@@ -69,16 +67,16 @@ public class PFLAP {
 			transitionColour = new Color(0, 0, 0), bgColour = new Color(255, 255, 255);
 
 	public static void main(String[] args) {
-		processing.init();
+		PApplet.init();
 	}
 
 	public static void changeMode(modes newMode) {
 		mode = newMode;
-		processing.reset();
+		PApplet.reset();
 		Notification.addNotification("Mode Changed", mode + " mode selected.");
 	}
-	
-	public final static class processing extends PApplet {
+
+	public final static class PApplet extends processing.core.PApplet {
 
 		private static HashSet<Integer> keysDown = new HashSet<Integer>();
 		private static HashSet<Integer> mouseDown = new HashSet<Integer>();
@@ -91,46 +89,64 @@ public class PFLAP {
 		protected static Textarea trace;
 
 		public static void init() {
-			PApplet.main(processing.class);
-		}
-
-		@Override
-		public void setup() {
-			p = this;
-			surface.setTitle(Consts.title);
-			surface.setLocation(displayWidth / 2 - width / 2, displayHeight / 2 - height / 2);
-			surface.setResizable(true);
-			try {
-				surface.setIcon(loadImage("assets\\icon_small.png"));
-			} catch (NullPointerException e) {
-				System.err.println("Icon file not found.");
-			}
-			comfortaaRegular = createFont("Comfortaa.ttf", 24, true);
-			comfortaaBold = createFont("Comfortaa-Bold.ttf", Consts.stateFontSize, true);
-			textFont(comfortaaBold);
-			frameRate(60);
-			strokeJoin(MITER);
-			strokeWeight(3);
-			stroke(0);
-			textSize(Consts.stateFontSize);
-			textAlign(CENTER, CENTER);
-			rectMode(CORNER);
-			ellipseMode(CENTER);
-			curveTightness(-4);
-			cursor(ARROW);
-			colorMode(RGB);
-			InitUI.initCp5();
-			InitUI.initMenuBar();
-			machine = new DFA(); // TODO Change based on option.
-			changeMode(mode.DPA);
+			main(PApplet.class);
 		}
 
 		@Override
 		public void settings() {
+			print("a");
 			size(Consts.WIDTH, Consts.HEIGHT);
 			smooth(8);
 		}
 
+		@SuppressWarnings("unused")
+		@Override
+		public void setup() {
+			p = this;
+
+			surface.setTitle(Consts.title);
+			surface.setLocation(displayWidth / 2 - width / 2, displayHeight / 2 - height / 2);
+			surface.setResizable(true);
+
+			FontTextParameters : {
+				try {
+					surface.setIcon(loadImage("assets\\icon_small.png"));
+				} catch (NullPointerException e) {
+					System.err.println("Icon file not found.");
+				}
+
+				comfortaaRegular = createFont("Comfortaa.ttf", 24, true);
+				if (comfortaaRegular == null) {
+					comfortaaRegular = createDefaultFont(24);
+				}
+				comfortaaBold = createFont("Comfortaa-Bold.ttf", Consts.stateFontSize, true);
+				if (comfortaaBold == null) {
+					comfortaaRegular = createDefaultFont(Consts.stateFontSize);
+				}
+				textFont(comfortaaBold);
+				textSize(Consts.stateFontSize);
+				textAlign(CENTER, CENTER);
+			}
+
+			DrawingParameters : {
+				frameRate(60);
+				strokeJoin(MITER);
+				strokeWeight(3);
+				stroke(0);
+				rectMode(CORNER);
+				ellipseMode(CENTER);
+				curveTightness(-4);
+				colorMode(RGB);
+			}
+
+			cursor(ARROW);
+			InitUI.initCp5();
+			InitUI.initMenuBar();
+			machine = new DFA(); // TODO Change based on option.
+			changeMode(modes.DPA); // todo
+		}
+
+		@SuppressWarnings("unused")
 		@Override
 		public void draw() {
 			mouseCoords = new PVector(constrain(mouseX, 0, width), constrain(mouseY, 0, height));
@@ -147,25 +163,31 @@ public class PFLAP {
 				selectionBox.setEndPosition(mouseCoords);
 				selectionBox.draw();
 			}
-			textAlign(CENTER, CENTER);
-			fill(0);
-			strokeWeight(2);
-			stroke(transitionColour.getRGB());
-			textSize(18);
-			textFont(comfortaaRegular);
-			arrows.forEach(a -> a.draw());
 
-			textSize(Consts.stateFontSize);
-			textFont(comfortaaBold);
-			stroke(0);
-			strokeWeight(2);
-			nodes.forEach(s -> s.draw());
+			drawTransitions : {
+				textAlign(CENTER, CENTER);
+				fill(0);
+				strokeWeight(2);
+				stroke(transitionColour.getRGB());
+				textSize(18);
+				textFont(comfortaaRegular);
+				arrows.forEach(a -> a.draw());
+			}
+
+			drawStates : {
+				textSize(Consts.stateFontSize);
+				textFont(comfortaaBold);
+				stroke(0);
+				strokeWeight(2);
+				nodes.forEach(s -> s.draw());
+			}
 
 			if (dragState != null) {
 				dragState.setPosition(mouseCoords);
 				dragState.draw();
 			}
-			HistoryHandler.executeBufferedCommands(); // TODO
+			
+			HistoryHandler.executeBufferedCommands();
 			Notification.run();
 			Step.draw();
 		}
@@ -199,7 +221,7 @@ public class PFLAP {
 					break;
 			}
 		}
-		
+
 		private void nodeMouseOver() {
 			for (State s : nodes) {
 				if (withinRange(s.getPosition().x, s.getPosition().y, s.getRadius(), mouseX, mouseY)
@@ -234,10 +256,10 @@ public class PFLAP {
 
 		@Override
 		public void keyReleased(KeyEvent key) {
-			if (this.key == 26) { //CTRL-Z
+			if (this.key == 26) { // CTRL-Z
 				HistoryHandler.undo();
 			}
-			if (this.key == 25) { //CTRL-Y
+			if (this.key == 25) { // CTRL-Y
 				HistoryHandler.redo();
 			}
 			switch (key.getKeyCode()) {
@@ -246,7 +268,7 @@ public class PFLAP {
 					HistoryHandler.buffer(new Batch(Batch.createDeleteBatch(selected)));
 					selected.clear();
 					break;
-				case 32 : 
+				case 32 : // 32 == ' '
 					machine.debug(); // TODO remove (temp)
 					break;
 				case LEFT :
