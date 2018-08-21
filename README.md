@@ -20,6 +20,8 @@ PFLAP
 * Stepping simulation mode
 * Export to .png
 * ' ' (space) substitution for λ.
+* Undo/Redo
+* Colour-customisation of all graphics
 
 ## Design Decisions
 * **Deterministic-Machine Lambda Transitions.** λ-transitions in deterministic machines are allowed. Upon running the machine on an input, a λ transition will only be taken provided there is an input symbol to exchange and this symbol has no defined transition at the current state.
