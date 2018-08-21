@@ -1,7 +1,14 @@
+<h1 align="center">
+  <a href="https://github.com/micycle1/PFLAP">
+  <img src="assets/icon.png" alt="Xi Editor"/></a><br>
 PFLAP
-=====
-### Processing Formal Languages and Automata Package
-*A JFLAP alternative using the Processing library as the graphics backend.*
+</h1>
+
+<p align="center"><em>Processing Formal Languages & Automata Package</em></p>
+
+---
+
+**PFLAP** is an interactive graphical tool for constructing and simulating automata machines (representations of formal languages), and is my attempt to create a [JFLAP](http://www.jflap.org/) alternative using the [Processing](https://processing.org/) library as the graphics backend. I do not intend to implement anywhere near the full functionality present in JFLAP.
 
 ## Latest Release
 
@@ -12,9 +19,15 @@ PFLAP
 * Simulate Pushdown Automata (DPA)
 * Stepping simulation mode
 * Export to .png
+* ' ' (space) substitution for λ.
+
+## Design Decisions
+* **Deterministic-Machine Lambda Transitions.** λ-transitions in deterministic machines are allowed. Upon running the machine on an input, a λ transition will only be taken provided there is an input symbol to exchange and this symbol has no defined transition at the current state.
 
 ## Screenshot
+<h1 align="center">
 <img src="/assets/screen.PNG"/>
+</h1>
 
 ## Libraries
 - `processing` [github](https://github.com/processing/processing)
