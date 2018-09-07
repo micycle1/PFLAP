@@ -3,6 +3,8 @@ package p5;
 import java.util.ArrayList;
 
 import commands.addTransition;
+import commands.setInitialState;
+import commands.toggleAccepting;
 import controlP5.CallbackEvent;
 import controlP5.CallbackListener;
 import controlP5.ControlEvent;
@@ -37,7 +39,6 @@ public class State {
 	private ArrayList<Arrow> arrowHeads = new ArrayList<>();
 	private ArrayList<Arrow> arrowTails = new ArrayList<>();
 	private boolean selected = false, accepting = false, initial = false, highlighted = false;
-	// private boolean running; //TODO
 	private int radius = stateRadius, highlightColor, liveID;
 	private static Textfield rename;
 	private static State renameState;
@@ -128,12 +129,10 @@ public class State {
 						HistoryHandler.buffer(new addTransition(State.this, State.this));
 						break;
 					case 1 : // Set As Initial
-						PFLAP.nodes.forEach(s -> s.initial = false);
-						initial = true;
-						machine.setInitialState(State.this);
+						HistoryHandler.buffer(new setInitialState(State.this));
 						break;
 					case 2 : // Toggle Accepting
-						accepting = !accepting;
+						HistoryHandler.buffer(new toggleAccepting(State.this));
 						break;
 					case 3 : // Relabel
 						renameState = State.this;
@@ -142,7 +141,6 @@ public class State {
 						rename.show();
 						break;
 					case 4 : // Resize
-						// TODO
 						sizeSlider.bringToFront();
 						resizeGUI.show();
 						sizeSlider.show();
@@ -151,7 +149,6 @@ public class State {
 						HistoryHandler.buffer(new commands.deleteState(State.this));
 						break;
 				}
-
 			}
 		};
 		stateOptions = cp5.addScrollableList("Options");
@@ -227,7 +224,7 @@ public class State {
 	}
 
 	public void deselect() {
-		cp5.hide();
+		hideUI();
 		resizeGUI.hide();
 		selected = false;
 		selectedPosition = null;
@@ -242,6 +239,13 @@ public class State {
 		highlighted = true;
 		deselect();
 	}
+	
+	public ArrayList<Arrow> getConnectedArrows() {
+		ArrayList<Arrow> all = new ArrayList<>();
+		all.addAll(arrowHeads);
+		all.addAll(arrowTails);
+		return all;
+	}
 
 	public PVector getPosition() {
 		return position;
@@ -249,7 +253,10 @@ public class State {
 
 	public void setAsInitial() {
 		initial = true;
-		machine.setInitialState(this);
+	}
+	
+	public void deInitial() {
+		initial = false;
 	}
 
 	public PVector getSelectedPosition() {

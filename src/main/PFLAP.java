@@ -32,16 +32,12 @@ import p5.State;
 import static main.Functions.withinRange;
 import static main.Functions.withinRegion;
 
-//@formatter:off
 /**
  * DPA fully integrated with states and transitions.
- * info about machine (#states, etc)
  * DFA: if adding transition w/ same head & tail, merge into existing
  * multi-character DPA transition
- * undo delete-states > bring back transitions
  * lambda transitions (space)
  */
-//@formatter:on
 
 public class PFLAP {
 
@@ -143,7 +139,7 @@ public class PFLAP {
 			InitUI.initCp5();
 			InitUI.initMenuBar();
 			machine = new DFA(); // TODO Change based on option.
-			changeMode(modes.DPA); // todo
+			changeMode(modes.DFA); // todo
 		}
 
 		@SuppressWarnings("unused")
@@ -186,7 +182,7 @@ public class PFLAP {
 				dragState.setPosition(mouseCoords);
 				dragState.draw();
 			}
-			
+
 			HistoryHandler.executeBufferedCommands();
 			Notification.run();
 			Step.draw();
@@ -308,7 +304,6 @@ public class PFLAP {
 					if (mouseOverState == null && mouseOverTransition == null) {
 						// mouse over empty region
 						if (!(selected.isEmpty())) {
-							print(selected.size());
 							selected.forEach(s -> s.deselect());
 							selected.clear();
 						} else {
@@ -362,6 +357,7 @@ public class PFLAP {
 			if (cp5.isMouseOver() || !allowGUIInterraction) {
 				return;
 			}
+			arrows.forEach(a -> a.hideUI());
 			switch (m.getButton()) {
 				case LEFT :
 					nodeMouseOver();
@@ -374,10 +370,8 @@ public class PFLAP {
 							// dragged existing state
 							HistoryHandler.buffer(new moveState(dragState, mouseClickXY));
 							nodes.add(dragState); // re-add dragstate to list
-													// but
-													// not command
+													// but not command
 						}
-
 						selected.remove(dragState);
 						dragState.deselect();
 						dragState = null;

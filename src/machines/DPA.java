@@ -102,8 +102,8 @@ public class DPA implements Machine {
 					if ((a.getSymbol() == symbol || symbol == ' ')
 							&& (a.getStackPop() == stack.peek() || stack.peek() == ' ')) {
 						// catch stack empty
-//						System.out.println(input + ", " + a.getStackPop() + "/" + a.getStackPush() + "; " + stack.peek()
-//								+ "; " + stack.size());
+						System.out.println(input + ", " + a.getStackPop() + "/" + a.getStackPush() + "; " + stack.peek()
+								+ "; " + stack.size());
 						stack.poll();
 						if (!(a.getStackPush() == ' ')) {
 							stack.add(a.getStackPush());

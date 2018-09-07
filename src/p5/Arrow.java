@@ -37,6 +37,11 @@ import static processing.core.PApplet.sin;
 import static processing.core.PApplet.cos;
 import static processing.core.PApplet.*;
 
+
+/**
+ * Graphical representation of machine transitions
+ * @author micycle1
+ */
 public class Arrow {
 
 	private State tail, head;
@@ -228,9 +233,9 @@ public class Arrow {
 		// Update cp5:
 		if (transitionSymbol == '\u0000') {
 			transitionSymbolEntry.setPosition((headXY.x + tailXY.x) / 2, (headXY.y + tailXY.y) / 2); // TODO
-			stateOptions.setPosition(headXY.x - dist(tailXY.x, tailXY.y, headXY.x, headXY.y) / 2,
-					(PApplet.abs(headXY.y) + PApplet.abs(tailXY.y)) / 2 + 7); // TODO
 		}
+		stateOptions.setPosition(headXY.x - dist(tailXY.x, tailXY.y, headXY.x, headXY.y) / 2,
+				(PApplet.abs(headXY.y) + PApplet.abs(tailXY.y)) / 2 + 7); // TODO
 
 	}
 

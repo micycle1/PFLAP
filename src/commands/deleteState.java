@@ -9,14 +9,16 @@ public final class deleteState implements Command {
 
 	private final State s;
 	private boolean initial;
+	private Batch affectedTransitions;
 
 	public deleteState(State s) {
 		this.s = s;
-		// initial = s.in
+		affectedTransitions = new Batch(Batch.createDeleteTransitionBatch(s.getConnectedArrows()));
 	}
 
 	@Override
 	public void execute() {
+		affectedTransitions.execute();
 		s.kill();
 		s.deselect();
 		PFLAP.nodes.remove(s);
@@ -30,6 +32,7 @@ public final class deleteState implements Command {
 			s.setAsInitial();
 		}
 		PFLAP.nodes.add(s);
+		affectedTransitions.undo();
 	}
 
 	@Override

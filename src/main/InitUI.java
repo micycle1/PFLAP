@@ -118,6 +118,7 @@ final class InitUI {
 		// View Menu
 		viewMenuItem0 = new MenuItem("Save Stage As Image");
 		viewMenuItem1 = new MenuItem("Reorder States");
+		viewMenuItem1.setEnabled(false);
 		viewMenuCheckboxItem0 = new CheckboxMenuItem("Action Tracer", false);
 		viewMenuItem2 = new MenuItem("Machine Information");
 

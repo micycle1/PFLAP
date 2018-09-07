@@ -13,7 +13,7 @@ import p5.State;
 public final class deleteTransition implements Command {
 
 	private Arrow a;
-	private State head, tail; //???
+	private State head, tail;
 
 	public deleteTransition(Arrow a) {
 		this.a = a;
@@ -24,6 +24,7 @@ public final class deleteTransition implements Command {
 		head = a.getHead();
 		tail = a.getTail();
 		a.kill();
+		// remove from machine?
 	}
 
 	@Override

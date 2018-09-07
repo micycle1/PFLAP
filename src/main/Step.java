@@ -75,7 +75,6 @@ public class Step {
 		.hide()
 		;
 		//@formatter:on
-
 	}
 
 	protected static void beginStep(String input) {

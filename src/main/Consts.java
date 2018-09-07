@@ -66,7 +66,7 @@ public final class Consts {
 					"DEL: Delete Selected States.\r\n" + 
 					"ESC: Exit Program.\r\n";
 	
-	public static final String helpStep = "Step forward and backward with the left and right arrow keys respectively.\r\n" +
+	public static final String helpStep = "Step backward and forward with the left and right arrow keys respectively.\r\n" +
 	"Once the machine terminates, the terminating state will turn green to indicate acceptance or red to indicate the contrary.\r\n" +
 	"A pink-colored state indicates the progress of the current step procedure; this is the state the machine is currently at.\r\n" +
 	"\r\n" +
