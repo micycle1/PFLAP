@@ -34,7 +34,6 @@ import static processing.core.PApplet.radians;
 import static processing.core.PApplet.cos;
 import static processing.core.PApplet.abs;
 
-import static processing.core.PConstants.CENTER;
 import static processing.core.PConstants.PI;
 import static processing.core.PConstants.TWO_PI;
 import static processing.core.PConstants.HALF_PI;
@@ -279,9 +278,6 @@ public class Arrow {
 	}
 
 	public void draw() {
-		p.noFill();
-		p.textAlign(CENTER, CENTER);
-
 		switch (arrowType) {
 			case DIRECT :
 				p.line(tailXY.x, tailXY.y, headXY.x, headXY.y);

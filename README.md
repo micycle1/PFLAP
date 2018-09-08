@@ -25,6 +25,7 @@ PFLAP
 
 ## Design Decisions
 * **Deterministic-Machine Lambda Transitions.** λ-transitions in deterministic machines are allowed. Upon running the machine on an input, a λ transition will only be taken provided there is an input symbol to exchange and this symbol has no defined transition at the current state.
+* **Java AWT Menubar.** Due to constraints with embedding a Processing surface within JavaFX or Swing stage, the older and displaced Java AWT library has been chosen for application-level GUI (the menubar). GUI elements within the surface are home brew using Procesing, or from the controlP5 library.
 
 ## Screenshot
 <h1 align="center">

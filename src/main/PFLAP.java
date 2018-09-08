@@ -39,6 +39,7 @@ import static main.Functions.withinRegion;
  * lambda transitions (space)
  * Arrow as interface for different Arrow types.
  * CP5 scrollable list for history
+ * clicking making font white?
  */
 
 public class PFLAP {
@@ -108,11 +109,10 @@ public class PFLAP {
 
 			FontTextParameters : {
 				try {
-					surface.setIcon(loadImage("assets\\icon_small.png"));
+					surface.setIcon(loadImage("icon_small.png"));
 				} catch (NullPointerException e) {
-					System.err.println("Icon file not found.");
 				}
-
+				
 				comfortaaRegular = createFont("Comfortaa.ttf", 24, true);
 				if (comfortaaRegular == null) {
 					comfortaaRegular = createDefaultFont(24);
@@ -150,7 +150,8 @@ public class PFLAP {
 			background(bgColour.getRGB());
 
 			if (drawingArrow != null) {
-				stroke(transitionColour.getRed(), transitionColour.getGreen(), transitionColour.getBlue(), 80);
+				noFill();
+				stroke(transitionColour.getRed(), transitionColour.getGreen(), transitionColour.getBlue(), 65);
 				strokeWeight(2);
 				drawingArrow.setHeadXY(mouseCoords);
 				drawingArrow.tempUpdate();
@@ -162,8 +163,8 @@ public class PFLAP {
 			}
 
 			drawTransitions : {
-				textAlign(CENTER, CENTER);
-				fill(0);
+				textAlign(CENTER, BOTTOM); //TODO
+				noFill();
 				strokeWeight(2);
 				stroke(transitionColour.getRGB());
 				textSize(18);
@@ -171,11 +172,12 @@ public class PFLAP {
 				arrows.forEach(a -> a.draw());
 			}
 
+			p.textAlign(CENTER, CENTER);
 			drawStates : {
 				textSize(Consts.stateFontSize);
 				textFont(comfortaaBold);
 				stroke(0);
-				strokeWeight(2);
+				strokeWeight(3);
 				nodes.forEach(s -> s.draw());
 			}
 
@@ -195,6 +197,7 @@ public class PFLAP {
 			nodes.clear();
 			selected.clear();
 			Notification.clear();
+			Step.endStep();
 			mouseOverState = null;
 			arrowTailState = null;
 			arrowHeadState = null;

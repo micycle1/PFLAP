@@ -19,6 +19,7 @@ import static main.Consts.initialNodeIndicatorSize;
 
 import main.HistoryHandler;
 import main.PFLAP;
+
 import static main.PFLAP.p;
 import static main.PFLAP.stateColour;
 import static main.PFLAP.stateSelectedColour;
@@ -182,7 +183,7 @@ public class State {
 	}
 
 	public void draw() {
-		p.strokeWeight(3);
+
 		if (initial) {
 			p.image(initialIndicator, position.x - radius / 2 - 14, position.y - initialNodeIndicatorSize);
 		}
@@ -203,6 +204,7 @@ public class State {
 			p.noFill();
 			p.strokeWeight(2);
 			p.ellipse(position.x, position.y, radius - 9, radius - 9);
+			p.strokeWeight(3);
 		}
 		p.textSize(PApplet.max(14, (PApplet.sqrt(radius) * 10) - 50));
 		p.text(label, position.x, position.y);

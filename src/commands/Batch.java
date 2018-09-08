@@ -56,7 +56,7 @@ public final class Batch implements Command {
 	 * @return ArrayList of {@link deleteState} Commands.
 	 */
 	public static ArrayList<Command> createDeleteBatch(HashSet<State> states) {
-		var tempCommands = new ArrayList<Command>();
+		ArrayList<Command> tempCommands = new ArrayList<Command>();
 		for (State s : states) {
 			tempCommands.add(new deleteState(s));
 		}
@@ -69,7 +69,7 @@ public final class Batch implements Command {
 	 * @return ArrayList of {@link deleteState} Commands.
 	 */
 	public static ArrayList<Command> createDeleteBatch(ArrayList<State> states) {
-		var tempCommands = new ArrayList<Command>();
+		ArrayList<Command> tempCommands = new ArrayList<Command>();
 		for (State s : states) {
 			tempCommands.add(new deleteState(s));
 		}
@@ -82,7 +82,7 @@ public final class Batch implements Command {
 	 * @return ArrayList of {@link moveState} Commands.
 	 */
 	public static ArrayList<Command> createMoveBatch(HashSet<State> states) {
-		var tempCommands = new ArrayList<Command>();
+		ArrayList<Command> tempCommands = new ArrayList<Command>();
 		for (State s : states) {
 			tempCommands.add(new moveState(s, s.getPosition()));
 		}
@@ -95,7 +95,7 @@ public final class Batch implements Command {
 	 * @return ArrayList of {@link deleteTransition} Commands.
 	 */
 	public static ArrayList<Command> createDeleteTransitionBatch(ArrayList<Arrow> arrows) {
-		var tempCommands = new ArrayList<Command>();
+		ArrayList<Command> tempCommands = new ArrayList<Command>();
 		for (Arrow a : arrows) {
 			tempCommands.add(new deleteTransition(a));
 		}

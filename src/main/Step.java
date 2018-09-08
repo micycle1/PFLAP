@@ -177,8 +177,8 @@ public class Step {
 	 * Creates and caches step mode GUI border into a PGraphics object.
 	 */
 	private static void drawStaticGui() {
-		var w = p.width;
-		var h = p.height;
+		int w = p.width;
+		int h = p.height;
 		staticGUI = p.createGraphics(w, h);
 
 		staticGUI.beginDraw();
