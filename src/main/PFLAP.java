@@ -7,7 +7,6 @@ import java.util.HashSet;
 
 import commands.Batch;
 import commands.addState;
-
 import commands.moveState;
 import commands.addTransition;
 
@@ -18,6 +17,7 @@ import processing.event.MouseEvent;
 
 import controlP5.ControlP5;
 import controlP5.Textarea;
+
 import machines.DFA;
 import machines.DPA;
 import machines.Machine;
@@ -37,6 +37,8 @@ import static main.Functions.withinRegion;
  * DFA: if adding transition w/ same head & tail, merge into existing
  * multi-character DPA transition
  * lambda transitions (space)
+ * Arrow as interface for different Arrow types.
+ * CP5 scrollable list for history
  */
 
 public class PFLAP {
@@ -57,7 +59,7 @@ public class PFLAP {
 
 	public static Machine machine;
 
-	public static modes mode = modes.DPA; // TODO change for test
+	public static modes mode;
 
 	public static Color stateColour = new Color(255, 220, 0), stateSelectedColour = new Color(0, 35, 255),
 			transitionColour = new Color(0, 0, 0), bgColour = new Color(255, 255, 255);
@@ -138,8 +140,7 @@ public class PFLAP {
 			cursor(ARROW);
 			InitUI.initCp5();
 			InitUI.initMenuBar();
-			machine = new DFA(); // TODO Change based on option.
-			changeMode(modes.DFA); // todo
+			changeMode(modes.DFA); // TODO DFA default or option at start?
 		}
 
 		@SuppressWarnings("unused")
@@ -208,7 +209,7 @@ public class PFLAP {
 					machine = new DPA();
 					break;
 				case MEALY :
-					machine = new Mealy();// TODO
+					machine = new Mealy();
 					break;
 				case MOORE :
 					machine = new Moore();
@@ -260,12 +261,8 @@ public class PFLAP {
 			}
 			switch (key.getKeyCode()) {
 				case 127 : // 127 == delete key
-					// HistoryHandler.buffer(new deleteState(selected));
 					HistoryHandler.buffer(new Batch(Batch.createDeleteBatch(selected)));
 					selected.clear();
-					break;
-				case 32 : // 32 == ' '
-					machine.debug(); // TODO remove (temp)
 					break;
 				case LEFT :
 					Step.stepBackward();

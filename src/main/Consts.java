@@ -23,7 +23,8 @@ public final class Consts {
 	public static enum notificationData {
 		// @formatter:off
 		noInitialState(new String[] {"No Initial State", "Elect an initial state before running."}),
-		symbolNotValid(new String[] {"Symbol Entry Invalid", "Symbols must be one character in length."}),
+		symbolInvalid(new String[] {"Symbol Entry Invalid", "Symbols must be one character in length."}),
+		transitionInvalid(new String[] {"Non-Unique Transition", "Transitions from each state in a deterministic machine must be unique."}),
 		machineAccepted(new String[] {"String Accepted", "The automaton accepted the input."}),
 		machineRejected(new String[] {"String Rejected", "The automaton rejected the input."}),
 		screenShot(new String[] {"String Rejected", "The automaton rejected the input."}),
@@ -33,9 +34,9 @@ public final class Consts {
 		private String title;
 		private String message;
 
-		notificationData(String[] info) {
-			title = info[0];
-			message = info[1];
+		notificationData(String[] notification) {
+			title = notification[0];
+			message = notification[1];
 		}
 
 		public String title() {

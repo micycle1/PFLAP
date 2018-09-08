@@ -17,6 +17,7 @@ public final class addTransition implements Command {
 		a = new Arrow(tail, head);
 	}
 
+	@Deprecated
 	public addTransition(State tail, State head, char transitionSymbol) {
 		this.head = head;
 		this.tail = tail;

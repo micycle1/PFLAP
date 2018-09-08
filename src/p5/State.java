@@ -71,7 +71,7 @@ public class State {
 				initialNodeIndicatorSize);
 		initialIndicator.endDraw();
 	}
-
+	
 	public State(PVector XY, int liveID) {
 		switch (PFLAP.mode) {
 			case DFA :
@@ -245,6 +245,10 @@ public class State {
 		all.addAll(arrowHeads);
 		all.addAll(arrowTails);
 		return all;
+	}
+	
+	public ArrayList<Arrow> getOutgoingArrows() {
+		return arrowTails;
 	}
 
 	public PVector getPosition() {

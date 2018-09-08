@@ -9,16 +9,14 @@ import controlP5.ScrollableList;
 import controlP5.Textfield;
 
 import commands.deleteTransition;
-
 import main.Functions;
 import main.HistoryHandler;
 import main.PFLAP;
 
-import processing.core.PApplet;
-import processing.core.PConstants;
 import processing.core.PVector;
 
-import static main.Consts.notificationData.symbolNotValid;
+import static main.Consts.notificationData.symbolInvalid;
+import static main.Consts.notificationData.transitionInvalid;
 import static main.Consts.transitionBezierCurve;
 import static main.Consts.selfTransitionLength;
 
@@ -29,14 +27,17 @@ import static main.Functions.testForLambda;
 import static main.PFLAP.p;
 import static main.PFLAP.machine;
 
-import static java.lang.Math.PI;
-
 import static processing.core.PApplet.dist;
 import static processing.core.PApplet.map;
 import static processing.core.PApplet.sin;
+import static processing.core.PApplet.radians;
 import static processing.core.PApplet.cos;
-import static processing.core.PApplet.*;
+import static processing.core.PApplet.abs;
 
+import static processing.core.PConstants.CENTER;
+import static processing.core.PConstants.PI;
+import static processing.core.PConstants.TWO_PI;
+import static processing.core.PConstants.HALF_PI;
 
 /**
  * Graphical representation of machine transitions
@@ -55,12 +56,15 @@ public class Arrow {
 	private char transitionSymbol, stackPop, stackPush;
 	private int ID, labelRotationModifier = -1;
 
-	private static int bezierDir = -1;
-
 	private static enum entryTypes {
-		SYMBOL, POP, PUSH
+		SYMBOL, POP, PUSH;
 	}
 	private entryTypes entryType = entryTypes.SYMBOL;
+
+	private static enum arrowTypes {
+		DIRECT, BEZIER, SELF;
+	}
+	private arrowTypes arrowType = arrowTypes.DIRECT;
 
 	public Arrow(PVector startXY, State tail) {
 		// Constructor for creating transition
@@ -75,18 +79,19 @@ public class Arrow {
 		ID = this.hashCode();
 		this.tail = tail;
 		this.head = head;
-		selfTransitionAngle = radians((PFLAP.arrows.size() * 20));
+		selfTransitionAngle = radians((PFLAP.arrows.size() * 50));
 		tailXY = tail.getPosition();
 		headXY = head.getPosition();
 		initCP5();
 		update();
 	}
 
+	@Deprecated
 	public Arrow(State tail, State head, char transitionSymbol) {
 		ID = this.hashCode();
 		this.tail = tail;
 		this.head = head;
-		selfTransitionAngle = radians((PFLAP.arrows.size() * 20));
+		selfTransitionAngle = radians((PFLAP.arrows.size() * 50));
 		tailXY = tail.getPosition();
 		headXY = head.getPosition();
 		this.transitionSymbol = transitionSymbol;
@@ -107,11 +112,16 @@ public class Arrow {
 					@Override
 					public void controlEvent(CallbackEvent input) {
 						if (input.getAction() == 100) {
-							if (transitionSymbolEntry.getStringValue().length() == 1) {
-								// TODO && transition has unique symbol
-								entry(entryType);
+							String tempSymbol = transitionSymbolEntry.getStringValue();
+							if (tempSymbol.length() == 1) {
+								if (testUniqueTransition(tempSymbol.charAt(0))) { //unique
+									entry(entryType);
+								}
+								else {
+									Notification.addNotification(transitionInvalid);
+								}
 							} else {
-								Notification.addNotification(symbolNotValid);
+								Notification.addNotification(symbolInvalid);
 							}
 						}
 					}
@@ -121,8 +131,9 @@ public class Arrow {
 			@Override
 			public void controlEvent(ControlEvent optionSelected) {
 				switch ((int) optionSelected.getValue()) {
-					case 0 :
+					case 0 : // CHANGE SYMBOL
 						// TODO CHANGE TRANSITION SYMBOL + COMMAND?
+						// check unique after changing symbol
 						machine.removeTransition(Arrow.this);
 						stateOptions.hide();
 						transitionSymbolEntry.show();
@@ -130,7 +141,7 @@ public class Arrow {
 						transitionSymbolEntry.setFocus(true);
 						PFLAP.allowGUIInterraction = false;
 						break;
-					case 1 :
+					case 1 : // DELETE
 						HistoryHandler.buffer(new deleteTransition(Arrow.this));
 						stateOptions.hide();
 						break;
@@ -189,15 +200,15 @@ public class Arrow {
 		tailXY = new PVector(tail.getPosition().x + tail.getRadius() * -0.5f * cos(theta2),
 				tail.getPosition().y + tail.getRadius() * -0.5f * sin(theta2));
 
-		theta1 = (theta2 + PConstants.PI) % PConstants.TWO_PI;
+		theta1 = (theta2 + PI) % TWO_PI;
 		headXY = new PVector(head.getPosition().x + head.getRadius() * -0.5f * cos(theta1),
 				head.getPosition().y + head.getRadius() * -0.5f * sin(theta1));
 
 		midPoint = new PVector((head.getPosition().x + tail.getPosition().x) / 2,
 				(head.getPosition().y + tail.getPosition().y) / 2);
 
-		bezierCPoint = new PVector(midPoint.x + (PApplet.sin(-theta2) * (transitionBezierCurve * 2 * -1)),
-				midPoint.y + (PApplet.cos(-theta2) * (transitionBezierCurve * 2 * bezierDir)));
+		bezierCPoint = new PVector(midPoint.x + (sin(-theta2) * (transitionBezierCurve * 2 * -1)),
+				midPoint.y + (cos(-theta2) * (transitionBezierCurve * 2 * -1)));
 
 		bezierApex = new PVector(midPoint.x - (bezierCPoint.x - midPoint.x),
 				midPoint.y - (bezierCPoint.y - midPoint.y));
@@ -221,8 +232,7 @@ public class Arrow {
 						+ 15 * sin(selfTransitionAngle),
 				p.bezierPoint(head.getPosition().y, selfBezierCP1.y, selfBezierCP2.y, head.getPosition().y, 0.5f)
 						+ 15 * cos(selfTransitionAngle));
-		if (numberBetween(theta2, PConstants.HALF_PI, 1.5 * PI)) { // TODO
-																	// change
+		if (numberBetween(theta2, HALF_PI, 1.5 * PI)) {
 			labelRotationModifier = 1;
 			rotationOffset = theta1;
 		} else {
@@ -230,19 +240,27 @@ public class Arrow {
 			rotationOffset = theta2;
 		}
 
+		if (detectCycles()) {
+			arrowType = arrowTypes.BEZIER;
+		} else {
+			if (head.equals(tail)) {
+				arrowType = arrowTypes.SELF;
+			}
+		}
+
 		// Update cp5:
 		if (transitionSymbol == '\u0000') {
 			transitionSymbolEntry.setPosition((headXY.x + tailXY.x) / 2, (headXY.y + tailXY.y) / 2); // TODO
 		}
 		stateOptions.setPosition(headXY.x - dist(tailXY.x, tailXY.y, headXY.x, headXY.y) / 2,
-				(PApplet.abs(headXY.y) + PApplet.abs(tailXY.y)) / 2 + 7); // TODO
+				(abs(headXY.y) + abs(tailXY.y)) / 2 + 7); // TODO
 
 	}
 
 	public void tempUpdate() {
 		// Called when arrow is drawn to rotate arrow head properly
 		theta2 = angleBetween(tail.getPosition(), new PVector(p.mouseX, p.mouseY));
-		theta1 = (theta2 + PConstants.PI) % PConstants.TWO_PI;
+		theta1 = (theta2 + PI) % TWO_PI;
 	}
 
 	protected void parentKill() {
@@ -263,42 +281,46 @@ public class Arrow {
 	public void draw() {
 		p.noFill();
 		p.textAlign(CENTER, CENTER);
-		if (head == tail) {
-			p.bezier(head.getPosition().x, head.getPosition().y, selfBezierCP1.x, selfBezierCP1.y, selfBezierCP2.x,
-					selfBezierCP2.y, head.getPosition().x, head.getPosition().y);
-			drawArrowTip(selfBezierTranslate, selfBezierAngle);
-			p.text(transitionSymbol, selfBezierTextLoc.x, selfBezierTextLoc.y);
-		} else {
-			if (head != null && head.connectedTailCount() > 1) { // TODO
+
+		switch (arrowType) {
+			case DIRECT :
+				p.line(tailXY.x, tailXY.y, headXY.x, headXY.y);
+				drawArrowTip(headXY, theta1);
+				p.pushMatrix();
+				p.translate(tailXY.x, tailXY.y);
+				p.rotate(rotationOffset);
+				p.textSize(textSize);
+				switch (PFLAP.mode) {
+					case DFA :
+						p.text(transitionSymbol,
+								labelRotationModifier * dist(tailXY.x, tailXY.y, headXY.x, headXY.y) / 2, 7);
+						break;
+					case DPA :
+						p.text(transitionSymbol + "; " + stackPop + "/" + stackPush,
+								+labelRotationModifier * dist(tailXY.x, tailXY.y, headXY.x, headXY.y) / 2, 7);
+						break;
+					case MEALY :
+						break;
+					case MOORE :
+						break;
+					default :
+						break;
+				}
+				p.popMatrix();
+				break;
+			case BEZIER :
 				p.curve(bezierCPoint.x, bezierCPoint.y, tail.getPosition().x, tail.getPosition().y,
 						head.getPosition().x, head.getPosition().y, bezierCPoint.x, bezierCPoint.y);
 				drawArrowTip(arrowTip, arrowTipAngle);
-			} else {
-				p.line(tailXY.x, tailXY.y, headXY.x, headXY.y);
-				drawArrowTip(headXY, theta1);
-			}
-		}
-
-		p.pushMatrix();
-		p.translate(tailXY.x, tailXY.y);
-		p.rotate(rotationOffset);
-		p.textSize(textSize);
-		switch (PFLAP.mode) {
-			case DFA :
-				p.text(transitionSymbol, labelRotationModifier * dist(tailXY.x, tailXY.y, headXY.x, headXY.y) / 2, 7);
+				p.text(transitionSymbol, bezierApex.x, bezierApex.y);
 				break;
-			case DPA :
-				p.text(transitionSymbol + "; " + stackPop + "/" + stackPush,
-						+labelRotationModifier * dist(tailXY.x, tailXY.y, headXY.x, headXY.y) / 2, 7);
-				break;
-			case MEALY :
-				break;
-			case MOORE :
-				break;
-			default :
+			case SELF :
+				p.bezier(head.getPosition().x, head.getPosition().y, selfBezierCP1.x, selfBezierCP1.y, selfBezierCP2.x,
+						selfBezierCP2.y, head.getPosition().x, head.getPosition().y);
+				drawArrowTip(selfBezierTranslate, selfBezierAngle);
+				p.text(transitionSymbol, selfBezierTextLoc.x, selfBezierTextLoc.y);
 				break;
 		}
-		p.popMatrix();
 	}
 
 	private void drawArrowTip(PVector translate, float angle) {
@@ -313,13 +335,38 @@ public class Arrow {
 		p.popMatrix();
 	}
 
+	/**
+	 * Naive approach.
+	 * Detects loops in the machine, to draw bezier transitions when needed.
+	 */
+	private boolean detectCycles() {
+		for (Arrow a : head.getOutgoingArrows()) {
+			if (a.head == tail && !a.head.equals(a.tail)) {
+				a.arrowType = arrowTypes.BEZIER;
+				return true;
+			}
+		}
+		return false;
+	}
+	
+	private boolean testUniqueTransition(char symbol) {
+		// TODO only valid for DFA
+		// method in Machine interface?
+		for (Arrow a : tail.getOutgoingArrows()) {
+			if (a.transitionSymbol == symbol) {
+				return false;
+			}
+		}
+		return true;
+	}
+	
 	public boolean isMouseOver(PVector mousePos) {
 		float dx = mousePos.x - midPoint.x;
 		float dy = mousePos.y - midPoint.y;
 		float nx = dx * cos(-theta2) - (dy * sin(-theta2));
 		float ny = dy * cos(-theta2) + (dx * sin(-theta2));
 		float dist = dist(tailXY.x, tailXY.y, headXY.x, headXY.y) / 2;
-		boolean inside = (PApplet.abs(nx) < dist * 2 / 2) && (PApplet.abs(ny) < 10 / 2);
+		boolean inside = (abs(nx) < dist * 2 / 2) && (abs(ny) < 10 / 2);
 		return inside || Functions.withinRange(mousePos.x, mousePos.y, 20, midPoint.x, midPoint.y) || cp5.isMouseOver();
 	}
 
