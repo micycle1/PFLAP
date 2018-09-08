@@ -1,6 +1,6 @@
 <h1 align="center">
   <a href="https://github.com/micycle1/PFLAP">
-  <img src="assets/icon.png" alt="Xi Editor"/></a><br>
+  <img src="src/data/icon.png" alt="PFLAP"/></a><br>
 PFLAP
 </h1>
 
