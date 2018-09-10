@@ -52,7 +52,8 @@ public class Arrow {
 	private PVector selfBezierCP1, selfBezierCP2, selfBezierTranslate, selfBezierTextLoc;
 	private float rotationOffset, theta1, theta2, arrowTipAngle, textSize = 16, selfTransitionAngle, selfBezierAngle;
 	private Textfield transitionSymbolEntry;
-	private char transitionSymbol, stackPop, stackPush;
+	private char transitionSymbol, stackPop;
+	String stackPush = "";
 	private int ID, labelRotationModifier = -1;
 
 	private static enum entryTypes {
@@ -131,11 +132,9 @@ public class Arrow {
 				switch ((int) optionSelected.getValue()) {
 					case 0 : // CHANGE SYMBOL
 						// TODO CHANGE TRANSITION SYMBOL + COMMAND?
-						// check unique after changing symbol
 						machine.removeTransition(Arrow.this);
 						stateOptions.hide();
 						transitionSymbolEntry.show();
-						transitionSymbolEntry.unlock();
 						transitionSymbolEntry.setFocus(true);
 						PFLAP.allowGUIInterraction = false;
 						break;
@@ -170,7 +169,6 @@ public class Arrow {
 					machine.addTransition(this);
 					PFLAP.allowGUIInterraction = true;
 					transitionSymbolEntry.hide();
-					transitionSymbolEntry.lock();
 				}
 				break;
 			case POP :
@@ -178,11 +176,10 @@ public class Arrow {
 				this.entryType = entryTypes.PUSH;
 				break;
 			case PUSH :
-				stackPush = testForLambda(transitionSymbolEntry.getStringValue().charAt(0));
+				stackPush = testForLambda(transitionSymbolEntry.getStringValue());
 				machine.addTransition(this);
 				PFLAP.allowGUIInterraction = true;
 				transitionSymbolEntry.hide();
-				transitionSymbolEntry.lock();
 				break;
 			default :
 				break;
@@ -245,14 +242,9 @@ public class Arrow {
 				arrowType = arrowTypes.SELF;
 			}
 		}
-
-		// Update cp5:
-		if (transitionSymbol == '\u0000') {
-			transitionSymbolEntry.setPosition((headXY.x + tailXY.x) / 2, (headXY.y + tailXY.y) / 2); // TODO
-		}
-		stateOptions.setPosition(headXY.x - dist(tailXY.x, tailXY.y, headXY.x, headXY.y) / 2,
-				(abs(headXY.y) + abs(tailXY.y)) / 2 + 7); // TODO
-
+		
+		transitionSymbolEntry.setPosition(midPoint.x-transitionSymbolEntry.getWidth()/2, midPoint.y - 10);
+		stateOptions.setPosition(midPoint.x, midPoint.y);
 	}
 
 	public void tempUpdate() {
@@ -289,11 +281,11 @@ public class Arrow {
 				switch (PFLAP.mode) {
 					case DFA :
 						p.text(transitionSymbol,
-								labelRotationModifier * dist(tailXY.x, tailXY.y, headXY.x, headXY.y) / 2, 0);
+								labelRotationModifier * dist(tailXY.x, tailXY.y, headXY.x, headXY.y) / 2, 10);
 						break;
 					case DPA :
 						p.text(transitionSymbol + "; " + stackPop + "/" + stackPush,
-								+labelRotationModifier * dist(tailXY.x, tailXY.y, headXY.x, headXY.y) / 2, 0);
+								+labelRotationModifier * dist(tailXY.x, tailXY.y, headXY.x, headXY.y) / 2, 10);
 						break;
 					case MEALY :
 						break;
@@ -322,8 +314,9 @@ public class Arrow {
 				break;
 		}
 	}
-	
+
 	private void drawArrowTip(PVector translate, float angle) {
+		p.noFill();
 		p.pushMatrix();
 		p.translate(translate.x, translate.y);
 		p.rotate(angle);
@@ -424,7 +417,7 @@ public class Arrow {
 		return stackPop;
 	}
 
-	public char getStackPush() {
+	public String getStackPush() {
 		return stackPush;
 	}
 

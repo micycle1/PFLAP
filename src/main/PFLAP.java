@@ -38,8 +38,7 @@ import static main.Functions.withinRegion;
  * DFA: if adding transition w/ same head & tail, merge into existing
  * multi-character DPA transition
  * Arrow as interface for different Arrow types.
- * CP5 scrollable list for history
- * batch move
+ * Right-clicking non-direct arrows
  */
 
 public final class PFLAP {
@@ -147,7 +146,7 @@ public final class PFLAP {
 			cursor(ARROW);
 			InitUI.initCp5();
 			InitUI.initMenuBar();
-			changeMode(modes.DFA); // TODO DFA default or option at start?
+			changeMode(modes.DFA);
 		}
 
 		@SuppressWarnings("unused")
@@ -170,7 +169,7 @@ public final class PFLAP {
 			}
 
 			drawTransitions : {
-				textAlign(CENTER, BOTTOM); // TODO
+				textAlign(CENTER, CENTER); // TODO
 				noFill();
 				strokeWeight(2);
 				stroke(transitionColour.getRGB());
@@ -179,8 +178,8 @@ public final class PFLAP {
 				arrows.forEach(a -> a.draw());
 			}
 
-			p.textAlign(CENTER, CENTER);
 			drawStates : {
+				textAlign(CENTER, CENTER);
 				textSize(Consts.stateFontSize);
 				textFont(comfortaaBold);
 				stroke(0);
@@ -253,9 +252,7 @@ public final class PFLAP {
 		@Override
 		public void keyPressed(KeyEvent e) {
 			keysDown.add(e.getKeyCode());
-			switch (e.getKey()) { // TODO change hotkey
-				case 'x' :
-					HistoryHandler.debug();
+			switch (e.getKey()) {
 				default :
 					switch (e.getKeyCode()) {
 						case LEFT :
@@ -297,7 +294,6 @@ public final class PFLAP {
 					if (fullScreen) {
 						surface.setSize(Consts.WIDTH, Consts.HEIGHT);
 						surface.setLocation(displayWidth / 2 - width / 2, displayHeight / 2 - height / 2);
-						// constrain node loc? todo
 					} else {
 						surface.setSize(displayWidth, displayHeight);
 						surface.setLocation(0, 0);
@@ -418,7 +414,6 @@ public final class PFLAP {
 							nodeMouseOver();
 							arrowHeadState = mouseOverState;
 							if (arrowTailState != arrowHeadState && (arrowHeadState != null) && drawingArrow != null) {
-								// TODO change logic for self transition
 								allowGUIInterraction = false;
 								HistoryHandler.buffer(new addTransition(arrowTailState, arrowHeadState));
 							}
@@ -443,10 +438,11 @@ public final class PFLAP {
 					break;
 
 				case CENTER :
-					selected.forEach(s -> s.select());
-					moveCache.forEach(c -> ((moveState) c).updatePos());
-					HistoryHandler.buffer(new Batch(moveCache));
-					moveCache.clear();
+					if (!selected.isEmpty() && !mouseClickXY.equals(mouseReleasedXY)) {
+						selected.forEach(s -> s.select());
+						moveCache.forEach(c -> ((moveState) c).updatePos());
+						HistoryHandler.buffer(new Batch(moveCache));
+					}
 					break;
 
 				default :

@@ -3,17 +3,12 @@ package main;
 import processing.core.PApplet;
 import processing.core.PConstants;
 import processing.core.PVector;
-import static processing.core.PApplet.atan2;
-import static org.hamcrest.CoreMatchers.is;
-import static processing.core.PApplet.PI;
+
 import static processing.core.PApplet.pow;
 import static processing.core.PApplet.sq;
 import static processing.core.PApplet.sqrt;
-import static processing.core.PApplet.max;
-import static processing.core.PApplet.min;
 
 import java.awt.Color;
-
 
 /**
  * <b>Functions</b>
@@ -23,13 +18,10 @@ public final class Functions {
 
 	/**
 	 * East = 0; North = -1/2PI; West = -PI; South = -3/2PI | 1/2PI
-	 * 
-	 * @param tail
-	 *            PVector Coordinate 1.
-	 * @param head
-	 *            PVector Coordinate 2.
+	 * @param tail PVector Coordinate 1.
+	 * @param head PVector Coordinate 2.
 	 * @return float θ in radians.
-	 */	
+	 */
 	public static float angleBetween(PVector tail, PVector head) {
 		float a = PApplet.atan2(tail.y - head.y, tail.x - head.x);
 		if (a < 0) {
@@ -40,17 +32,11 @@ public final class Functions {
 
 	/**
 	 * Determine whether a point is within a radial region around another.
-	 * 
-	 * @param x
-	 *            X Position of region center.
-	 * @param y
-	 *            Y Position of region center.
-	 * @param diameter
-	 *            Diameter of region.
-	 * @param x2
-	 *            X Position of point to test.
-	 * @param y2
-	 *            Y Position of point to test.
+	 * @param x X Position of region center.
+	 * @param y Y Position of region center.
+	 * @param diameter Diameter of region.
+	 * @param x2 X Position of point to test.
+	 * @param y2 Y Position of point to test.
 	 * @return True/False
 	 */
 	public static boolean withinRange(float x, float y, float diameter, float x2, float y2) {
@@ -58,28 +44,20 @@ public final class Functions {
 	}
 
 	/**
-	 * @param n
-	 *            Number to test
-	 * @param a1
-	 *            Range Low
-	 * @param a2
-	 *            Range High
+	 * @param n Number to test
+	 * @param a1 Range Low
+	 * @param a2 Range High
 	 * @return True if Low >= n >= High
 	 */
 	public static boolean numberBetween(double n, double a1, double a2) {
 		return (n >= Math.min(a1, a2) && n <= Math.max(a1, a2));
-
 	}
 
 	/**
 	 * Determine if a point is within rectangular region.
-	 * 
-	 * @param point
-	 *            PVector position to test.
-	 * @param UL
-	 *            Corner one of region.
-	 * @param BR
-	 *            Corner two of region (different X & Y).
+	 * @param point PVector position to test.
+	 * @param UL Corner one of region.
+	 * @param BR Corner two of region (different X & Y).
 	 * @return True if point contained in region.
 	 */
 	public static boolean withinRegion(PVector point, PVector UL, PVector BR) {
@@ -88,7 +66,7 @@ public final class Functions {
 				|| (point.x <= UL.x && point.x >= BR.x) && (point.y >= UL.y && point.y <= BR.y) // SW
 				|| (point.x <= BR.x && point.x >= UL.x) && (point.y >= BR.y && point.y <= UL.y); // NE
 	}
-	
+
 	/**
 	 * Calculates luminosity contrast.
 	 * The returned value should be bigger than 5 for best readability.
@@ -109,20 +87,29 @@ public final class Functions {
 			return (L2 + 0.05) / (L1 + 0.05);
 		}
 	}
-	
+
 	/**
 	 * In PFLAP, spaces represent an empty (lambda transition).
 	 * This method substitutes ' ' chars with 'λ'.
-	 * @param test
-	 * @return
+	 * @param test char to test substitution
+	 * @return char λ if input was ' '.
 	 */
 	public static char testForLambda(char test) {
 		if (test == ' ') {
 			return Consts.lambda;
-		}
-		else {
+		} else {
 			return test;
 		}
+	}
+
+	/**
+	 * Subsitutes all ' ' for λ within a String.
+	 * @param test String to substitute.
+	 * @return String with λ.
+	 * @see {@link #testForLambda testForLambda(char)}
+	 */
+	public static String testForLambda(String test) {
+		return test.replace(' ', Consts.lambda);
 	}
 
 	private Functions() {
