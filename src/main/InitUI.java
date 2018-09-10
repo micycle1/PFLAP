@@ -78,7 +78,7 @@ final class InitUI {
 		final MenuItem fileMenuItem0, fileMenuItem1, fileMenuItem2;
 		final MenuItem editMenuItem0, editMenuItem1, editMenuItem2;
 		final MenuItem viewMenuItem0, viewMenuItem1, viewMenuItem2;
-		final CheckboxMenuItem viewMenuCheckboxItem0;
+		final CheckboxMenuItem viewMenuCheckboxItem0, viewMenuCheckboxItem1;
 		final MenuItem machineMenuItem0, machineMenuItem1, machineMenuItem2, machineMenuItem3;
 		final MenuItem inputMenuItem0, inputMenuItem1;
 		final MenuItem helpMenuItem0, helpMenuItem1;
@@ -119,8 +119,9 @@ final class InitUI {
 		viewMenuItem0 = new MenuItem("Save Stage As Image");
 		viewMenuItem1 = new MenuItem("Reorder States");
 		viewMenuItem1.setEnabled(false);
-		viewMenuCheckboxItem0 = new CheckboxMenuItem("Action Tracer", false);
 		viewMenuItem2 = new MenuItem("Machine Information");
+		viewMenuCheckboxItem0 = new CheckboxMenuItem("Action Tracer", false);
+		viewMenuCheckboxItem1 = new CheckboxMenuItem("History List GUI", false);
 
 		// Machine Menu
 		machineMenuItem0 = new MenuItem("DFA");
@@ -175,7 +176,7 @@ final class InitUI {
 		// Menu Action Listeners
 		final ActionListener fileMenuListener, editMenuListener, viewMenuListener, machineMenuListener,
 				inputMenuListener, helpMenuListener, defineColoursListener;
-		final ItemListener tracerListener;
+		final ItemListener tracerListener, historyGUIListener;
 
 		fileMenuListener = new ActionListener() {
 			@Override
@@ -425,7 +426,16 @@ final class InitUI {
 				PFLAP.PApplet.trace.setVisible(viewMenuCheckboxItem0.getState());
 			}
 		};
-
+		viewMenuCheckboxItem0.addItemListener(tracerListener);
+		
+		historyGUIListener = new ItemListener() {
+			@Override
+			public void itemStateChanged(ItemEvent event) {
+				HistoryList.toggleVisible();
+			}
+		};
+		viewMenuCheckboxItem1.addItemListener(historyGUIListener);
+		
 		fileMenu.addActionListener(fileMenuListener);
 		editMenu.addActionListener(editMenuListener);
 		viewMenu.addActionListener(viewMenuListener);
@@ -433,9 +443,8 @@ final class InitUI {
 		inputMenu.addActionListener(inputMenuListener);
 		helpMenu.addActionListener(helpMenuListener);
 		defineColours.addActionListener(defineColoursListener);
-
-		viewMenuCheckboxItem0.addItemListener(tracerListener);
 		viewMenu.add(viewMenuCheckboxItem0);
+		viewMenu.add(viewMenuCheckboxItem1);
 
 		// Adding menus to the menu bar
 		menuBar.add(fileMenu);

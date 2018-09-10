@@ -5,7 +5,8 @@ import processing.core.PVector;
 
 public final class moveState implements Command {
 	
-	private final PVector oldPos, newPos;
+	private final PVector oldPos;
+	private PVector newPos;
 	private final State s;
 	
 	public moveState(State s, PVector oldPosition) {
@@ -13,6 +14,10 @@ public final class moveState implements Command {
 		oldPos = oldPosition;
 		newPos = s.getPosition();
 		// use state selected position
+	}
+	
+	public void updatePos() {
+		newPos = s.getPosition();
 	}
 	
 	@Override

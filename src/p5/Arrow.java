@@ -113,10 +113,9 @@ public class Arrow {
 						if (input.getAction() == 100) {
 							String tempSymbol = transitionSymbolEntry.getStringValue();
 							if (tempSymbol.length() == 1) {
-								if (testUniqueTransition(tempSymbol.charAt(0))) { //unique
+								if (testUniqueTransition(tempSymbol.charAt(0))) { // unique
 									entry(entryType);
-								}
-								else {
+								} else {
 									Notification.addNotification(transitionInvalid);
 								}
 							} else {
@@ -278,6 +277,7 @@ public class Arrow {
 	}
 
 	public void draw() {
+		p.textSize(textSize);
 		switch (arrowType) {
 			case DIRECT :
 				p.line(tailXY.x, tailXY.y, headXY.x, headXY.y);
@@ -285,15 +285,15 @@ public class Arrow {
 				p.pushMatrix();
 				p.translate(tailXY.x, tailXY.y);
 				p.rotate(rotationOffset);
-				p.textSize(textSize);
+				p.fill(0);
 				switch (PFLAP.mode) {
 					case DFA :
 						p.text(transitionSymbol,
-								labelRotationModifier * dist(tailXY.x, tailXY.y, headXY.x, headXY.y) / 2, 7);
+								labelRotationModifier * dist(tailXY.x, tailXY.y, headXY.x, headXY.y) / 2, 0);
 						break;
 					case DPA :
 						p.text(transitionSymbol + "; " + stackPop + "/" + stackPush,
-								+labelRotationModifier * dist(tailXY.x, tailXY.y, headXY.x, headXY.y) / 2, 7);
+								+labelRotationModifier * dist(tailXY.x, tailXY.y, headXY.x, headXY.y) / 2, 0);
 						break;
 					case MEALY :
 						break;
@@ -305,20 +305,24 @@ public class Arrow {
 				p.popMatrix();
 				break;
 			case BEZIER :
+				p.noFill();
 				p.curve(bezierCPoint.x, bezierCPoint.y, tail.getPosition().x, tail.getPosition().y,
 						head.getPosition().x, head.getPosition().y, bezierCPoint.x, bezierCPoint.y);
 				drawArrowTip(arrowTip, arrowTipAngle);
+				p.fill(0);
 				p.text(transitionSymbol, bezierApex.x, bezierApex.y);
 				break;
 			case SELF :
+				p.noFill();
 				p.bezier(head.getPosition().x, head.getPosition().y, selfBezierCP1.x, selfBezierCP1.y, selfBezierCP2.x,
 						selfBezierCP2.y, head.getPosition().x, head.getPosition().y);
 				drawArrowTip(selfBezierTranslate, selfBezierAngle);
+				p.fill(0);
 				p.text(transitionSymbol, selfBezierTextLoc.x, selfBezierTextLoc.y);
 				break;
 		}
 	}
-
+	
 	private void drawArrowTip(PVector translate, float angle) {
 		p.pushMatrix();
 		p.translate(translate.x, translate.y);
@@ -344,7 +348,7 @@ public class Arrow {
 		}
 		return false;
 	}
-	
+
 	private boolean testUniqueTransition(char symbol) {
 		// TODO only valid for DFA
 		// method in Machine interface?
@@ -355,7 +359,7 @@ public class Arrow {
 		}
 		return true;
 	}
-	
+
 	public boolean isMouseOver(PVector mousePos) {
 		float dx = mousePos.x - midPoint.x;
 		float dy = mousePos.y - midPoint.y;

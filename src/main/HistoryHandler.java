@@ -65,6 +65,7 @@ public final class HistoryHandler {
 				history.add(pendingExecute.poll());
 				historyStateIndex += 1;
 			}
+			HistoryList.update();
 		}
 	}
 
@@ -92,8 +93,31 @@ public final class HistoryHandler {
 		}
 	}
 	
+	protected static void movetoIndex(int index) {
+		if (index > history.size()+1 || index < -1) {
+			return;
+		}
+		
+		if (index > historyStateIndex) {
+			while (index > historyStateIndex) {
+				redo();
+			}
+		}
+		else {
+			if (index < historyStateIndex) {
+				while (index < historyStateIndex) {
+					undo();
+				}
+			}
+		}
+	}
+	
 	public static int getHistoryStateIndex() {
 		return historyStateIndex;
+	}
+	
+	protected static ArrayList<Command> export() {
+		return history;
 	}
 
 	public static void saveHistory() {

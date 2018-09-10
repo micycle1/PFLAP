@@ -6,10 +6,11 @@ import java.util.ArrayList;
 import java.util.HashSet;
 
 import commands.Batch;
+import commands.Command;
 import commands.addState;
 import commands.moveState;
 import commands.addTransition;
-
+import commands.deleteState;
 import processing.core.PFont;
 import processing.core.PVector;
 import processing.event.KeyEvent;
@@ -36,13 +37,12 @@ import static main.Functions.withinRegion;
  * DPA fully integrated with states and transitions.
  * DFA: if adding transition w/ same head & tail, merge into existing
  * multi-character DPA transition
- * lambda transitions (space)
  * Arrow as interface for different Arrow types.
  * CP5 scrollable list for history
- * clicking making font white?
+ * batch move
  */
 
-public class PFLAP {
+public final class PFLAP {
 
 	public static ArrayList<Arrow> arrows = new ArrayList<>();
 	public static ArrayList<State> nodes = new ArrayList<>();
@@ -75,6 +75,12 @@ public class PFLAP {
 		Notification.addNotification("Mode Changed", mode + " mode selected.");
 	}
 
+	/**
+	 * PFLAP runs here.
+	 * This is where Processing's draw(), etc. are located.
+	 * @author micycle1
+	 *
+	 */
 	public final static class PApplet extends processing.core.PApplet {
 
 		private static HashSet<Integer> keysDown = new HashSet<Integer>();
@@ -86,6 +92,7 @@ public class PFLAP {
 		private static boolean fullScreen = false, newState = false;
 		private static PVector mouseClickXY, mouseReleasedXY, mouseCoords;
 		protected static Textarea trace;
+		private static ArrayList<Command> moveCache;
 
 		public static void init() {
 			main(PApplet.class);
@@ -112,7 +119,7 @@ public class PFLAP {
 					surface.setIcon(loadImage("icon_small.png"));
 				} catch (NullPointerException e) {
 				}
-				
+
 				comfortaaRegular = createFont("Comfortaa.ttf", 24, true);
 				if (comfortaaRegular == null) {
 					comfortaaRegular = createDefaultFont(24);
@@ -163,7 +170,7 @@ public class PFLAP {
 			}
 
 			drawTransitions : {
-				textAlign(CENTER, BOTTOM); //TODO
+				textAlign(CENTER, BOTTOM); // TODO
 				noFill();
 				strokeWeight(2);
 				stroke(transitionColour.getRGB());
@@ -250,6 +257,19 @@ public class PFLAP {
 				case 'x' :
 					HistoryHandler.debug();
 				default :
+					switch (e.getKeyCode()) {
+						case LEFT :
+							Step.stepBackward();
+							break;
+						case RIGHT :
+							Step.stepForward();
+							break;
+						case 72 : // CTRL-H
+							HistoryList.toggleVisible();
+							break;
+						default :
+							break;
+					}
 					break;
 			}
 		}
@@ -264,14 +284,14 @@ public class PFLAP {
 			}
 			switch (key.getKeyCode()) {
 				case 127 : // 127 == delete key
-					HistoryHandler.buffer(new Batch(Batch.createDeleteBatch(selected)));
-					selected.clear();
-					break;
-				case LEFT :
-					Step.stepBackward();
-					break;
-				case RIGHT :
-					Step.stepForward();
+					if (!selected.isEmpty()) {
+						if (selected.size() == 1) {
+							HistoryHandler.buffer(new deleteState(selected.iterator().next()));
+						} else {
+							HistoryHandler.buffer(new Batch(Batch.createDeleteBatch(selected)));
+						}
+						selected.clear();
+					}
 					break;
 				case 122 : // F11
 					if (fullScreen) {
@@ -292,7 +312,7 @@ public class PFLAP {
 
 		@Override
 		public void mousePressed(MouseEvent m) {
-			if (cp5.isMouseOver() || !allowGUIInterraction) {
+			if (cp5.isMouseOver() || !allowGUIInterraction || HistoryList.isMouseOver()) {
 				return;
 			}
 			mouseDown.add(m.getButton());
@@ -345,6 +365,11 @@ public class PFLAP {
 						}
 					}
 					break;
+				case CENTER :
+					if (!selected.isEmpty()) {
+						moveCache = Batch.createMoveBatch(selected);
+					}
+					break;
 				default :
 					break;
 			}
@@ -354,7 +379,7 @@ public class PFLAP {
 		public void mouseReleased(MouseEvent m) {
 			cursor(ARROW);
 			mouseReleasedXY = mouseCoords.copy();
-			if (cp5.isMouseOver() || !allowGUIInterraction) {
+			if (cp5.isMouseOver() || !allowGUIInterraction || HistoryList.isMouseOver()) {
 				return;
 			}
 			arrows.forEach(a -> a.hideUI());
@@ -419,6 +444,9 @@ public class PFLAP {
 
 				case CENTER :
 					selected.forEach(s -> s.select());
+					moveCache.forEach(c -> ((moveState) c).updatePos());
+					HistoryHandler.buffer(new Batch(moveCache));
+					moveCache.clear();
 					break;
 
 				default :
