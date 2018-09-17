@@ -26,6 +26,7 @@ import javax.swing.JColorChooser;
 import javax.swing.JOptionPane;
 
 import commands.Batch;
+import commands.changeMode;
 import commands.setBackgroundColor;
 
 import controlP5.ControlP5;
@@ -281,19 +282,19 @@ final class InitUI {
 				enableAll();
 				switch (event.getActionCommand()) {
 					case "DFA" :
-						PFLAP.changeMode(PFLAP.modes.DFA);
+						HistoryHandler.buffer(new changeMode(PFLAP.modes.DFA)); //todo
 						machineMenuItem0.setEnabled(false);
 						break;
 					case "DPA" :
-						PFLAP.changeMode(PFLAP.modes.DPA);
+						HistoryHandler.buffer(new changeMode(PFLAP.modes.DPA));
 						machineMenuItem1.setEnabled(false);
 						break;
 					case "Mealy" :
-						PFLAP.changeMode(PFLAP.modes.MEALY);
+						HistoryHandler.buffer(new changeMode(PFLAP.modes.MEALY));
 						machineMenuItem2.setEnabled(false);
 						break;
 					case "Moore" :
-						PFLAP.changeMode(PFLAP.modes.MOORE);
+						HistoryHandler.buffer(new changeMode(PFLAP.modes.MOORE));
 						machineMenuItem3.setEnabled(false);
 						break;
 					default :
@@ -324,9 +325,22 @@ final class InitUI {
 									Step.beginStep(userInput);
 									break;
 								case DPA :
-									((DPA) PFLAP.machine).setInitialStackSymbol(
-											JOptionPane.showInputDialog("Initial Stack Symbol: ").charAt(0));
-									Step.beginStep(userInput);
+									String stackSymbol;
+									do {
+										stackSymbol = JOptionPane.showInputDialog("Initial Stack Symbol: ");
+										if (stackSymbol == null) {
+											return;
+										}
+										if (stackSymbol.length() == 1) {
+											((DPA) PFLAP.machine).setInitialStackSymbol(
+													Functions.testForLambda(stackSymbol.charAt(0)));
+//											PFLAP.machine.run(userInput);
+											Step.beginStep(userInput);
+										} else {
+											Notification.addNotification("Invalid Stack Symbol",
+													"Initial Stack Symbol must be single character.");
+										}
+									} while (stackSymbol.length() != 1);
 									break;
 								case MEALY :
 									break;
@@ -342,9 +356,21 @@ final class InitUI {
 									PFLAP.machine.run(userInput);
 									break;
 								case DPA :
-									((DPA) PFLAP.machine).setInitialStackSymbol(
-											JOptionPane.showInputDialog("Initial Stack Symbol: ").charAt(0));
-									PApplet.println(PFLAP.machine.run(userInput));
+									String stackSymbol;
+									do {
+										stackSymbol = JOptionPane.showInputDialog("Initial Stack Symbol: ");
+										if (stackSymbol == null) {
+											return;
+										}
+										if (stackSymbol.length() == 1) {
+											((DPA) PFLAP.machine).setInitialStackSymbol(
+													Functions.testForLambda(stackSymbol.charAt(0)));
+											PFLAP.machine.run(userInput);
+										} else {
+											Notification.addNotification("Invalid Stack Symbol",
+													"Initial Stack Symbol must be single character.");
+										}
+									} while (stackSymbol.length() != 1);
 									break;
 								case MEALY :
 									break;
@@ -360,7 +386,6 @@ final class InitUI {
 					}
 				} else {
 					Notification.addNotification(noInitialState);
-					System.err.println("No Initial State Defined");
 				}
 
 			}
@@ -427,7 +452,7 @@ final class InitUI {
 			}
 		};
 		viewMenuCheckboxItem0.addItemListener(tracerListener);
-		
+
 		historyGUIListener = new ItemListener() {
 			@Override
 			public void itemStateChanged(ItemEvent event) {
@@ -435,7 +460,7 @@ final class InitUI {
 			}
 		};
 		viewMenuCheckboxItem1.addItemListener(historyGUIListener);
-		
+
 		fileMenu.addActionListener(fileMenuListener);
 		editMenu.addActionListener(editMenuListener);
 		viewMenu.addActionListener(viewMenuListener);
@@ -461,9 +486,8 @@ final class InitUI {
 	protected static void initCp5() {
 		PFont traceFont = p.createFont("Comfortaa Regular", 12, true);
 		PFLAP.cp5 = new ControlP5(p);
-		PFLAP.PApplet.trace = PFLAP.cp5.addTextarea("Trace")
-
 		// @formatter:off
+		PFLAP.PApplet.trace = PFLAP.cp5.addTextarea("Trace")
 			.setVisible(false)
 			.setPosition(10, 670)
 			.setSize(200, 100)

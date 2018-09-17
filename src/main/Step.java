@@ -29,7 +29,7 @@ import processing.core.PGraphics;
 public class Step {
 
 	protected static boolean live = false, completed = false, accepted;
-	private static String initialInput, remainingInput;
+	private static String initialInput, remainingInput, stack;
 	private static State liveState;
 	private static ArrayList<State> visited;
 	private static int visitedIndex;
@@ -124,6 +124,10 @@ public class Step {
 			}
 		}
 	}
+	
+	public static void setStack(String stackRepresentation) {
+		stack = stackRepresentation;
+	}
 
 	protected static void stepForward() {
 		if (live) {
@@ -160,8 +164,9 @@ public class Step {
 			p.textSize(20);
 			p.fill(0, 0, 0);
 			p.textAlign(PConstants.LEFT, PConstants.BOTTOM);
-			p.text("Current State: " + liveState.getLabel(), stepGUIPadding * 2, p.height - 50);
-			p.text("Input: [" + remainingInput + "]", stepGUIPadding * 2, p.height - 30);
+			p.text("Current State: " + liveState.getLabel(), stepGUIPadding * 2, p.height - 70);
+			p.text("Input: [" + remainingInput + "]", stepGUIPadding * 2, p.height - 50);
+			p.text("Stack: [" + stack + "]", stepGUIPadding * 2, p.height - 30);
 			liveState.highLight(p.color(255, 0, 255)); // specify color
 			if (completed && visitedIndex == visited.size() - 1) {
 				if (accepted) {

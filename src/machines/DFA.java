@@ -126,10 +126,7 @@ public class DFA implements Machine {
 		return s.isAccepting();
 	}
 
-	public boolean fastRun() { // TODO
-		return false;
-	}
-
+	@Override
 	public int totalTransitions() {
 		return transitionTable.cellSet().size();
 	}

@@ -36,6 +36,9 @@ import static processing.core.PApplet.abs;
 
 import static processing.core.PConstants.PI;
 import static processing.core.PConstants.TWO_PI;
+
+import java.util.ArrayList;
+
 import static processing.core.PConstants.HALF_PI;
 
 /**
@@ -53,7 +56,7 @@ public class Arrow {
 	private float rotationOffset, theta1, theta2, arrowTipAngle, textSize = 16, selfTransitionAngle, selfBezierAngle;
 	private Textfield transitionSymbolEntry;
 	private char transitionSymbol, stackPop;
-	String stackPush = "";
+	private String stackPush = "";
 	private int ID, labelRotationModifier = -1;
 
 	private static enum entryTypes {
@@ -75,7 +78,7 @@ public class Arrow {
 	}
 
 	public Arrow(State tail, State head) {
-		// Constructor for finalised transtions
+		// Constructor for finalised transitions
 		ID = this.hashCode();
 		this.tail = tail;
 		this.head = head;
@@ -113,14 +116,14 @@ public class Arrow {
 					public void controlEvent(CallbackEvent input) {
 						if (input.getAction() == 100) {
 							String tempSymbol = transitionSymbolEntry.getStringValue();
-							if (tempSymbol.length() == 1) {
-								if (testUniqueTransition(tempSymbol.charAt(0))) { // unique
+							if (tempSymbol.length() == 1 && entryType != entryTypes.PUSH) {
+								entry(entryType);
+							} else {
+								if (entryType == entryTypes.PUSH && tempSymbol.length() > 0) {
 									entry(entryType);
 								} else {
-									Notification.addNotification(transitionInvalid);
+									Notification.addNotification(symbolInvalid);
 								}
-							} else {
-								Notification.addNotification(symbolInvalid);
 							}
 						}
 					}
@@ -131,7 +134,7 @@ public class Arrow {
 			public void controlEvent(ControlEvent optionSelected) {
 				switch ((int) optionSelected.getValue()) {
 					case 0 : // CHANGE SYMBOL
-						// TODO CHANGE TRANSITION SYMBOL + COMMAND?
+						// TODO CHANGE TRANSITION SYMBOL IN MACHINE? + COMMAND?
 						machine.removeTransition(Arrow.this);
 						stateOptions.hide();
 						transitionSymbolEntry.show();
@@ -166,6 +169,11 @@ public class Arrow {
 				if (PFLAP.mode == PFLAP.modes.DPA) {
 					this.entryType = entryTypes.POP;
 				} else {
+					if (!testUniqueDFATransition(transitionSymbol)) {
+						Notification.addNotification(transitionInvalid);
+						// entry(entryType);
+						return;
+					}
 					machine.addTransition(this);
 					PFLAP.allowGUIInterraction = true;
 					transitionSymbolEntry.hide();
@@ -177,9 +185,14 @@ public class Arrow {
 				break;
 			case PUSH :
 				stackPush = testForLambda(transitionSymbolEntry.getStringValue());
-				machine.addTransition(this);
-				PFLAP.allowGUIInterraction = true;
-				transitionSymbolEntry.hide();
+				if (!testUniqueDPATransition(stackPush)) {
+					Notification.addNotification(transitionInvalid);
+					return;
+				} else {
+					machine.addTransition(this);
+					PFLAP.allowGUIInterraction = true;
+					transitionSymbolEntry.hide();
+				}
 				break;
 			default :
 				break;
@@ -242,8 +255,8 @@ public class Arrow {
 				arrowType = arrowTypes.SELF;
 			}
 		}
-		
-		transitionSymbolEntry.setPosition(midPoint.x-transitionSymbolEntry.getWidth()/2, midPoint.y - 10);
+
+		transitionSymbolEntry.setPosition(midPoint.x - transitionSymbolEntry.getWidth() / 2, midPoint.y - 10);
 		stateOptions.setPosition(midPoint.x, midPoint.y);
 	}
 
@@ -303,6 +316,20 @@ public class Arrow {
 				drawArrowTip(arrowTip, arrowTipAngle);
 				p.fill(0);
 				p.text(transitionSymbol, bezierApex.x, bezierApex.y);
+				switch (PFLAP.mode) {
+					case DFA :
+						p.text(transitionSymbol, bezierApex.x, bezierApex.y);
+						break;
+					case DPA :
+						p.text(transitionSymbol + "; " + stackPop + "/" + stackPush, bezierApex.x, bezierApex.y);
+						break;
+					case MEALY :
+						break;
+					case MOORE :
+						break;
+					default :
+						break;
+				}
 				break;
 			case SELF :
 				p.noFill();
@@ -310,7 +337,21 @@ public class Arrow {
 						selfBezierCP2.y, head.getPosition().x, head.getPosition().y);
 				drawArrowTip(selfBezierTranslate, selfBezierAngle);
 				p.fill(0);
-				p.text(transitionSymbol, selfBezierTextLoc.x, selfBezierTextLoc.y);
+				switch (PFLAP.mode) {
+					case DFA :
+						p.text(transitionSymbol, selfBezierTextLoc.x, selfBezierTextLoc.y);
+						break;
+					case DPA :
+						p.text(transitionSymbol + "; " + stackPop + "/" + stackPush, selfBezierTextLoc.x,
+								selfBezierTextLoc.y);
+						break;
+					case MEALY :
+						break;
+					case MOORE :
+						break;
+					default :
+						break;
+				}
 				break;
 		}
 	}
@@ -342,11 +383,28 @@ public class Arrow {
 		return false;
 	}
 
-	private boolean testUniqueTransition(char symbol) {
-		// TODO only valid for DFA
-		// method in Machine interface?
-		for (Arrow a : tail.getOutgoingArrows()) {
+	private boolean testUniqueDFATransition(char symbol) {
+		ArrayList<Arrow> arrows = new ArrayList<>(tail.getOutgoingArrows());
+		arrows.remove(this);
+		for (Arrow a : arrows) {
 			if (a.transitionSymbol == symbol) {
+				return false;
+			}
+		}
+		return true;
+	}
+
+	/**
+	 * Checks proposed DPA transition for uniqueness of all 3 transition attributes.
+	 * Call this check when the final attribute, stackPush, is entered by user.
+	 * @param push Proposed stackPush symbols
+	 * @return true if unique
+	 */
+	private boolean testUniqueDPATransition(String push) { // TODO
+		ArrayList<Arrow> arrows = new ArrayList<>(tail.getOutgoingArrows());
+		arrows.remove(this);
+		for (Arrow a : arrows) {
+			if (a.transitionSymbol == transitionSymbol && a.stackPop == stackPop && a.stackPush.equals(push)) {
 				return false;
 			}
 		}

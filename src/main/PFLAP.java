@@ -10,6 +10,7 @@ import commands.Command;
 import commands.addState;
 import commands.moveState;
 import commands.addTransition;
+import commands.changeMode;
 import commands.deleteState;
 import processing.core.PFont;
 import processing.core.PVector;
@@ -18,7 +19,7 @@ import processing.event.MouseEvent;
 
 import controlP5.ControlP5;
 import controlP5.Textarea;
-
+import controlP5.Toggle;
 import machines.DFA;
 import machines.DPA;
 import machines.Machine;
@@ -39,6 +40,8 @@ import static main.Functions.withinRegion;
  * multi-character DPA transition
  * Arrow as interface for different Arrow types.
  * Right-clicking non-direct arrows
+ * change transition menu on DPA mode
+ * batch machine input
  */
 
 public final class PFLAP {
@@ -68,12 +71,6 @@ public final class PFLAP {
 		PApplet.init();
 	}
 
-	public static void changeMode(modes newMode) {
-		mode = newMode;
-		PApplet.reset();
-		Notification.addNotification("Mode Changed", mode + " mode selected.");
-	}
-
 	/**
 	 * PFLAP runs here.
 	 * This is where Processing's draw(), etc. are located.
@@ -99,7 +96,6 @@ public final class PFLAP {
 
 		@Override
 		public void settings() {
-			print("a");
 			size(Consts.WIDTH, Consts.HEIGHT);
 			smooth(8);
 		}
@@ -146,7 +142,8 @@ public final class PFLAP {
 			cursor(ARROW);
 			InitUI.initCp5();
 			InitUI.initMenuBar();
-			changeMode(modes.DFA);
+			mode = modes.DFA;
+			reset();
 		}
 
 		@SuppressWarnings("unused")
@@ -198,7 +195,7 @@ public final class PFLAP {
 		}
 
 		public static void reset() {
-			HistoryHandler.resetAll();
+//			HistoryHandler.resetAll();
 			arrows.clear();
 			nodes.clear();
 			selected.clear();
@@ -210,12 +207,14 @@ public final class PFLAP {
 			dragState = null;
 			drawingArrow = null;
 			mouseOverTransition = null;
+			DPA.hideUI();
 			switch (mode) {
 				case DFA :
 					machine = new DFA();
 					break;
 				case DPA :
 					machine = new DPA();
+					DPA.showUI();
 					break;
 				case MEALY :
 					machine = new Mealy();
