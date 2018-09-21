@@ -1,12 +1,5 @@
 package main;
 
-import static main.Consts.notificationData.machineRejected;
-import static main.Consts.notificationData.machineAccepted;
-import static main.PFLAP.p;
-import static main.PFLAP.machine;
-
-import static main.Consts.stepGUIPadding;
-
 import java.util.ArrayList;
 
 import javax.swing.JOptionPane;
@@ -14,11 +7,18 @@ import javax.swing.JOptionPane;
 import controlP5.Button;
 import controlP5.ControlEvent;
 import controlP5.ControlListener;
+
 import p5.Notification;
 import p5.State;
-import processing.core.PApplet;
+
 import processing.core.PConstants;
 import processing.core.PGraphics;
+
+import static main.Consts.notificationData.machineRejected;
+import static main.Consts.notificationData.machineAccepted;
+import static main.PFLAP.p;
+import static main.PFLAP.machine;
+import static main.Consts.stepGUIPadding;
 
 /**
  * Call beginstep() when user clicks step-by-state.
