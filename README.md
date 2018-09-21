@@ -12,7 +12,7 @@ PFLAP
 
 ## Latest Release
 
-:inbox_tray: Download - [todo.jar](https://github.com/micycle1/PFLAP/releases/_.jar)
+:inbox_tray: [PFLAP v.1.0](https://github.com/micycle1/PFLAP/releases)
 
 ## Features
 * Simulate Deterministic Finite Automata (DFA)
@@ -33,7 +33,11 @@ PFLAP
 </h1>
 
 ## Tasks
-- [ ] To be populated after first release.
+- [ ] Implement Save/Load for machine information.
+- [ ] Visualise DPA machine stack (in stepping mode).
+- [ ] Collapse multiple transitions between the same pair of states into a single transition.
+- [ ] Batch input for fast-run mode.
+- [ ] Implement Moore and Mealy machines
 
 ## Libraries
 - `processing` [github](https://github.com/processing/processing)
