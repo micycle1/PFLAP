@@ -26,7 +26,6 @@ public final class deleteState implements Command {
 
 	@Override
 	public void undo() {
-		// re add arrows? TODO
 		machine.addNode(s);
 		if (initial) {
 			s.setAsInitial();

@@ -30,6 +30,4 @@ public interface Machine {
 	 * @param input Previous input (one character longer)
 	 */
 	void stepBackward(State s, String input);
-	
-	void debug();
 }

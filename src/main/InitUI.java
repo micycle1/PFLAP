@@ -232,6 +232,7 @@ final class InitUI {
 					case "Redo" :
 						HistoryHandler.redo();
 						undo.setEnabled(true);
+						break;
 					default :
 						System.err.println("Unhandled Menuitem.");
 						break;
@@ -255,8 +256,7 @@ final class InitUI {
 						}
 
 						break;
-					case "Reorder States" :
-						// TODO into grid?
+					case "Reorder States" : //TODO
 						break;
 					case "Machine Information" :
 						String info = "Transitions: " + PFLAP.arrows.size() + "\r\n" + "States: " + PFLAP.nodes.size()
@@ -282,7 +282,7 @@ final class InitUI {
 				enableAll();
 				switch (event.getActionCommand()) {
 					case "DFA" :
-						HistoryHandler.buffer(new changeMode(PFLAP.modes.DFA)); //todo
+						HistoryHandler.buffer(new changeMode(PFLAP.modes.DFA));
 						machineMenuItem0.setEnabled(false);
 						break;
 					case "DPA" :
@@ -498,6 +498,6 @@ final class InitUI {
 			.setMoveable(false)
 			;
 			// @formatter:on
-		// cp5.addConsole(trace); TODO uncomment
+		 PFLAP.cp5.addConsole(PFLAP.PApplet.trace);
 	}
 }

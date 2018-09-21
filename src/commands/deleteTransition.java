@@ -6,10 +6,6 @@ import main.PFLAP;
 import p5.Arrow;
 import p5.State;
 
-/**
- * DELETE SINGLE TRANSITION NOT YET IMPLEMENTED TODO
- */
-
 public final class deleteTransition implements Command {
 
 	private Arrow a;

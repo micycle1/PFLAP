@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import commands.addTransition;
 import commands.setInitialState;
 import commands.toggleAccepting;
+
 import controlP5.CallbackEvent;
 import controlP5.CallbackListener;
 import controlP5.ControlEvent;
@@ -14,20 +15,20 @@ import controlP5.ScrollableList;
 import controlP5.Slider;
 import controlP5.Textfield;
 
-import static main.Consts.stateRadius;
-import static main.Consts.initialNodeIndicatorSize;
+import processing.core.PApplet;
+import processing.core.PGraphics;
+import processing.core.PVector;
 
 import main.HistoryHandler;
 import main.PFLAP;
+
+import static main.Consts.stateRadius;
+import static main.Consts.initialNodeIndicatorSize;
 
 import static main.PFLAP.p;
 import static main.PFLAP.stateColour;
 import static main.PFLAP.stateSelectedColour;
 import static main.PFLAP.machine;
-
-import processing.core.PApplet;
-import processing.core.PGraphics;
-import processing.core.PVector;
 
 public class State {
 
@@ -50,7 +51,7 @@ public class State {
 		rename = PFLAP.cp5.addTextfield("Rename State");
 		rename.hide()
 		.setSize(45, 20)
-		.setFocus(false) //TODO change for state size?
+		.setFocus(false)
 		.addCallback(new CallbackListener() {
 			@Override
 			public void controlEvent(CallbackEvent input) {
@@ -74,21 +75,6 @@ public class State {
 	}
 	
 	public State(PVector XY, int liveID) {
-		switch (PFLAP.mode) {
-			case DFA :
-				// DFA.addNode(this); TODO replaced in addState command
-				break;
-			case DPA :
-//				machine.addNode(this); TODO replaced in addState command?
-				break;
-			case MEALY :
-				break;
-			case MOORE :
-				break;
-			default :
-				break;
-		}
-
 		label = "q" + liveID;
 		this.liveID = liveID;
 		position = XY;

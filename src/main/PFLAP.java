@@ -10,8 +10,8 @@ import commands.Command;
 import commands.addState;
 import commands.moveState;
 import commands.addTransition;
-import commands.changeMode;
 import commands.deleteState;
+
 import processing.core.PFont;
 import processing.core.PVector;
 import processing.event.KeyEvent;
@@ -19,7 +19,7 @@ import processing.event.MouseEvent;
 
 import controlP5.ControlP5;
 import controlP5.Textarea;
-import controlP5.Toggle;
+
 import machines.DFA;
 import machines.DPA;
 import machines.Machine;
@@ -33,16 +33,6 @@ import p5.State;
 
 import static main.Functions.withinRange;
 import static main.Functions.withinRegion;
-
-/**
- * DPA fully integrated with states and transitions.
- * DFA: if adding transition w/ same head & tail, merge into existing
- * multi-character DPA transition
- * Arrow as interface for different Arrow types.
- * Right-clicking non-direct arrows
- * change transition menu on DPA mode
- * batch machine input
- */
 
 public final class PFLAP {
 
@@ -75,7 +65,6 @@ public final class PFLAP {
 	 * PFLAP runs here.
 	 * This is where Processing's draw(), etc. are located.
 	 * @author micycle1
-	 *
 	 */
 	public final static class PApplet extends processing.core.PApplet {
 
@@ -166,7 +155,7 @@ public final class PFLAP {
 			}
 
 			drawTransitions : {
-				textAlign(CENTER, CENTER); // TODO
+				textAlign(CENTER, CENTER);
 				noFill();
 				strokeWeight(2);
 				stroke(transitionColour.getRGB());
@@ -195,7 +184,7 @@ public final class PFLAP {
 		}
 
 		public static void reset() {
-//			HistoryHandler.resetAll();
+			// HistoryHandler.resetAll();
 			arrows.clear();
 			nodes.clear();
 			selected.clear();
@@ -260,9 +249,6 @@ public final class PFLAP {
 						case RIGHT :
 							Step.stepForward();
 							break;
-						case 72 : // CTRL-H
-							HistoryList.toggleVisible();
-							break;
 						default :
 							break;
 					}
@@ -298,6 +284,9 @@ public final class PFLAP {
 						surface.setLocation(0, 0);
 					}
 					fullScreen = !fullScreen;
+					break;
+				case 72 : // CTRL-H
+					HistoryList.toggleVisible();
 					break;
 				default :
 					break;
@@ -374,7 +363,7 @@ public final class PFLAP {
 		public void mouseReleased(MouseEvent m) {
 			cursor(ARROW);
 			mouseReleasedXY = mouseCoords.copy();
-			if (cp5.isMouseOver() || !allowGUIInterraction || HistoryList.isMouseOver()) {
+			if (cp5.isMouseOver() || !allowGUIInterraction) {
 				return;
 			}
 			arrows.forEach(a -> a.hideUI());
@@ -429,7 +418,7 @@ public final class PFLAP {
 							} else {
 								transitionMouseOver();
 								if (mouseOverTransition != null) {
-									mouseOverTransition.showUI(); // TODO
+									mouseOverTransition.showUI();
 								}
 							}
 						}
@@ -456,7 +445,8 @@ public final class PFLAP {
 				case LEFT :
 					break;
 				case RIGHT :
-					if (selectionBox == null && drawingArrow == null && allowGUIInterraction) {
+					if (selectionBox == null && drawingArrow == null && allowGUIInterraction
+							&& !HistoryList.isMouseOver()) {
 						selectionBox = new SelectionBox(mouseCoords);
 					}
 					break;

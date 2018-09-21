@@ -10,6 +10,10 @@ import p5.State;
  */
 
 public final class Moore implements Machine {
+	
+	public Moore() {
+		// TODO Auto-generated constructor stub
+	}
 
 	@Override
 	public void addNode(State s) {
@@ -60,21 +64,21 @@ public final class Moore implements Machine {
 	}
 
 	@Override
-	public void debug() {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
 	public void beginStep(String input) {
 		// TODO Auto-generated method stub
 		
 	}
 
 	@Override
-	public boolean stepForward() {
+	public void stepBackward(State s, String input) {
 		// TODO Auto-generated method stub
-		return false;
+		
+	}
+
+	@Override
+	public State stepForward() {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 }

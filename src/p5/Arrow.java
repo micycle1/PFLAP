@@ -8,7 +8,10 @@ import controlP5.ControlP5;
 import controlP5.ScrollableList;
 import controlP5.Textfield;
 
+import commands.Command;
 import commands.deleteTransition;
+import commands.modifyTransition;
+
 import main.Functions;
 import main.HistoryHandler;
 import main.PFLAP;
@@ -58,6 +61,7 @@ public class Arrow {
 	private char transitionSymbol, stackPop;
 	private String stackPush = "";
 	private int ID, labelRotationModifier = -1;
+	private Command modifyBuffer;
 
 	private static enum entryTypes {
 		SYMBOL, POP, PUSH;
@@ -133,15 +137,15 @@ public class Arrow {
 			@Override
 			public void controlEvent(ControlEvent optionSelected) {
 				switch ((int) optionSelected.getValue()) {
-					case 0 : // CHANGE SYMBOL
-						// TODO CHANGE TRANSITION SYMBOL IN MACHINE? + COMMAND?
-						machine.removeTransition(Arrow.this);
+					case 0 : // Modify
+						modifyBuffer = new modifyTransition(Arrow.this);
+						entryType = entryTypes.SYMBOL;
 						stateOptions.hide();
 						transitionSymbolEntry.show();
 						transitionSymbolEntry.setFocus(true);
 						PFLAP.allowGUIInterraction = false;
 						break;
-					case 1 : // DELETE
+					case 1 : // Delete
 						HistoryHandler.buffer(new deleteTransition(Arrow.this));
 						stateOptions.hide();
 						break;
@@ -154,7 +158,7 @@ public class Arrow {
 		stateOptions = cp5.addScrollableList("Options");
 		// @formatter:off
 		stateOptions.setType(1)
-		.addItems(new String[]{"Change Symbol", "Delete Transition"})
+		.addItems(new String[]{"Modify Transition", "Delete Transition"})
 		.open()
 		.hide()
 		.addListener(menuListener);
@@ -171,7 +175,6 @@ public class Arrow {
 				} else {
 					if (!testUniqueDFATransition(transitionSymbol)) {
 						Notification.addNotification(transitionInvalid);
-						// entry(entryType);
 						return;
 					}
 					machine.addTransition(this);
@@ -196,6 +199,10 @@ public class Arrow {
 				break;
 			default :
 				break;
+		}
+		if (modifyBuffer != null) {
+			HistoryHandler.buffer(modifyBuffer);
+			modifyBuffer = null;
 		}
 	}
 
@@ -400,7 +407,7 @@ public class Arrow {
 	 * @param push Proposed stackPush symbols
 	 * @return true if unique
 	 */
-	private boolean testUniqueDPATransition(String push) { // TODO
+	private boolean testUniqueDPATransition(String push) {
 		ArrayList<Arrow> arrows = new ArrayList<>(tail.getOutgoingArrows());
 		arrows.remove(this);
 		for (Arrow a : arrows) {
@@ -412,13 +419,25 @@ public class Arrow {
 	}
 
 	public boolean isMouseOver(PVector mousePos) {
-		float dx = mousePos.x - midPoint.x;
-		float dy = mousePos.y - midPoint.y;
-		float nx = dx * cos(-theta2) - (dy * sin(-theta2));
-		float ny = dy * cos(-theta2) + (dx * sin(-theta2));
-		float dist = dist(tailXY.x, tailXY.y, headXY.x, headXY.y) / 2;
-		boolean inside = (abs(nx) < dist * 2 / 2) && (abs(ny) < 10 / 2);
-		return inside || Functions.withinRange(mousePos.x, mousePos.y, 20, midPoint.x, midPoint.y) || cp5.isMouseOver();
+		switch (arrowType) {
+			case BEZIER :
+				return Functions.withinRange(bezierApex.x, bezierApex.y, textSize * 2, mousePos.x, mousePos.y)
+						|| cp5.isMouseOver();
+			case DIRECT :
+				float dx = mousePos.x - midPoint.x;
+				float dy = mousePos.y - midPoint.y;
+				float nx = dx * cos(-theta2) - (dy * sin(-theta2));
+				float ny = dy * cos(-theta2) + (dx * sin(-theta2));
+				float dist = dist(tailXY.x, tailXY.y, headXY.x, headXY.y) / 2;
+				boolean inside = (abs(nx) < dist * 2 / 2) && (abs(ny) < 10 / 2);
+				return inside || Functions.withinRange(mousePos.x, mousePos.y, 20, midPoint.x, midPoint.y)
+						|| cp5.isMouseOver();
+			case SELF :
+				return Functions.withinRange(selfBezierTextLoc.x, selfBezierTextLoc.y, textSize * 2, mousePos.x,
+						mousePos.y) || cp5.isMouseOver();
+			default :
+				return false;
+		}
 	}
 
 	public void hideUI() {
@@ -470,13 +489,25 @@ public class Arrow {
 		return transitionSymbol;
 	}
 
+	public void setTransitionSymbol(char transitionSymbol) {
+		this.transitionSymbol = transitionSymbol;
+	}
+
 	public char getStackPop() {
 		// + setters for when modifying transitions
 		return stackPop;
 	}
 
+	public void setStackPop(char stackPop) {
+		this.stackPop = stackPop;
+	}
+
 	public String getStackPush() {
 		return stackPush;
+	}
+
+	public void setStackPush(String stackPush) {
+		this.stackPush = stackPush;
 	}
 
 	@Override

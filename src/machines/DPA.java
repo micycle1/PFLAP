@@ -186,12 +186,4 @@ public class DPA implements Machine {
 	public int totalTransitions() {
 		return transitionGraph.edges().size();
 	}
-
-	@Override
-	public void debug() {
-		System.out.println("Stack:");
-		for (char c : stack) {
-			System.out.println(c);
-		}
-	}
 }

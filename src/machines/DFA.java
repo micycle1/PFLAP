@@ -130,11 +130,4 @@ public class DFA implements Machine {
 	public int totalTransitions() {
 		return transitionTable.cellSet().size();
 	}
-
-	public void debug() {
-		/**
-		 * Prints all transitions in machine.
-		 */
-		// TODO
-	}
 }
