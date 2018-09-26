@@ -40,6 +40,7 @@ import static processing.core.PApplet.abs;
 import static processing.core.PConstants.PI;
 import static processing.core.PConstants.TWO_PI;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 
 import static processing.core.PConstants.HALF_PI;
@@ -48,16 +49,16 @@ import static processing.core.PConstants.HALF_PI;
  * Graphical representation of machine transitions
  * @author micycle1
  */
-public class Arrow {
+public class Arrow implements Serializable {
 
 	private State tail, head;
-	private ControlP5 cp5;
-	private ScrollableList stateOptions;
-	private ControlListener menuListener;
+	private transient ControlP5 cp5;
+	private transient ScrollableList stateOptions;
+	private transient ControlListener menuListener;
 	private PVector tailXY, headXY, midPoint, bezierCPoint, bezierApex, arrowTip;
 	private PVector selfBezierCP1, selfBezierCP2, selfBezierTranslate, selfBezierTextLoc;
 	private float rotationOffset, theta1, theta2, arrowTipAngle, textSize = 16, selfTransitionAngle, selfBezierAngle;
-	private Textfield transitionSymbolEntry;
+	private transient Textfield transitionSymbolEntry;
 	private char transitionSymbol, stackPop;
 	private String stackPush = "";
 	private int ID, labelRotationModifier = -1;

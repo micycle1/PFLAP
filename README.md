@@ -33,7 +33,7 @@ PFLAP
 </h1>
 
 ## Tasks
-- [ ] Implement Save/Load for machine information.
+- [x] Implement Save/Load of machine configuration.
 - [ ] Visualise DPA machine stack (in stepping mode).
 - [ ] Collapse multiple transitions between the same pair of states into a single transition.
 - [ ] Batch input for fast-run mode.

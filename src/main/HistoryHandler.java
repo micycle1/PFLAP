@@ -1,35 +1,27 @@
 package main;
 
-//import com.google.gson.Gson;
-//import com.google.gson.JsonElement;
-//import com.google.gson.JsonParser;
-//import com.google.gson.reflect.TypeToken;
-//
-//import java.io.BufferedReader;
-//import java.io.FileInputStream;
-//import java.io.FileOutputStream;
-//import java.io.FileReader;
-//
-//import java.io.IOException;
-//import java.io.InputStreamReader;
-//import java.io.OutputStreamWriter;
-//import java.io.Writer;
-
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.io.IOException;
+import java.io.InvalidClassException;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.Queue;
 
 import commands.Command;
+import commands.addState;
+import commands.addTransition;
+import p5.Notification;
+
+import static main.PFLAP.p;
 
 public final class HistoryHandler {
 
 	private static int historyStateIndex = -1;
 	private static ArrayList<Command> history = new ArrayList<>();
 	private static Queue<Command> pendingExecute = new LinkedList<>();
-	
-	static {
-		loadHistory();
-	}
 
 	private HistoryHandler() {
 		throw new AssertionError();
@@ -44,6 +36,7 @@ public final class HistoryHandler {
 			pendingExecute.clear();
 		}
 		historyStateIndex = -1;
+		HistoryList.update();
 	}
 
 	public static void buffer(Command c) {
@@ -75,8 +68,7 @@ public final class HistoryHandler {
 			history.get(historyStateIndex).undo();
 			historyStateIndex -= 1;
 			InitUI.redo.setEnabled(true);
-		}
-		else {
+		} else {
 			InitUI.undo.setEnabled(false);
 		}
 	}
@@ -87,23 +79,21 @@ public final class HistoryHandler {
 			historyStateIndex += 1;
 			history.get(historyStateIndex).execute();
 			InitUI.undo.setEnabled(true);
-		}
-		else {
+		} else {
 			InitUI.redo.setEnabled(false);
 		}
 	}
-	
+
 	protected static void movetoIndex(int index) {
-		if (index > history.size()+1 || index < -1) {
+		if (index > history.size() + 1 || index < -1) {
 			return;
 		}
-		
+
 		if (index > historyStateIndex) {
 			while (index > historyStateIndex) {
 				redo();
 			}
-		}
-		else {
+		} else {
 			if (index < historyStateIndex) {
 				while (index < historyStateIndex) {
 					undo();
@@ -111,71 +101,55 @@ public final class HistoryHandler {
 			}
 		}
 	}
-	
+
 	public static int getHistoryStateIndex() {
 		return historyStateIndex;
 	}
-	
+
 	protected static ArrayList<Command> export() {
 		return history;
 	}
 
-	public static void saveHistory() {
-//		Gson gson = new Gson();
-//		System.out.println("saved");
-//		try (Writer writer = new OutputStreamWriter( new FileOutputStream("history.json"))) {
-//			gson.newBuilder().create();
-//			gson.toJson(history, writer);
-//			writer.close();
-//		} catch (IOException e) {
-//			e.printStackTrace();
-//		}
+	public static void saveHistory(String path) {
+		try {
+			ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream(path));
+			ArrayList<Command> liveHistory = new ArrayList<>(
+					history.subList(history.size() - historyStateIndex - 1, history.size()));
+			out.writeObject(liveHistory);
+			out.close();
+		} catch (IOException e) {
+			Notification.addNotification("Saving Failed", "Could not save the machine file.");
+		}
 	}
 
-	public static void loadHistory() {
-//		resetAll();
-//		Gson gson = new Gson();
-//		try (BufferedReader reader = new BufferedReader(new FileReader("history.json"))) {
-////			String loadHistory = reader.readLine();
-////			reader.close();
-//			
-//			 StringBuilder sb = new StringBuilder();
-//			 String line;
-//			 while ((line = reader.readLine()) != null) {
-//			     sb.append(line);
-//			 }
-//			 String in = sb.toString();
-//
-//			System.out.println(in);
-//
-//			TypeToken<ArrayList<Command>> type = new TypeToken<ArrayList<Command>>() {
-//			};
-//			
-//			java.lang.reflect.Type type1 = new TypeToken<ArrayList<Integer>>() {}.getType();
-//			
-////			System.out.println(jp.parse(loadHistory).getAsJsonObject().toString());
-//			
-////			history = gson.fromJson("[{\"pObject\":{\"x\":176,\"y\":162}},{\"pObject\":{\"x\":237,\"y\":260}}]", type.getType());
-////			
-////			String s = "[1,2]";
-////			System.out.println(s);
-////			System.out.println(s.equals('"'+in+'"'));
-////			test = gson.fromJson("[1,3]", type1);
-//			
-//			//execute history
-//
-//		} catch (IOException e) {
-//			e.printStackTrace();
-//		}
-//
-//		// if (history == null) {
-//		// history = new ArrayList<>();
-//		// System.out.print("ad");
-//		// }
-//		// else {
-//		// history.forEach(c -> c.execute());
-//		// }
-
+	@SuppressWarnings("unchecked")
+	public static void loadHistory(String path) {
+		p.noLoop();
+		try {
+			resetAll();
+			PFLAP.PApplet.reset();
+			ObjectInputStream in = new ObjectInputStream(new FileInputStream(path));
+			history.addAll((ArrayList<Command>) in.readObject());
+			for (Command c : history) {
+				c.execute();
+				if (c instanceof addState) {
+					PFLAP.nodes.get(PFLAP.nodes.size() - 1).initCP5();
+				}
+				if (c instanceof addTransition) {
+					PFLAP.arrows.get(PFLAP.arrows.size() - 1).initCP5();
+					PFLAP.arrows.get(PFLAP.arrows.size() - 1).update();
+				}
+			}
+			historyStateIndex = history.size() - 1;
+			HistoryList.update();
+			in.close();
+		} catch (InvalidClassException e) {
+			Notification.addNotification("Loading Failed",
+					"Could not load the machine file. (You are attempting to load a save from a different version of PFLAP).");
+		} catch (IOException | ClassNotFoundException e) {
+			Notification.addNotification("Loading Failed", "Could not load the machine file (IO Error).");
+		}
+		p.loop();
 	}
 
 	public static void debug() {
@@ -185,5 +159,4 @@ public final class HistoryHandler {
 		}
 		System.out.println("");
 	}
-
 }

@@ -15,6 +15,8 @@ public final class Consts {
 	public static final int stepGUIPadding = 20;
 
 	public static final String title = "PFLAP: Processing Formal Languages and Automata Package";
+	
+	public static final String directory = System.getProperty("user.dir");
 
 	public static final char lambda = 'λ';
 

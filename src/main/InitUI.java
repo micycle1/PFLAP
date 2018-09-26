@@ -19,7 +19,10 @@ import java.awt.event.ComponentEvent;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 
+import java.io.File;
+
 import java.lang.reflect.Field;
+
 import java.util.ArrayList;
 
 import javax.swing.JColorChooser;
@@ -30,13 +33,13 @@ import commands.changeMode;
 import commands.setBackgroundColor;
 
 import controlP5.ControlP5;
+
 import machines.DPA;
 
 import p5.Notification;
 import p5.State;
 
 import processing.awt.PSurfaceAWT;
-import processing.core.PApplet;
 import processing.core.PFont;
 
 final class InitUI {
@@ -77,7 +80,7 @@ final class InitUI {
 		final MenuBar menuBar = new MenuBar();
 
 		final MenuItem fileMenuItem0, fileMenuItem1, fileMenuItem2;
-		final MenuItem editMenuItem0, editMenuItem1, editMenuItem2;
+		final MenuItem editMenuItem0, editMenuItem1, editMenuItem2, editMenuItem3;
 		final MenuItem viewMenuItem0, viewMenuItem1, viewMenuItem2;
 		final CheckboxMenuItem viewMenuCheckboxItem0, viewMenuCheckboxItem1;
 		final MenuItem machineMenuItem0, machineMenuItem1, machineMenuItem2, machineMenuItem3;
@@ -105,16 +108,15 @@ final class InitUI {
 		defineColours.add(defineColoursItem3);
 
 		// File Menu
-		fileMenuItem0 = new MenuItem("Open");
-		fileMenuItem0.setEnabled(false);
+		fileMenuItem0 = new MenuItem("Load");
 		fileMenuItem1 = new MenuItem("Save");
-		fileMenuItem1.setEnabled(false);
 		fileMenuItem2 = new MenuItem("Exit");
 
 		// Edit Menu
 		editMenuItem0 = new MenuItem("Select All States");
 		editMenuItem1 = new MenuItem("Delete All States");
 		editMenuItem2 = new MenuItem("Invert Selection");
+		editMenuItem3 = new MenuItem("Reset");
 
 		// View Menu
 		viewMenuItem0 = new MenuItem("Save Stage As Image");
@@ -150,6 +152,7 @@ final class InitUI {
 		// Add edit items to edit menu
 		editMenu.add(undo);
 		editMenu.add(redo);
+		editMenu.add(editMenuItem3);
 		editMenu.add(editMenuItem0);
 		editMenu.add(editMenuItem1);
 		editMenu.add(editMenuItem2);
@@ -186,13 +189,28 @@ final class InitUI {
 					case "Exit" :
 						p.exit();
 						break;
-					case "Open" :
-						FileDialog fg = new FileDialog(f, "Open a file", FileDialog.LOAD);
-						fg.setVisible(true);
-						String file = fg.getDirectory() + fg.getFile();
-						PApplet.print(file);
+					case "Load" :
+						FileDialog load = new FileDialog(f, "Load Machine", FileDialog.LOAD);
+						load.setDirectory(Consts.directory);
+						load.setFile("*.dat");
+						load.setVisible(true);
+						String loadPath = load.getDirectory() + load.getFile();
+						if (!loadPath.equals("nullnull")) {
+							HistoryHandler.loadHistory(loadPath);
+						}
 						break;
-					case "Save" : // save info rather than image
+					case "Save" :
+						FileDialog save = new FileDialog(f, "Save Machine", FileDialog.SAVE);
+						save.setDirectory(Consts.directory);
+						save.setFile("*.dat");
+						save.setVisible(true);
+						String savePath = save.getDirectory() + save.getFile();
+						if (!savePath.equals("nullnull")) {
+							if (!savePath.toLowerCase().endsWith(".dat")) {
+								savePath += ".dat";
+							}
+							HistoryHandler.saveHistory(savePath);
+						}
 						break;
 					default :
 						System.err.println("Unhandled Menuitem.");
@@ -233,6 +251,10 @@ final class InitUI {
 						HistoryHandler.redo();
 						undo.setEnabled(true);
 						break;
+					case "Reset" :
+						PFLAP.PApplet.reset();
+						HistoryHandler.resetAll();
+						break;
 					default :
 						System.err.println("Unhandled Menuitem.");
 						break;
@@ -245,18 +267,21 @@ final class InitUI {
 			public void actionPerformed(ActionEvent event) {
 				switch (event.getActionCommand()) {
 					case "Save Stage As Image" :
-						FileDialog fg = new FileDialog(f, "Save", FileDialog.SAVE);
-						fg.setDirectory(System.getProperty("user.home") + "\\Desktop");
-						fg.setTitle("Save Frame");
-						fg.setVisible(true);
-						if (fg.getFile() != null) {
-							String directory = fg.getDirectory() + fg.getFile() + ".png";
+						FileDialog saveImage = new FileDialog(f, "Save", FileDialog.SAVE);
+						saveImage.setDirectory(Consts.directory);
+						saveImage.setTitle("Save Frame");
+						saveImage.setFile("*.png");
+						saveImage.setVisible(true);
+						if (saveImage.getFile() != null) {
+							String directory = saveImage.getDirectory() + saveImage.getFile();
+							if (!directory.toLowerCase().endsWith(".png")) {
+								directory += ".png";
+							}
 							p.saveFrame(directory);
 							Notification.addNotification("Screenshot", "Image saved to " + directory);
 						}
-
 						break;
-					case "Reorder States" : //TODO
+					case "Reorder States" : // TODO
 						break;
 					case "Machine Information" :
 						String info = "Transitions: " + PFLAP.arrows.size() + "\r\n" + "States: " + PFLAP.nodes.size()
@@ -274,8 +299,8 @@ final class InitUI {
 			private final void enableAll() {
 				machineMenuItem0.setEnabled(true);
 				machineMenuItem1.setEnabled(true);
-				machineMenuItem2.setEnabled(true);
-				machineMenuItem3.setEnabled(true);
+				// machineMenuItem2.setEnabled(true);
+				// machineMenuItem3.setEnabled(true);
 			}
 			@Override
 			public void actionPerformed(ActionEvent event) {
@@ -334,7 +359,7 @@ final class InitUI {
 										if (stackSymbol.length() == 1) {
 											((DPA) PFLAP.machine).setInitialStackSymbol(
 													Functions.testForLambda(stackSymbol.charAt(0)));
-//											PFLAP.machine.run(userInput);
+											// PFLAP.machine.run(userInput);
 											Step.beginStep(userInput);
 										} else {
 											Notification.addNotification("Invalid Stack Symbol",
@@ -498,6 +523,16 @@ final class InitUI {
 			.setMoveable(false)
 			;
 			// @formatter:on
-		 PFLAP.cp5.addConsole(PFLAP.PApplet.trace);
+		// PFLAP.cp5.addConsole(PFLAP.PApplet.trace);
+	}
+}
+
+class MyFilter extends javax.swing.filechooser.FileFilter {
+	public boolean accept(File file) {
+		String filename = file.getName();
+		return filename.endsWith(".java");
+	}
+	public String getDescription() {
+		return "*.java";
 	}
 }

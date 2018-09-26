@@ -1,5 +1,6 @@
 package p5;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 
 import commands.addTransition;
@@ -30,17 +31,18 @@ import static main.PFLAP.stateColour;
 import static main.PFLAP.stateSelectedColour;
 import static main.PFLAP.machine;
 
-public class State {
+public class State implements Serializable {
 
 	private String label;
-	private ControlP5 cp5, resizeGUI;
-	private ScrollableList stateOptions;
-	private Slider sizeSlider;
-	private ControlListener listener, sizeSliderListener;
+	private transient ControlP5 cp5, resizeGUI;
+	private transient ScrollableList stateOptions;
+	private transient Slider sizeSlider;
+	private transient ControlListener listener, sizeSliderListener;
 	private PVector position, selectedPosition;
 	private ArrayList<Arrow> arrowHeads = new ArrayList<>();
 	private ArrayList<Arrow> arrowTails = new ArrayList<>();
-	private boolean selected = false, accepting = false, initial = false, highlighted = false;
+	private boolean initial = false;
+	private transient boolean accepting = false, selected = false, highlighted = false;
 	private int radius = stateRadius, highlightColor, liveID;
 	private static Textfield rename;
 	private static State renameState;
@@ -73,7 +75,7 @@ public class State {
 				initialNodeIndicatorSize);
 		initialIndicator.endDraw();
 	}
-	
+
 	public State(PVector XY, int liveID) {
 		label = "q" + liveID;
 		this.liveID = liveID;
@@ -81,7 +83,7 @@ public class State {
 		initCP5();
 	}
 
-	private void initCP5() {
+	public void initCP5() {
 		cp5 = new ControlP5(p);
 		cp5.hide();
 
@@ -145,6 +147,8 @@ public class State {
 				.open()
 				.addListener(listener);
 		// @formatter:on
+		cp5.setPosition((int) this.position.x + 10, (int) this.position.y + 10);
+		resizeGUI.setPosition((int) (position.x) - 50, (int) (position.y));
 	}
 
 	public void kill() {
@@ -200,7 +204,7 @@ public class State {
 	public void setPosition(PVector position) {
 		this.position = position;
 		cp5.setPosition((int) this.position.x + 10, (int) this.position.y + 10);
-		resizeGUI.setPosition((int) (position.x)-50, (int) (position.y));
+		resizeGUI.setPosition((int) (position.x) - 50, (int) (position.y));
 		arrowHeads.forEach(a -> a.update());
 		arrowTails.forEach(a -> a.update());
 	}
@@ -227,14 +231,14 @@ public class State {
 		highlighted = true;
 		deselect();
 	}
-	
+
 	public ArrayList<Arrow> getConnectedArrows() {
 		ArrayList<Arrow> all = new ArrayList<>();
 		all.addAll(arrowHeads);
 		all.addAll(arrowTails);
 		return all;
 	}
-	
+
 	public ArrayList<Arrow> getOutgoingArrows() {
 		return arrowTails;
 	}
@@ -246,7 +250,7 @@ public class State {
 	public void setAsInitial() {
 		initial = true;
 	}
-	
+
 	public void deInitial() {
 		initial = false;
 	}
@@ -262,7 +266,7 @@ public class State {
 	public int getRadius() {
 		return radius;
 	}
-	
+
 	public int getID() {
 		return liveID;
 	}
@@ -294,7 +298,7 @@ public class State {
 	public int connectedTailCount() {
 		return arrowTails.size();
 	}
-	
+
 	public int connectedHeadCount() {
 		return arrowHeads.size();
 	}
