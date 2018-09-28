@@ -124,7 +124,7 @@ public class Step {
 			}
 		}
 	}
-	
+
 	public static void setStack(String stackRepresentation) {
 		stack = stackRepresentation;
 	}
@@ -166,7 +166,19 @@ public class Step {
 			p.textAlign(PConstants.LEFT, PConstants.BOTTOM);
 			p.text("Current State: " + liveState.getLabel(), stepGUIPadding * 2, p.height - 70);
 			p.text("Input: [" + remainingInput + "]", stepGUIPadding * 2, p.height - 50);
-			p.text("Stack: [" + stack + "]", stepGUIPadding * 2, p.height - 30);
+			switch (PFLAP.mode) {
+				case DFA :
+					break;
+				case DPA :
+					p.text("Stack: [" + stack + "]", stepGUIPadding * 2, p.height - 30);
+					break;
+				case MEALY :
+					p.text("Ouput: [" + ((machines.Mealy)machine).getOutput() + "]", stepGUIPadding * 2, p.height - 30);
+					break;
+				case MOORE :
+					p.text("Ouput: [" + ((machines.Moore)machine).getOutput() + "]", stepGUIPadding * 2, p.height - 30);
+					break;
+			}
 			liveState.highLight(p.color(255, 0, 255)); // specify color
 			if (completed && visitedIndex == visited.size() - 1) {
 				if (accepted) {

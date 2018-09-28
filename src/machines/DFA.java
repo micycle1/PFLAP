@@ -130,4 +130,10 @@ public class DFA implements Machine {
 	public int totalTransitions() {
 		return transitionTable.cellSet().size();
 	}
+
+	@Override
+	public boolean testUniqueTransition(char[] proposed) {
+		char symbol = char[0];
+	}
+
 }

@@ -37,7 +37,7 @@ public class DPA implements Machine {
 		toggleAcceptByAcceptState = PFLAP.cp5.addToggle("DPA: Accept by\n Accepting State").setValue(false)
 				.setColorLabel(0).setPosition(5, 50);
 	}
-
+	
 	public static void hideUI() {
 		toggleAcceptByAcceptState.hide();
 		toggleAcceptByStackEmpty.hide();
@@ -54,10 +54,12 @@ public class DPA implements Machine {
 				.expectedEdgeCount(200).allowsSelfLoops(true).build();
 	}
 
+	@Override
 	public void setInitialState(State s) {
 		initial = s;
 	}
 
+	@Override
 	public State getInitialState() {
 		return initial;
 	}
@@ -66,10 +68,12 @@ public class DPA implements Machine {
 		initialStackSymbol = ss;
 	}
 
+	@Override
 	public void addNode(State s) {
 		transitionGraph.addNode(s);
 	}
 
+	@Override
 	public void deleteNode(State s) {
 		transitionGraph.removeNode(s);
 	}
@@ -92,6 +96,7 @@ public class DPA implements Machine {
 		transitionGraph.removeEdge(a);
 	}
 
+	@Override
 	public void beginStep(String input) {
 		stack.clear();
 		stack.add(initialStackSymbol);
@@ -183,6 +188,7 @@ public class DPA implements Machine {
 				|| (stack.isEmpty() && toggleAcceptByStackEmpty.getBooleanValue());
 	}
 
+	@Override
 	public int totalTransitions() {
 		return transitionGraph.edges().size();
 	}

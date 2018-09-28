@@ -113,8 +113,8 @@ public class Arrow implements Serializable {
 		transitionSymbolEntry = cp5.addTextfield("Symbol Entry")
 				.setColorLabel(0)
 				.setLabel("")
-				.keepFocus(true)
 				.setSize(30, 15)
+				.setFocus(true)
 				.addCallback(new CallbackListener() {
 		// @formatter:on
 					@Override
@@ -171,16 +171,23 @@ public class Arrow implements Serializable {
 		switch (entryType) {
 			case SYMBOL :
 				transitionSymbol = testForLambda(transitionSymbolEntry.getStringValue().charAt(0));
-				if (PFLAP.mode == PFLAP.modes.DPA) {
-					this.entryType = entryTypes.POP;
-				} else {
-					if (!testUniqueDFATransition(transitionSymbol)) {
-						Notification.addNotification(transitionInvalid);
-						return;
-					}
-					machine.addTransition(this);
-					PFLAP.allowGUIInterraction = true;
-					transitionSymbolEntry.hide();
+				switch (PFLAP.mode) {
+					case MOORE :
+					case DFA :
+						if (!testUniqueDFATransition(transitionSymbol)) { // todo unqiue moore or refactor
+							Notification.addNotification(transitionInvalid);
+							return;
+						}
+						machine.addTransition(this);
+						PFLAP.allowGUIInterraction = true;
+						transitionSymbolEntry.hide();
+						break;
+					case DPA :
+						this.entryType = entryTypes.POP;
+						break;
+					case MEALY :
+						this.entryType = entryTypes.PUSH;
+						break;
 				}
 				break;
 			case POP :
@@ -300,19 +307,18 @@ public class Arrow implements Serializable {
 				p.rotate(rotationOffset);
 				p.fill(0);
 				switch (PFLAP.mode) {
+					case MOORE :
 					case DFA :
 						p.text(transitionSymbol,
 								labelRotationModifier * dist(tailXY.x, tailXY.y, headXY.x, headXY.y) / 2, 10);
 						break;
 					case DPA :
-						p.text(transitionSymbol + "; " + stackPop + "/" + stackPush,
+						p.text(transitionSymbol + " ; " + stackPop + "/" + stackPush,
 								+labelRotationModifier * dist(tailXY.x, tailXY.y, headXY.x, headXY.y) / 2, 10);
 						break;
 					case MEALY :
-						break;
-					case MOORE :
-						break;
-					default :
+						p.text(transitionSymbol + " ; " + stackPush,
+								+labelRotationModifier * dist(tailXY.x, tailXY.y, headXY.x, headXY.y) / 2, 10);
 						break;
 				}
 				p.popMatrix();
@@ -325,17 +331,15 @@ public class Arrow implements Serializable {
 				p.fill(0);
 				p.text(transitionSymbol, bezierApex.x, bezierApex.y);
 				switch (PFLAP.mode) {
+					case MOORE :
 					case DFA :
 						p.text(transitionSymbol, bezierApex.x, bezierApex.y);
 						break;
 					case DPA :
-						p.text(transitionSymbol + "; " + stackPop + "/" + stackPush, bezierApex.x, bezierApex.y);
+						p.text(transitionSymbol + " ; " + stackPop + "/" + stackPush, bezierApex.x, bezierApex.y);
 						break;
 					case MEALY :
-						break;
-					case MOORE :
-						break;
-					default :
+						p.text(transitionSymbol + " ; " + stackPush, bezierApex.x, bezierApex.y);
 						break;
 				}
 				break;
@@ -346,18 +350,16 @@ public class Arrow implements Serializable {
 				drawArrowTip(selfBezierTranslate, selfBezierAngle);
 				p.fill(0);
 				switch (PFLAP.mode) {
+					case MOORE :
 					case DFA :
 						p.text(transitionSymbol, selfBezierTextLoc.x, selfBezierTextLoc.y);
 						break;
 					case DPA :
-						p.text(transitionSymbol + "; " + stackPop + "/" + stackPush, selfBezierTextLoc.x,
+						p.text(transitionSymbol + " ; " + stackPop + "/" + stackPush, selfBezierTextLoc.x,
 								selfBezierTextLoc.y);
 						break;
 					case MEALY :
-						break;
-					case MOORE :
-						break;
-					default :
+						p.text(transitionSymbol + " ; " + stackPush, selfBezierTextLoc.x, selfBezierTextLoc.y);
 						break;
 				}
 				break;

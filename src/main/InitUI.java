@@ -128,13 +128,10 @@ final class InitUI {
 
 		// Machine Menu
 		machineMenuItem0 = new MenuItem("DFA");
-		machineMenuItem0.setEnabled(false); // DFA is initial mode, change if
-											// load in mode at boot
+		machineMenuItem0.setEnabled(false);
 		machineMenuItem1 = new MenuItem("DPA");
 		machineMenuItem2 = new MenuItem("Mealy");
-		machineMenuItem2.setEnabled(false);
 		machineMenuItem3 = new MenuItem("Moore");
-		machineMenuItem3.setEnabled(false);
 
 		// Input Menu
 		inputMenuItem0 = new MenuItem("Step By State");
@@ -299,8 +296,8 @@ final class InitUI {
 			private final void enableAll() {
 				machineMenuItem0.setEnabled(true);
 				machineMenuItem1.setEnabled(true);
-				// machineMenuItem2.setEnabled(true);
-				// machineMenuItem3.setEnabled(true);
+				machineMenuItem2.setEnabled(true);
+				machineMenuItem3.setEnabled(true);
 			}
 			@Override
 			public void actionPerformed(ActionEvent event) {
@@ -346,9 +343,6 @@ final class InitUI {
 						case "Step By State" :
 							Step.endStep();
 							switch (PFLAP.mode) {
-								case DFA :
-									Step.beginStep(userInput);
-									break;
 								case DPA :
 									String stackSymbol;
 									do {
@@ -367,9 +361,10 @@ final class InitUI {
 										}
 									} while (stackSymbol.length() != 1);
 									break;
+								case DFA :
 								case MEALY :
-									break;
 								case MOORE :
+									Step.beginStep(userInput);
 									break;
 								default :
 									break;
@@ -398,8 +393,17 @@ final class InitUI {
 									} while (stackSymbol.length() != 1);
 									break;
 								case MEALY :
+									PFLAP.machine.run(userInput);
+									Notification.addNotification("Machine Terminated",
+											"The machine terminated with output: "
+													+ ((machines.Mealy) PFLAP.machine).getOutput());
 									break;
 								case MOORE :
+									//todo check every state has symbol
+									PFLAP.machine.run(userInput);
+									Notification.addNotification("Machine Terminated",
+											"The machine terminated with output: "
+													+ ((machines.Moore) PFLAP.machine).getOutput());
 									break;
 								default :
 									break;

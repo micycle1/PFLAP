@@ -19,9 +19,11 @@ import controlP5.Textfield;
 import processing.core.PApplet;
 import processing.core.PGraphics;
 import processing.core.PVector;
-
+import main.Consts;
+import main.Functions;
 import main.HistoryHandler;
 import main.PFLAP;
+import main.PFLAP.modes;
 
 import static main.Consts.stateRadius;
 import static main.Consts.initialNodeIndicatorSize;
@@ -33,11 +35,12 @@ import static main.PFLAP.machine;
 
 public class State implements Serializable {
 
-	private String label;
+	private String label, moorePush = "";
 	private transient ControlP5 cp5, resizeGUI;
 	private transient ScrollableList stateOptions;
 	private transient Slider sizeSlider;
 	private transient ControlListener listener, sizeSliderListener;
+	private transient Textfield moorePushInput;
 	private PVector position, selectedPosition;
 	private ArrayList<Arrow> arrowHeads = new ArrayList<>();
 	private ArrayList<Arrow> arrowTails = new ArrayList<>();
@@ -85,9 +88,8 @@ public class State implements Serializable {
 
 	public void initCP5() {
 		cp5 = new ControlP5(p);
-		cp5.hide();
-
 		resizeGUI = new ControlP5(p);
+
 		// @formatter:off
 		sizeSlider = resizeGUI.addSlider("Size Slider")
 				.setWidth(100)
@@ -112,7 +114,7 @@ public class State implements Serializable {
 		listener = new ControlListener() {
 			@Override
 			public void controlEvent(ControlEvent optionSelected) {
-				cp5.hide();
+				stateOptions.hide();
 				switch ((int) optionSelected.getValue()) {
 					case 0 : // Add Self-Transition
 						HistoryHandler.buffer(new addTransition(State.this, State.this));
@@ -137,6 +139,8 @@ public class State implements Serializable {
 					case 5 : // Delete
 						HistoryHandler.buffer(new commands.deleteState(State.this));
 						break;
+					case 6 : // Moore input todo
+						break;
 				}
 			}
 		};
@@ -144,9 +148,35 @@ public class State implements Serializable {
 		// @formatter:off
 		stateOptions.setType(1)
 				.addItems(new String[]{"Add Self-Transition.", "Set As Inititial", "Toggle Accepting", "Relabel", "Resize", "Delete"})
-				.open()
-				.addListener(listener);
+				.addListener(listener)
+				.hide();
 		// @formatter:on
+		if (PFLAP.mode == modes.MOORE) {
+			stateOptions.addItems(new String[]{"Set State Output"});
+			moorePushInput = cp5.addTextfield("Set State Output").setSize(45, 20).keepFocus(true)
+					.addCallback(new CallbackListener() {
+						@Override
+						public void controlEvent(CallbackEvent input) {
+							if (input.getAction() == 100) {
+								if (moorePushInput.getStringValue().length() > 0) {
+									moorePush = Functions.testForLambda(moorePushInput.getStringValue());
+									PFLAP.allowGUIInterraction = true;
+									moorePushInput.setFocus(false).hide();
+								} else {
+									Notification.addNotification(Consts.notificationData.symbolInvalid);
+								}
+							}
+						}
+					});
+			if (moorePush == "") {
+				moorePushInput.setFocus(true).show();
+				PFLAP.allowGUIInterraction = false;
+			} else {
+				moorePushInput.setFocus(false).hide();
+				PFLAP.allowGUIInterraction = true;
+			}
+
+		}
 		cp5.setPosition((int) this.position.x + 10, (int) this.position.y + 10);
 		resizeGUI.setPosition((int) (position.x) - 50, (int) (position.y));
 	}
@@ -186,7 +216,7 @@ public class State implements Serializable {
 			p.ellipse(position.x, position.y, radius, radius);
 			p.fill(0);
 		} else {
-			p.fill(stateSelectedColour.getRGB());
+			p.fill(stateSelectedColour.getRGB(), 200);
 			p.ellipse(position.x, position.y, radius, radius);
 			p.fill(255);
 		}
@@ -198,6 +228,13 @@ public class State implements Serializable {
 		}
 		p.textSize(PApplet.max(14, (PApplet.sqrt(radius) * 10) - 50));
 		p.text(label, position.x, position.y);
+		if (PFLAP.mode == modes.MOORE) {
+			p.fill(0);
+			p.textAlign(PApplet.LEFT);
+			p.textSize(18);
+			p.text("[" + moorePush + "]", position.x + 5 + radius / 2, position.y + 5 - radius / 2);
+			p.textAlign(PApplet.CENTER, PApplet.CENTER);
+		}
 		highlighted = false;
 	}
 
@@ -247,6 +284,10 @@ public class State implements Serializable {
 		return position;
 	}
 
+	public String getMoorePush() {
+		return moorePush;
+	}
+
 	public void setAsInitial() {
 		initial = true;
 	}
@@ -280,11 +321,11 @@ public class State implements Serializable {
 	}
 
 	public void hideUI() {
-		cp5.hide();
+		stateOptions.hide();
 	}
 
 	public void showUI() {
-		cp5.show();
+		stateOptions.show();
 	}
 
 	public boolean UIOpen() {

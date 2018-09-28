@@ -34,6 +34,10 @@ import p5.State;
 import static main.Functions.withinRange;
 import static main.Functions.withinRegion;
 
+/**
+ * @author micycle1
+ * @version 1.0
+ */
 public final class PFLAP {
 
 	public static ArrayList<Arrow> arrows = new ArrayList<>();
@@ -93,7 +97,7 @@ public final class PFLAP {
 		@Override
 		public void setup() {
 			p = this;
-
+			
 			surface.setTitle(Consts.title);
 			surface.setLocation(displayWidth / 2 - width / 2, displayHeight / 2 - height / 2);
 			surface.setResizable(true);
@@ -363,7 +367,7 @@ public final class PFLAP {
 		public void mouseReleased(MouseEvent m) {
 			cursor(ARROW);
 			mouseReleasedXY = mouseCoords.copy();
-			if (cp5.isMouseOver() || !allowGUIInterraction) {
+			if (cp5.isMouseOver() || (!allowGUIInterraction && dragState == null)) {
 				return;
 			}
 			arrows.forEach(a -> a.hideUI());
