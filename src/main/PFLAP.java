@@ -385,8 +385,8 @@ public final class PFLAP {
 							nodes.add(dragState); // re-add dragstate to list
 													// but not command
 						}
+						selected.forEach(s -> s.deselect());
 						selected.remove(dragState);
-						dragState.deselect();
 						dragState = null;
 					}
 					break;

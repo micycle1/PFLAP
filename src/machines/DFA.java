@@ -132,8 +132,8 @@ public class DFA implements Machine {
 	}
 
 	@Override
-	public boolean testUniqueTransition(char[] proposed) {
-		char symbol = char[0];
+	public boolean testUniqueTransition(Arrow transition, char symbol, char stackPop, String stackPush) {
+		return !transitionTable.contains(transition.getTail(), symbol);
 	}
 
 }

@@ -31,5 +31,5 @@ public interface Machine {
 	 */
 	void stepBackward(State s, String input);
 	
-	boolean testUniqueTransition(char[] proposed);
+	boolean testUniqueTransition(Arrow transition, char symbol, char stackPop, String stackPush);
 }

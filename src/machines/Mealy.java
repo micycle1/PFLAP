@@ -83,7 +83,7 @@ public final class Mealy implements Machine {
 		stepState = initial;
 		output = "";
 	}
-	
+
 	@Override
 	public State stepForward() {
 		State prevState = stepState;
@@ -114,6 +114,16 @@ public final class Mealy implements Machine {
 
 	public String getOutput() {
 		return output;
+	}
+
+	@Override
+	public boolean testUniqueTransition(Arrow transition, char symbol, char stackPop, String stackPush) {
+		for (Arrow a : transitionGraph.outEdges(transition.getTail())) {
+			if (a.getSymbol() == symbol && a.getStackPush().equals(stackPush)) {
+				return false;
+			}
+		}
+		return true;
 	}
 
 }

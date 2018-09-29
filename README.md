@@ -37,7 +37,7 @@ PFLAP
 - [ ] Visualise DPA machine stack (in stepping mode).
 - [ ] Collapse multiple transitions between the same pair of states into a single transition.
 - [ ] Batch input for fast-run mode.
-- [ ] Implement Moore and Mealy machines
+- [x] Implement Moore and Mealy machines
 
 ## Libraries
 - `processing` [github](https://github.com/processing/processing)

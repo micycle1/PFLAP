@@ -118,4 +118,9 @@ public final class Moore implements Machine {
 		return output;
 	}
 
+	@Override
+	public boolean testUniqueTransition(Arrow transition, char symbol, char stackPop, String stackPush) {
+		return !transitionTable.contains(transition.getTail(), symbol);
+	}
+
 }

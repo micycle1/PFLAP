@@ -8,6 +8,7 @@ import com.google.common.graph.NetworkBuilder;
 
 import main.PFLAP;
 import main.Step;
+
 import p5.Arrow;
 import p5.Notification;
 import p5.State;
@@ -37,7 +38,7 @@ public class DPA implements Machine {
 		toggleAcceptByAcceptState = PFLAP.cp5.addToggle("DPA: Accept by\n Accepting State").setValue(false)
 				.setColorLabel(0).setPosition(5, 50);
 	}
-	
+
 	public static void hideUI() {
 		toggleAcceptByAcceptState.hide();
 		toggleAcceptByStackEmpty.hide();
@@ -134,8 +135,7 @@ public class DPA implements Machine {
 			return stepState;
 
 		} else {
-			Step.setMachineOutcome(
-					(stepState.isAccepting() && toggleAcceptByAcceptState.getBooleanValue())
+			Step.setMachineOutcome((stepState.isAccepting() && toggleAcceptByAcceptState.getBooleanValue())
 					|| (stack.isEmpty() && toggleAcceptByStackEmpty.getBooleanValue()));
 			stepState = prevState;
 			setStepStack();
@@ -191,5 +191,15 @@ public class DPA implements Machine {
 	@Override
 	public int totalTransitions() {
 		return transitionGraph.edges().size();
+	}
+
+	@Override
+	public boolean testUniqueTransition(Arrow transition, char symbol, char stackPop, String stackPush) {
+		for (Arrow a : transitionGraph.outEdges(transition.getTail())) {
+			if (a.getSymbol() == symbol && a.getStackPop() == stackPop && a.getStackPush().equals(stackPush)) {
+				return false;
+			}
+		}
+		return true;
 	}
 }

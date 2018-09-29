@@ -8,6 +8,8 @@ import controlP5.ControlP5;
 import controlP5.ScrollableList;
 import controlP5.Textfield;
 
+import java.io.Serializable;
+
 import commands.Command;
 import commands.deleteTransition;
 import commands.modifyTransition;
@@ -39,10 +41,6 @@ import static processing.core.PApplet.abs;
 
 import static processing.core.PConstants.PI;
 import static processing.core.PConstants.TWO_PI;
-
-import java.io.Serializable;
-import java.util.ArrayList;
-
 import static processing.core.PConstants.HALF_PI;
 
 /**
@@ -174,43 +172,35 @@ public class Arrow implements Serializable {
 				switch (PFLAP.mode) {
 					case MOORE :
 					case DFA :
-						if (!testUniqueDFATransition(transitionSymbol)) { // todo unqiue moore or refactor
-							Notification.addNotification(transitionInvalid);
-							return;
-						}
-						machine.addTransition(this);
-						PFLAP.allowGUIInterraction = true;
-						transitionSymbolEntry.hide();
 						break;
 					case DPA :
 						this.entryType = entryTypes.POP;
-						break;
+						return;
 					case MEALY :
 						this.entryType = entryTypes.PUSH;
-						break;
+						return;
 				}
 				break;
 			case POP :
 				stackPop = testForLambda(transitionSymbolEntry.getStringValue().charAt(0));
 				this.entryType = entryTypes.PUSH;
-				break;
+				return;
 			case PUSH :
 				stackPush = testForLambda(transitionSymbolEntry.getStringValue());
-				if (!testUniqueDPATransition(stackPush)) {
-					Notification.addNotification(transitionInvalid);
-					return;
-				} else {
-					machine.addTransition(this);
-					PFLAP.allowGUIInterraction = true;
-					transitionSymbolEntry.hide();
-				}
-				break;
-			default :
-				break;
 		}
-		if (modifyBuffer != null) {
-			HistoryHandler.buffer(modifyBuffer);
-			modifyBuffer = null;
+		
+		if (machine.testUniqueTransition(this, transitionSymbol, stackPop, stackPush)) {
+			machine.addTransition(this);
+			PFLAP.allowGUIInterraction = true;
+			transitionSymbolEntry.hide();
+			if (modifyBuffer != null) {
+				HistoryHandler.buffer(modifyBuffer);
+				modifyBuffer = null;
+			}
+		}
+		else {
+			Notification.addNotification(transitionInvalid);
+			entryType = entryTypes.SYMBOL;
 		}
 	}
 
@@ -393,34 +383,6 @@ public class Arrow implements Serializable {
 		return false;
 	}
 
-	private boolean testUniqueDFATransition(char symbol) {
-		ArrayList<Arrow> arrows = new ArrayList<>(tail.getOutgoingArrows());
-		arrows.remove(this);
-		for (Arrow a : arrows) {
-			if (a.transitionSymbol == symbol) {
-				return false;
-			}
-		}
-		return true;
-	}
-
-	/**
-	 * Checks proposed DPA transition for uniqueness of all 3 transition attributes.
-	 * Call this check when the final attribute, stackPush, is entered by user.
-	 * @param push Proposed stackPush symbols
-	 * @return true if unique
-	 */
-	private boolean testUniqueDPATransition(String push) {
-		ArrayList<Arrow> arrows = new ArrayList<>(tail.getOutgoingArrows());
-		arrows.remove(this);
-		for (Arrow a : arrows) {
-			if (a.transitionSymbol == transitionSymbol && a.stackPop == stackPop && a.stackPush.equals(push)) {
-				return false;
-			}
-		}
-		return true;
-	}
-
 	public boolean isMouseOver(PVector mousePos) {
 		switch (arrowType) {
 			case BEZIER :
@@ -497,7 +459,6 @@ public class Arrow implements Serializable {
 	}
 
 	public char getStackPop() {
-		// + setters for when modifying transitions
 		return stackPop;
 	}
 
