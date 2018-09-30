@@ -53,10 +53,10 @@ public class Arrow implements Serializable {
 	private transient ControlP5 cp5;
 	private transient ScrollableList stateOptions;
 	private transient ControlListener menuListener;
+	private transient Textfield transitionSymbolEntry;
 	private PVector tailXY, headXY, midPoint, bezierCPoint, bezierApex, arrowTip;
 	private PVector selfBezierCP1, selfBezierCP2, selfBezierTranslate, selfBezierTextLoc;
 	private float rotationOffset, theta1, theta2, arrowTipAngle, textSize = 16, selfTransitionAngle, selfBezierAngle;
-	private transient Textfield transitionSymbolEntry;
 	private char transitionSymbol, stackPop;
 	private String stackPush = "";
 	private int ID, labelRotationModifier = -1;
@@ -260,7 +260,6 @@ public class Arrow implements Serializable {
 				arrowType = arrowTypes.SELF;
 			}
 		}
-
 		transitionSymbolEntry.setPosition(midPoint.x - transitionSymbolEntry.getWidth() / 2, midPoint.y - 10);
 		stateOptions.setPosition(midPoint.x, midPoint.y);
 	}

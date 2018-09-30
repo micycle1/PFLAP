@@ -13,6 +13,7 @@ import java.util.Queue;
 import commands.Command;
 import commands.addState;
 import commands.addTransition;
+import commands.moveState;
 import p5.Notification;
 
 import static main.PFLAP.p;
@@ -130,8 +131,13 @@ public final class HistoryHandler {
 			PFLAP.PApplet.reset();
 			ObjectInputStream in = new ObjectInputStream(new FileInputStream(path));
 			history.addAll((ArrayList<Command>) in.readObject());
+			Queue<Command> executeLast = new LinkedList<>();
 			for (Command c : history) {
-				c.execute();
+				if (c instanceof moveState) {
+					executeLast.add(c);
+				} else {
+					c.execute();
+				}
 				if (c instanceof addState) {
 					PFLAP.nodes.get(PFLAP.nodes.size() - 1).initCP5();
 				}
@@ -139,6 +145,9 @@ public final class HistoryHandler {
 					PFLAP.arrows.get(PFLAP.arrows.size() - 1).initCP5();
 					PFLAP.arrows.get(PFLAP.arrows.size() - 1).update();
 				}
+			}
+			while (!executeLast.isEmpty()) {
+				executeLast.poll().execute();
 			}
 			historyStateIndex = history.size() - 1;
 			HistoryList.update();

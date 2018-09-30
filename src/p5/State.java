@@ -117,6 +117,7 @@ public class State implements Serializable {
 				stateOptions.hide();
 				switch ((int) optionSelected.getValue()) {
 					case 0 : // Add Self-Transition
+						PFLAP.allowGUIInterraction = false;
 						HistoryHandler.buffer(new addTransition(State.this, State.this));
 						break;
 					case 1 : // Set As Initial
@@ -139,7 +140,9 @@ public class State implements Serializable {
 					case 5 : // Delete
 						HistoryHandler.buffer(new commands.deleteState(State.this));
 						break;
-					case 6 : // Moore input todo
+					case 6 : // Moore Input
+						moorePushInput.setFocus(true).show();
+						PFLAP.allowGUIInterraction = false;
 						break;
 				}
 			}

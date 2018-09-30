@@ -15,7 +15,7 @@ import p5.State;
  */
 
 public final class Moore implements Machine {
-	
+
 	private Table<State, Character, State> transitionTable;
 	private State initial, stepState;
 	private String output, stepInput;
@@ -68,8 +68,7 @@ public final class Moore implements Machine {
 			if (transitionTable.contains(s, symbol)) {
 				output += s.getMoorePush();
 				s = transitionTable.get(s, symbol);
-			}
-			else {
+			} else {
 				return true;
 			}
 		}
@@ -93,27 +92,25 @@ public final class Moore implements Machine {
 				output += stepState.getMoorePush();
 				stepState = transitionTable.get(stepState, symbol);
 				return stepState;
-			}
-			else {
+			} else {
 				Step.setMachineOutcome(true);
 				stepState = prevState;
 				return stepState;
 			}
-		}
-		else {
+		} else {
 			Step.setMachineOutcome(true);
 			stepState = prevState;
 			return stepState;
 		}
 	}
-	
+
 	@Override
 	public void stepBackward(State s, String input) {
-		output = output.substring(0, output.length() - (stepState.getMoorePush().length()+1)); // todo
+		output = output.substring(0, (output.length() - 1) - (stepState.getMoorePush().length() - 1));
 		stepState = s;
 		stepInput = input;
 	}
-	
+
 	public String getOutput() {
 		return output;
 	}

@@ -107,7 +107,7 @@ public final class Mealy implements Machine {
 
 	@Override
 	public void stepBackward(State s, String input) {
-		output = output.substring(0, output.length() - 1);
+		output = output.substring(0, (output.length() - 1) - (stepState.getMoorePush().length() - 1));
 		stepState = s;
 		stepInput = input;
 	}
