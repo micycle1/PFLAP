@@ -16,7 +16,7 @@ import processing.core.PFont;
 import processing.core.PVector;
 import processing.event.KeyEvent;
 import processing.event.MouseEvent;
-
+import controlP5.ControlFont;
 import controlP5.ControlP5;
 import controlP5.Textarea;
 
@@ -31,6 +31,7 @@ import p5.Notification;
 import p5.SelectionBox;
 import p5.State;
 
+import static main.Functions.angleBetween;
 import static main.Functions.withinRange;
 import static main.Functions.withinRegion;
 
@@ -49,6 +50,7 @@ public final class PFLAP {
 	public static PApplet p;
 
 	public static ControlP5 cp5;
+	public static ControlFont cp5Font;
 
 	public static enum modes {
 		DFA, DPA, MEALY, MOORE;
@@ -76,9 +78,9 @@ public final class PFLAP {
 		private static HashSet<Integer> mouseDown = new HashSet<Integer>();
 		private static PFont comfortaaRegular, comfortaaBold;
 		private static State mouseOverState, arrowTailState, arrowHeadState, dragState;
-		private static Arrow drawingArrow, mouseOverTransition;
+		private static Arrow mouseOverTransition;
 		private static SelectionBox selectionBox;
-		private static boolean fullScreen = false, newState = false;
+		private static boolean fullScreen = false, newState = false, drawingArrow = false;
 		private static PVector mouseClickXY, mouseReleasedXY, mouseCoords;
 		protected static Textarea trace;
 		private static ArrayList<Command> moveCache;
@@ -97,7 +99,7 @@ public final class PFLAP {
 		@Override
 		public void setup() {
 			p = this;
-			
+
 			surface.setTitle(Consts.title);
 			surface.setLocation(displayWidth / 2 - width / 2, displayHeight / 2 - height / 2);
 			surface.setResizable(true);
@@ -119,6 +121,7 @@ public final class PFLAP {
 				textFont(comfortaaBold);
 				textSize(Consts.stateFontSize);
 				textAlign(CENTER, CENTER);
+				cp5Font = new ControlFont(comfortaaBold, 11);
 			}
 
 			DrawingParameters : {
@@ -145,13 +148,21 @@ public final class PFLAP {
 			mouseCoords = new PVector(constrain(mouseX, 0, width), constrain(mouseY, 0, height));
 			background(bgColour.getRGB());
 
-			if (drawingArrow != null) {
+			if (drawingArrow) {
+				float angle = angleBetween(mouseClickXY, new PVector(p.mouseX, p.mouseY)) + PI % TWO_PI;
 				noFill();
-				stroke(transitionColour.getRed(), transitionColour.getGreen(), transitionColour.getBlue(), 65);
+				stroke(transitionColour.getRed(), transitionColour.getGreen(), transitionColour.getBlue(), 80);
+				pushMatrix();
+				translate(mouseX, mouseY);
+				rotate(angle);
+				beginShape();
+				vertex(-10, -7);
+				vertex(0, 0);
+				vertex(-10, 7);
+				endShape();
+				popMatrix();
 				strokeWeight(2);
-				drawingArrow.setHeadXY(mouseCoords);
-				drawingArrow.tempUpdate();
-				drawingArrow.draw();
+				line(mouseClickXY.x, mouseClickXY.y, mouseX, mouseY);
 			}
 			if (selectionBox != null) {
 				selectionBox.setEndPosition(mouseCoords);
@@ -198,7 +209,7 @@ public final class PFLAP {
 			arrowTailState = null;
 			arrowHeadState = null;
 			dragState = null;
-			drawingArrow = null;
+			drawingArrow = false;
 			mouseOverTransition = null;
 			DPA.hideUI();
 			switch (mode) {
@@ -348,7 +359,7 @@ public final class PFLAP {
 						transitionMouseOver();
 						if (!(mouseOverState == null) && allowGUIInterraction && mouseOverTransition == null) {
 							arrowTailState = mouseOverState;
-							drawingArrow = new Arrow(mouseClickXY, arrowTailState);
+							drawingArrow = true;
 							cursor(CROSS);
 						}
 					}
@@ -405,16 +416,16 @@ public final class PFLAP {
 						if (!(mouseClickXY.equals(mouseReleasedXY))) {
 							nodeMouseOver();
 							arrowHeadState = mouseOverState;
-							if (arrowTailState != arrowHeadState && (arrowHeadState != null) && drawingArrow != null) {
+							if (arrowTailState != arrowHeadState && (arrowHeadState != null) && drawingArrow == true) {
 								allowGUIInterraction = false;
 								HistoryHandler.buffer(new addTransition(arrowTailState, arrowHeadState));
 							}
-							drawingArrow = null;
+							drawingArrow = false;
 							if (arrowHeadState == null) {
 								allowGUIInterraction = true;
 							}
 						} else {
-							drawingArrow = null;
+							drawingArrow = false;
 							if (mouseOverState != null) {
 								selected.add(mouseOverState);
 								mouseOverState.select();
@@ -449,7 +460,7 @@ public final class PFLAP {
 				case LEFT :
 					break;
 				case RIGHT :
-					if (selectionBox == null && drawingArrow == null && allowGUIInterraction
+					if (selectionBox == null && drawingArrow == false && allowGUIInterraction
 							&& !HistoryList.isMouseOver()) {
 						selectionBox = new SelectionBox(mouseCoords);
 					}

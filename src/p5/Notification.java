@@ -1,7 +1,7 @@
 package p5;
 
 import main.Consts;
-
+import main.Functions;
 import processing.core.PApplet;
 import processing.core.PImage;
 import processing.core.PVector;
@@ -31,12 +31,11 @@ public class Notification {
 	private int lifetime, startTime, alpha = 255;
 
 	static {
-		positionTarget = new PVector(p.width - notificationWidth,
-				p.height - notificationHeight);
+		positionTarget = new PVector(p.width - notificationWidth, p.height - notificationHeight);
 		background = p.createImage(notificationWidth, notificationHeight, PApplet.ARGB);
 		for (int i = 0; i < background.pixels.length; i++) {
 			float a = PApplet.map(i, 0, background.pixels.length, 255, 0);
-			background.pixels[i] = p.color(10, 100, 100, a);
+			background.pixels[i] = Functions.color(10, 100, 100, a);
 		}
 	}
 
@@ -50,7 +49,7 @@ public class Notification {
 		this.title = title;
 		this.message = message;
 	}
-	
+
 	public static void clear() {
 		notifications.clear();
 	}
@@ -61,7 +60,7 @@ public class Notification {
 	public static void addNotification(String title, String message) {
 		notifications.add(new Notification(title, message));
 	}
-	
+
 	/**
 	 * Call this within PApplet's draw() loop.
 	 */
@@ -70,10 +69,9 @@ public class Notification {
 			notifications.getFirst().draw();
 		}
 	}
-	
+
 	public static void stageResized() {
-		positionTarget = new PVector(p.width - notificationWidth,
-				p.height - notificationHeight);
+		positionTarget = new PVector(p.width - notificationWidth, p.height - notificationHeight);
 	}
 
 	private void draw() {
@@ -112,7 +110,7 @@ public class Notification {
 				notificationHeight - notificationTextPadding);
 		p.textSize(12);
 		p.textLeading(14);
-		p.fill(0,0,0,alpha);
+		p.fill(0, 0, 0, alpha);
 		p.text(message,
 				position.x + notificationTextPadding,
 				position.y + notificationTextPadding + 32,

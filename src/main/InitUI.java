@@ -515,6 +515,7 @@ final class InitUI {
 	protected static void initCp5() {
 		PFont traceFont = p.createFont("Comfortaa Regular", 12, true);
 		PFLAP.cp5 = new ControlP5(p);
+		PFLAP.cp5.setFont(PFLAP.cp5Font);
 		// @formatter:off
 		PFLAP.PApplet.trace = PFLAP.cp5.addTextarea("Trace")
 			.setVisible(false)
@@ -522,8 +523,8 @@ final class InitUI {
 			.setSize(200, 100)
 			.setFont(traceFont)
 			.setLineHeight(14)
-			.setColor(p.color(255))
-			.setColorBackground(p.color(0, 200))
+			.setColor(Functions.color(255, 255, 255))
+			.setColorBackground(Functions.color(200, 200, 200))
 			.setMoveable(false)
 			;
 			// @formatter:on

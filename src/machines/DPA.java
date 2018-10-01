@@ -6,6 +6,7 @@ import java.util.Queue;
 import com.google.common.graph.MutableNetwork;
 import com.google.common.graph.NetworkBuilder;
 
+import main.Functions;
 import main.PFLAP;
 import main.Step;
 
@@ -32,11 +33,28 @@ public class DPA implements Machine {
 	private static final Toggle toggleAcceptByStackEmpty, toggleAcceptByAcceptState;
 
 	static {
-		toggleAcceptByStackEmpty = PFLAP.cp5.addToggle("DPA: Accept by\n Empty Stack").setValue(true).setColorLabel(0)
-				.setPosition(5, 5);
-
-		toggleAcceptByAcceptState = PFLAP.cp5.addToggle("DPA: Accept by\n Accepting State").setValue(false)
-				.setColorLabel(0).setPosition(5, 50);
+		// @formatter:off
+		toggleAcceptByStackEmpty = 
+				PFLAP.cp5.addToggle("Accept by\nEmpty Stack")
+				.setValue(true)
+				.setColorLabel(0)
+				.setPosition(5, 5)
+				.setWidth(80)
+				.setColorActive(Functions.color(0, 200, 0))
+				.setColorBackground(Functions.color(200, 0, 0))
+				.setColorForeground(Functions.color(0, 50, 0))
+				;
+		toggleAcceptByAcceptState = 
+				PFLAP.cp5.addToggle("Accept by\nAccepting State")
+				.setValue(false)
+				.setColorLabel(0)
+				.setPosition(5, 55)
+				.setWidth(80)
+				.setColorActive(Functions.color(0, 200, 0))
+				.setColorBackground(Functions.color(200, 0, 0))
+				.setColorForeground(Functions.color(0, 50, 0))
+				;
+		// @formatter:on
 	}
 
 	public static void hideUI() {

@@ -143,7 +143,7 @@ public final class HistoryHandler {
 				}
 				if (c instanceof addTransition) {
 					PFLAP.arrows.get(PFLAP.arrows.size() - 1).initCP5();
-					PFLAP.arrows.get(PFLAP.arrows.size() - 1).update();
+					PFLAP.arrows.get(PFLAP.arrows.size() - 1).update(true);
 				}
 			}
 			while (!executeLast.isEmpty()) {

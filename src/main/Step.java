@@ -16,9 +16,12 @@ import processing.core.PGraphics;
 
 import static main.Consts.notificationData.machineRejected;
 import static main.Consts.notificationData.machineAccepted;
+import static main.Consts.stepGUIPadding;
 import static main.PFLAP.p;
 import static main.PFLAP.machine;
-import static main.Consts.stepGUIPadding;
+
+import static main.Functions.color;
+
 
 /**
  * Call beginstep() when user clicks step-by-state.
@@ -54,9 +57,9 @@ public class Step {
 		.setSize(30, 18)
 		.setLabel(" X")
 		.setPosition(p.width - stepGUIPadding - 30 - 1, stepGUIPadding + 2)
-		.setColorBackground(p.color(80, 0, 0))
-		.setColorForeground(p.color(200, 0, 0))
-		.setColorActive(p.color(255, 0, 0))
+		.setColorBackground(color(80, 0, 0))
+		.setColorForeground(color(200, 0, 0))
+		.setColorActive(color(255, 0, 0))
 		.hide()
 		;
 		help = new Button(PFLAP.cp5, "helpSTEP");
@@ -69,9 +72,9 @@ public class Step {
 		.setSize(30, 18)
 		.setLabel(" ?")
 		.setPosition(p.width - stepGUIPadding - 60 - 1, stepGUIPadding + 2)
-		.setColorBackground(p.color(0, 0, 80))
-		.setColorForeground(p.color(0, 0, 200))
-		.setColorActive(p.color(0, 0, 255))
+		.setColorBackground(color(0, 0, 80))
+		.setColorForeground(color(0, 0, 200))
+		.setColorActive(color(0, 0, 255))
 		.hide()
 		;
 		//@formatter:on
@@ -179,12 +182,12 @@ public class Step {
 					p.text("Ouput: [" + ((machines.Moore)machine).getOutput() + "]", stepGUIPadding * 2, p.height - 30);
 					break;
 			}
-			liveState.highLight(p.color(255, 0, 255)); // specify color
+			liveState.highLight(color(255, 0, 255)); // specify color
 			if (completed && visitedIndex == visited.size() - 1) {
 				if (accepted) {
-					liveState.highLight(p.color(0, 255, 0));
+					liveState.highLight(color(0, 255, 0));
 				} else {
-					liveState.highLight(p.color(255, 0, 0));
+					liveState.highLight(color(255, 0, 0));
 				}
 			}
 		}

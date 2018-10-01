@@ -12,13 +12,14 @@ import controlP5.CallbackListener;
 import controlP5.ControlEvent;
 import controlP5.ControlListener;
 import controlP5.ControlP5;
-import controlP5.ScrollableList;
+import controlP5.ListBox;
 import controlP5.Slider;
 import controlP5.Textfield;
 
 import processing.core.PApplet;
 import processing.core.PGraphics;
 import processing.core.PVector;
+
 import main.Consts;
 import main.Functions;
 import main.HistoryHandler;
@@ -32,12 +33,13 @@ import static main.PFLAP.p;
 import static main.PFLAP.stateColour;
 import static main.PFLAP.stateSelectedColour;
 import static main.PFLAP.machine;
+import static main.PFLAP.cp5Font;
 
 public class State implements Serializable {
 
 	private String label, moorePush = "";
 	private transient ControlP5 cp5, resizeGUI;
-	private transient ScrollableList stateOptions;
+	private transient ListBox stateOptions;
 	private transient Slider sizeSlider;
 	private transient ControlListener listener, sizeSliderListener;
 	private transient Textfield moorePushInput;
@@ -88,7 +90,9 @@ public class State implements Serializable {
 
 	public void initCP5() {
 		cp5 = new ControlP5(p);
+		cp5.setFont(cp5Font);
 		resizeGUI = new ControlP5(p);
+		resizeGUI.setFont(cp5Font);
 
 		// @formatter:off
 		sizeSlider = resizeGUI.addSlider("Size Slider")
@@ -105,8 +109,8 @@ public class State implements Serializable {
 			@Override
 			public void controlEvent(ControlEvent radiusChange) {
 				radius = (int) sizeSlider.getValue();
-				arrowHeads.forEach(a -> a.update());
-				arrowTails.forEach(a -> a.update());
+				arrowHeads.forEach(a -> a.update(true));
+				arrowTails.forEach(a -> a.update(true));
 			}
 		};
 		sizeSlider.addListener(sizeSliderListener);
@@ -147,12 +151,19 @@ public class State implements Serializable {
 				}
 			}
 		};
-		stateOptions = cp5.addScrollableList("Options");
+		stateOptions = cp5.addListBox("          Options");
 		// @formatter:off
-		stateOptions.setType(1)
-				.addItems(new String[]{"Add Self-Transition.", "Set As Inititial", "Toggle Accepting", "Relabel", "Resize", "Delete"})
-				.addListener(listener)
-				.hide();
+		stateOptions.addItems(new String[]{"Add Self-Transition", "Set As Inititial", "Toggle Accepting", "Relabel", "Resize", "Delete"})
+			.setWidth(140)
+			.setBarHeight(35)
+			.setColorLabel(Functions.invertColor(PFLAP.stateColour))
+			.setItemHeight(25)
+			.setColorValue(Functions.invertColor(PFLAP.stateColour))
+			.setColorBackground(PFLAP.stateColour.getRGB())
+			.setColorActive(PFLAP.stateColour.getRGB())
+			.setColorForeground(Functions.darkenColor(PFLAP.stateColour, 0.33f)) // Mouseover
+			.addListener(listener)
+			.hide();
 		// @formatter:on
 		if (PFLAP.mode == modes.MOORE) {
 			stateOptions.addItems(new String[]{"Set State Output"});
@@ -245,8 +256,8 @@ public class State implements Serializable {
 		this.position = position;
 		cp5.setPosition((int) this.position.x + 10, (int) this.position.y + 10);
 		resizeGUI.setPosition((int) (position.x) - 50, (int) (position.y));
-		arrowHeads.forEach(a -> a.update());
-		arrowTails.forEach(a -> a.update());
+		arrowHeads.forEach(a -> a.update(true));
+		arrowTails.forEach(a -> a.update(true));
 	}
 
 	public void select() {

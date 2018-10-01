@@ -89,10 +89,10 @@ public final class Functions {
 	}
 
 	/**
-	 * In PFLAP, spaces represent an empty (lambda transition).
-	 * This method substitutes ' ' chars with 'λ'.
+	 * Substitutes ' ' chars with 'λ'.
 	 * @param test char to test substitution
 	 * @return char λ if input was ' '.
+	 * @see {@link #testForLambda(String) testForLambda(String)}
 	 */
 	public static char testForLambda(char test) {
 		if (test == ' ') {
@@ -106,10 +106,62 @@ public final class Functions {
 	 * Subsitutes all ' ' for λ within a String.
 	 * @param test String to substitute.
 	 * @return String with λ.
-	 * @see {@link #testForLambda testForLambda(char)}
+	 * @see {@link #testForLambda(char) testForLambda(char)}
 	 */
 	public static String testForLambda(String test) {
 		return test.replace(' ', Consts.lambda);
+	}
+
+	/**
+	 * Converts (R,G,B) values to integer representation,
+	 * compatible with Processing.
+	 * @param R Red Value [0-255].
+	 * @param G Green Value [0-255].
+	 * @param B Blue Value [0-255].
+	 * @return Color int.
+	 * @see {@link #color(int, int, int, float) fdssdsd}
+	 */
+	public static int color(int R, int G, int B) {
+		return new Color(R, G, B).getRGB();
+	}
+
+	/**
+	 * Converts (R,G,B,A) values to integer representation,
+	 * compatible with Processing.
+	 * @param R Red Value [0-255].
+	 * @param G Green Value [0-255].
+	 * @param B Blue Value [0-255].
+	 * @param A Alpha (transparency) [0.0-1.0].
+	 * @return Color int.
+	 */
+	public static int color(int R, int G, int B, float A) {
+		return new Color(((float) R) / 255, ((float) G) / 255, ((float) B) / 255, A / 255).getRGB();
+	}
+
+	/**
+	 * Returns inverted color of parameter.
+	 * @param c AWT Colour Object
+	 * @return Color inverse of <b>c</b> (integer representation).
+	 */
+	public static int invertColor(Color c) {
+		return new Color(255 - c.getRed(), 255 - c.getGreen(), 255 - c.getBlue()).getRGB();
+	}
+
+	/**
+	 * Darkens the given color.
+	 * @param c AWT Colour Object
+	 * @param percentage Percentage amount to darken the color by, where:
+	 * <p>0.0 = no change; 0.5 = half brightness; 1.0 = black.
+	 * @return Darker version of <b>c</b> (integer representation).
+	 */
+	public static int darkenColor(Color c, float percentage) {
+		if (!numberBetween(percentage, 0, 1)) {
+			throw new IllegalArgumentException("Percentage must be between 0 and 1 (inclusive).");
+		}
+		int r = c.getRed() - (int) (c.getRed() * percentage);
+		int g = c.getGreen() - (int) (c.getGreen() * percentage);
+		int b = c.getBlue() - (int) (c.getBlue() * percentage);
+		return new Color(r, g, b).getRGB();
 	}
 
 	private Functions() {
