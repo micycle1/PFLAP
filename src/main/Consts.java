@@ -27,12 +27,11 @@ public final class Consts {
 		transitionInvalid(new String[] {"Non-Unique Transition", "Transitions from each state in a deterministic machine must be unique."}),
 		machineAccepted(new String[] {"String Accepted", "The automaton accepted the input."}),
 		machineRejected(new String[] {"String Rejected", "The automaton rejected the input."}),
-		screenShot(new String[] {"String Rejected", "The automaton rejected the input."}),
 		;
 		// @formatter:on
 
-		private String title;
-		private String message;
+		private final String title;
+		private final String message;
 
 		notificationData(String[] notification) {
 			title = notification[0];

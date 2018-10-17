@@ -9,9 +9,10 @@ import static main.PFLAP.p;
 
 public final class SelectionBox {
 
-	DashedLines d;
-	int dist = 0, width, height;
-	public PVector startPosition, endPosition;
+	private DashedLines d;
+	int dist = 0;
+	public final PVector startPosition;
+	private PVector endPosition;
 
 	public SelectionBox(PVector position) {
 		this.startPosition = position;
@@ -32,7 +33,7 @@ public final class SelectionBox {
 		p.ellipse(startPosition.x, startPosition.y, 2 * SBNodeRadius, 2 * SBNodeRadius);
 		p.ellipse(endPosition.x, endPosition.y, 2 * SBNodeRadius, 2 * SBNodeRadius);
 	}
-
+	
 	public void setEndPosition(PVector endPosition) {
 		this.endPosition = endPosition;
 	}

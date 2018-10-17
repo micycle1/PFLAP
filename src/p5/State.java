@@ -44,14 +44,15 @@ public class State implements Serializable {
 	private transient ControlListener listener, sizeSliderListener;
 	private transient Textfield moorePushInput;
 	private PVector position, selectedPosition;
-	private ArrayList<Arrow> arrowHeads = new ArrayList<>();
-	private ArrayList<Arrow> arrowTails = new ArrayList<>();
+	private final ArrayList<AbstractArrow> arrowHeads = new ArrayList<>();
+	private final ArrayList<AbstractArrow> arrowTails = new ArrayList<>();
 	private boolean initial = false;
 	private transient boolean accepting = false, selected = false, highlighted = false;
-	private int radius = stateRadius, highlightColor, liveID;
-	private static Textfield rename;
+	private int radius = stateRadius, highlightColor;
+	private final int liveID;
 	private static State renameState;
-	private static PGraphics initialIndicator;
+	private static final Textfield rename;
+	private static final PGraphics initialIndicator;
 
 	static { // only one rename box for class
 		// @formatter:off
@@ -109,8 +110,8 @@ public class State implements Serializable {
 			@Override
 			public void controlEvent(ControlEvent radiusChange) {
 				radius = (int) sizeSlider.getValue();
-				arrowHeads.forEach(a -> a.update(true));
-				arrowTails.forEach(a -> a.update(true));
+				arrowHeads.forEach(a -> a.update());
+				arrowTails.forEach(a -> a.update());
 			}
 		};
 		sizeSlider.addListener(sizeSliderListener);
@@ -196,7 +197,7 @@ public class State implements Serializable {
 	}
 
 	public void kill() {
-		for (Arrow a : arrowHeads) {
+		for (AbstractArrow a : arrowHeads) {
 			machine.removeTransition(a);
 		}
 		machine.deleteNode(this);
@@ -207,7 +208,7 @@ public class State implements Serializable {
 		arrowTails.forEach(a -> a.parentKill());
 	}
 
-	protected void childKill(Arrow a) {
+	protected void childKill(AbstractArrow a) {
 		// Transition arrows call this.
 		if (arrowHeads.contains(a)) {
 			arrowHeads.remove(a);
@@ -256,8 +257,8 @@ public class State implements Serializable {
 		this.position = position;
 		cp5.setPosition((int) this.position.x + 10, (int) this.position.y + 10);
 		resizeGUI.setPosition((int) (position.x) - 50, (int) (position.y));
-		arrowHeads.forEach(a -> a.update(true));
-		arrowTails.forEach(a -> a.update(true));
+		arrowHeads.forEach(a -> a.update());
+		arrowTails.forEach(a -> a.update());
 	}
 
 	public void select() {
@@ -283,14 +284,14 @@ public class State implements Serializable {
 		deselect();
 	}
 
-	public ArrayList<Arrow> getConnectedArrows() {
-		ArrayList<Arrow> all = new ArrayList<>();
+	public ArrayList<AbstractArrow> getConnectedArrows() {
+		ArrayList<AbstractArrow> all = new ArrayList<>();
 		all.addAll(arrowHeads);
 		all.addAll(arrowTails);
 		return all;
 	}
 
-	public ArrayList<Arrow> getOutgoingArrows() {
+	public ArrayList<AbstractArrow> getOutgoingArrows() {
 		return arrowTails;
 	}
 
@@ -326,15 +327,15 @@ public class State implements Serializable {
 		return liveID;
 	}
 
-	public void addArrowHead(Arrow a) {
+	public void addArrowHead(AbstractArrow a) {
 		arrowHeads.add(a);
 	}
 
-	public void addArrowTail(Arrow a) {
+	public void addArrowTail(AbstractArrow a) {
 		arrowTails.add(a);
 	}
 
-	public void hideUI() {
+	private void hideUI() {
 		stateOptions.hide();
 	}
 
@@ -342,22 +343,10 @@ public class State implements Serializable {
 		stateOptions.show();
 	}
 
-	public boolean UIOpen() {
-		return cp5.isVisible();
-	}
-
 	public boolean isAccepting() {
 		return accepting;
 	}
-
-	public int connectedTailCount() {
-		return arrowTails.size();
-	}
-
-	public int connectedHeadCount() {
-		return arrowHeads.size();
-	}
-
+	
 	public boolean isMouseOver() {
 		return (cp5.isMouseOver() && cp5.isVisible()) || (resizeGUI.isMouseOver() && sizeSlider.isVisible());
 	}

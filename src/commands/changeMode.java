@@ -6,7 +6,7 @@ import p5.Notification;
 
 public class changeMode implements Command {
 	
-	private PFLAP.modes mode, oldMode;
+	private final PFLAP.modes mode, oldMode;
 	
 	public changeMode(PFLAP.modes mode) {
 		this.mode = mode;

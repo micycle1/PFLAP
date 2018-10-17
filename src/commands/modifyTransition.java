@@ -1,16 +1,18 @@
 package commands;
 
 import main.PFLAP;
-import p5.Arrow;
+import p5.AbstractArrow;
 
 public final class modifyTransition implements Command {
 	
-	private final Arrow transition;
-	private char oldTransitionSymbol, newTransitionSymbol, oldStackPop, newStackPop;
-	private String oldStackPush, newStackPush;
+	private final AbstractArrow transition;
+	private final char oldTransitionSymbol, oldStackPop;
+	private final String oldStackPush;
+	private char newTransitionSymbol, newStackPop;
+	private String newStackPush;
 	private boolean init = true;
 		
-	public modifyTransition(Arrow a) {
+	public modifyTransition(AbstractArrow a) {
 		transition = a;
 		PFLAP.machine.removeTransition(a);
 		

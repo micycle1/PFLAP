@@ -4,7 +4,7 @@ import com.google.common.collect.HashBasedTable;
 import com.google.common.collect.Table;
 
 import main.Step;
-import p5.Arrow;
+import p5.AbstractArrow;
 import p5.State;
 
 /**
@@ -16,7 +16,7 @@ import p5.State;
 
 public final class Moore implements Machine {
 
-	private Table<State, Character, State> transitionTable;
+	private final Table<State, Character, State> transitionTable;
 	private State initial, stepState;
 	private String output, stepInput;
 
@@ -48,12 +48,12 @@ public final class Moore implements Machine {
 	}
 
 	@Override
-	public void addTransition(Arrow a) {
+	public void addTransition(AbstractArrow a) {
 		transitionTable.put(a.getTail(), a.getSymbol(), a.getHead());
 	}
 
 	@Override
-	public void removeTransition(Arrow a) {
+	public void removeTransition(AbstractArrow a) {
 		transitionTable.remove(a.getTail(), a.getSymbol());
 
 	}
@@ -116,7 +116,7 @@ public final class Moore implements Machine {
 	}
 
 	@Override
-	public boolean testUniqueTransition(Arrow transition, char symbol, char stackPop, String stackPush) {
+	public boolean testUniqueTransition(AbstractArrow transition, char symbol, char stackPop, String stackPush) {
 		return !transitionTable.contains(transition.getTail(), symbol);
 	}
 

@@ -22,12 +22,12 @@ import static main.Consts.notificationLifetimeVeryFast;
  */
 public class Notification {
 
-	private static LinkedList<Notification> notifications = new LinkedList<>();
-
-	private static PImage background;
+	private static final LinkedList<Notification> notifications = new LinkedList<>();
+	private static final PImage background;
 	private static PVector positionTarget;
-	private PVector position = new PVector(p.width - notificationWidth, p.height);
-	private String title, message;
+	
+	private final PVector position = new PVector(p.width - notificationWidth, p.height);
+	private final String title, message;
 	private int lifetime, startTime, alpha = 255;
 
 	static {

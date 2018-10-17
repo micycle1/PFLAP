@@ -19,8 +19,6 @@ import java.awt.event.ComponentEvent;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 
-import java.io.File;
-
 import java.lang.reflect.Field;
 
 import java.util.ArrayList;
@@ -399,7 +397,7 @@ final class InitUI {
 													+ ((machines.Mealy) PFLAP.machine).getOutput());
 									break;
 								case MOORE :
-									//todo check every state has symbol
+									// todo check every state has symbol
 									PFLAP.machine.run(userInput);
 									Notification.addNotification("Machine Terminated",
 											"The machine terminated with output: "
@@ -529,15 +527,5 @@ final class InitUI {
 			;
 			// @formatter:on
 		// PFLAP.cp5.addConsole(PFLAP.PApplet.trace);
-	}
-}
-
-class MyFilter extends javax.swing.filechooser.FileFilter {
-	public boolean accept(File file) {
-		String filename = file.getName();
-		return filename.endsWith(".java");
-	}
-	public String getDescription() {
-		return "*.java";
 	}
 }

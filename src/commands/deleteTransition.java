@@ -3,15 +3,16 @@ package commands;
 import static main.PFLAP.machine;
 
 import main.PFLAP;
-import p5.Arrow;
+
+import p5.AbstractArrow;
 import p5.State;
 
 public final class deleteTransition implements Command {
 
-	private Arrow a;
+	private final AbstractArrow a;
 	private State head, tail;
 
-	public deleteTransition(Arrow a) {
+	public deleteTransition(AbstractArrow a) {
 		this.a = a;
 	}
 

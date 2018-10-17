@@ -31,12 +31,12 @@ import static main.Functions.color;
  */
 public class Step {
 
-	protected static boolean live = false, completed = false, accepted;
+	private static boolean live = false, completed = false, accepted;
 	private static String initialInput, remainingInput, stack;
 	private static State liveState;
 	private static ArrayList<State> visited;
 	private static int visitedIndex;
-	private static Button closeStep, help;
+	private static final Button closeStep, help;
 	private static PGraphics staticGUI;
 
 	private Step() {
@@ -106,10 +106,6 @@ public class Step {
 		PFLAP.allowGUIInterraction = true;
 		closeStep.hide();
 		help.hide();
-	}
-
-	public static void setLiveState(State s) {
-		liveState = s;
 	}
 
 	public static void setMachineOutcome(boolean accepted) {

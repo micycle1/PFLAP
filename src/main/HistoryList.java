@@ -17,8 +17,8 @@ import commands.Command;
  */
 public final class HistoryList {
 
-	private static ControlP5 cP5;
-	private static DropdownList history;
+	private static final ControlP5 cP5;
+	private static final DropdownList history;
 
 	static {
 		cP5 = new ControlP5(p);

@@ -9,6 +9,13 @@ import static processing.core.PApplet.sq;
 import static processing.core.PApplet.sqrt;
 
 import java.awt.Color;
+import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.Queue;
+
+import p5.AbstractArrow;
+import p5.BezierArrow;
+import p5.State;
 
 /**
  * <b>Functions</b>
@@ -162,6 +169,33 @@ public final class Functions {
 		int g = c.getGreen() - (int) (c.getGreen() * percentage);
 		int b = c.getBlue() - (int) (c.getBlue() * percentage);
 		return new Color(r, g, b).getRGB();
+	}
+
+	/**
+	 * Determines whether there is a loop in the machine.
+	 * Used to determine whether a transition should be direct or bezier.
+	 * @param tail
+	 * @param head
+	 * @return
+	 */
+	public static boolean detectCycle(State tail, State head) {
+		HashSet<AbstractArrow> cache = new HashSet<>();
+		for (AbstractArrow a : head.getOutgoingArrows()) {
+			if (a.getHead().equals(tail) && !a.getHead().equals(a.getTail())) {
+				// todo change other looped to beziers/back
+				PFLAP.machine.removeTransition(a);
+				cache.add(new BezierArrow(a.getHead(), a.getTail(), a.getSymbol(), a.getStackPop(), a.getStackPush()));
+			}
+		}
+		if (cache.isEmpty()) {
+			return false;
+		} else {
+			for (AbstractArrow a : cache) {
+
+			}
+			return true;
+		}
+
 	}
 
 	private Functions() {

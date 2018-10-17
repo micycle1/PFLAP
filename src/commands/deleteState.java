@@ -8,8 +8,7 @@ import p5.State;
 public final class deleteState implements Command {
 
 	private final State s;
-	private boolean initial;
-	private Batch affectedTransitions;
+	private final Batch affectedTransitions;
 
 	public deleteState(State s) {
 		this.s = s;
@@ -27,9 +26,6 @@ public final class deleteState implements Command {
 	@Override
 	public void undo() {
 		machine.addNode(s);
-		if (initial) {
-			s.setAsInitial();
-		}
 		PFLAP.nodes.add(s);
 		affectedTransitions.undo();
 	}

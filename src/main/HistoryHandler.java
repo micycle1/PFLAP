@@ -21,14 +21,14 @@ import static main.PFLAP.p;
 public final class HistoryHandler {
 
 	private static int historyStateIndex = -1;
-	private static ArrayList<Command> history = new ArrayList<>();
-	private static Queue<Command> pendingExecute = new LinkedList<>();
+	private static final ArrayList<Command> history = new ArrayList<>();
+	private static final Queue<Command> pendingExecute = new LinkedList<>();
 
 	private HistoryHandler() {
 		throw new AssertionError();
 	}
 
-	public static void resetAll() {
+	protected static void resetAll() {
 		if (history != null) {
 			for (int i = history.size() - 1; i > -1; i--) {
 				history.get(i).undo();
@@ -44,7 +44,7 @@ public final class HistoryHandler {
 		pendingExecute.add(c);
 	}
 
-	public static void executeBufferedCommands() {
+	protected static void executeBufferedCommands() {
 		if (!(pendingExecute.isEmpty())) {
 			InitUI.undo.setEnabled(true);
 			if (historyStateIndex != history.size() - 1) {
@@ -63,7 +63,7 @@ public final class HistoryHandler {
 		}
 	}
 
-	public static void undo() {
+	protected static void undo() {
 		if (historyStateIndex > -1) {
 			// can undo first command
 			history.get(historyStateIndex).undo();
@@ -74,7 +74,7 @@ public final class HistoryHandler {
 		}
 	}
 
-	public static void redo() {
+	protected static void redo() {
 		if (historyStateIndex <= history.size() - 2) {
 			// if not at end of history
 			historyStateIndex += 1;
@@ -103,7 +103,7 @@ public final class HistoryHandler {
 		}
 	}
 
-	public static int getHistoryStateIndex() {
+	protected static int getHistoryStateIndex() {
 		return historyStateIndex;
 	}
 
@@ -111,7 +111,7 @@ public final class HistoryHandler {
 		return history;
 	}
 
-	public static void saveHistory(String path) {
+	protected static void saveHistory(String path) {
 		try {
 			ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream(path));
 			ArrayList<Command> liveHistory = new ArrayList<>(
@@ -124,7 +124,7 @@ public final class HistoryHandler {
 	}
 
 	@SuppressWarnings("unchecked")
-	public static void loadHistory(String path) {
+	protected static void loadHistory(String path) {
 		p.noLoop();
 		try {
 			resetAll();
@@ -143,7 +143,7 @@ public final class HistoryHandler {
 				}
 				if (c instanceof addTransition) {
 					PFLAP.arrows.get(PFLAP.arrows.size() - 1).initCP5();
-					PFLAP.arrows.get(PFLAP.arrows.size() - 1).update(true);
+					PFLAP.arrows.get(PFLAP.arrows.size() - 1).update();
 				}
 			}
 			while (!executeLast.isEmpty()) {
@@ -159,13 +159,5 @@ public final class HistoryHandler {
 			Notification.addNotification("Loading Failed", "Could not load the machine file (IO Error).");
 		}
 		p.loop();
-	}
-
-	public static void debug() {
-		System.out.println("HISTORY TRACE");
-		for (int i = 0; i < history.size(); i++) {
-			System.out.println((i == historyStateIndex ? "[X] " : "[ ] ") + history.get(i).description());
-		}
-		System.out.println("");
 	}
 }

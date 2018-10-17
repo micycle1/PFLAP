@@ -25,8 +25,7 @@ import machines.DPA;
 import machines.Machine;
 import machines.Mealy;
 import machines.Moore;
-
-import p5.Arrow;
+import p5.AbstractArrow;
 import p5.Notification;
 import p5.SelectionBox;
 import p5.State;
@@ -38,12 +37,13 @@ import static main.Functions.withinRegion;
 /**
  * @author micycle1
  * @version 1.0
+ * remove cp5 when arrow/states deleted
  */
 public final class PFLAP {
 
-	public static ArrayList<Arrow> arrows = new ArrayList<>();
-	public static ArrayList<State> nodes = new ArrayList<>();
-	public static HashSet<State> selected = new HashSet<>();
+	public static final ArrayList<AbstractArrow> arrows = new ArrayList<>();
+	public static final ArrayList<State> nodes = new ArrayList<>();
+	protected static final HashSet<State> selected = new HashSet<>();
 
 	public static boolean allowGUIInterraction = true;
 
@@ -74,18 +74,18 @@ public final class PFLAP {
 	 */
 	public final static class PApplet extends processing.core.PApplet {
 
-		private static HashSet<Integer> keysDown = new HashSet<Integer>();
-		private static HashSet<Integer> mouseDown = new HashSet<Integer>();
+		private static final HashSet<Integer> keysDown = new HashSet<Integer>();
+		private static final HashSet<Integer> mouseDown = new HashSet<Integer>();
 		private static PFont comfortaaRegular, comfortaaBold;
 		private static State mouseOverState, arrowTailState, arrowHeadState, dragState;
-		private static Arrow mouseOverTransition;
+		private static AbstractArrow mouseOverTransition;
 		private static SelectionBox selectionBox;
 		private static boolean fullScreen = false, newState = false, drawingArrow = false;
 		private static PVector mouseClickXY, mouseReleasedXY, mouseCoords;
 		protected static Textarea trace;
 		private static ArrayList<Command> moveCache;
 
-		public static void init() {
+		private static void init() {
 			main(PApplet.class);
 		}
 
@@ -243,7 +243,7 @@ public final class PFLAP {
 		}
 
 		private void transitionMouseOver() {
-			for (Arrow a : arrows) {
+			for (AbstractArrow a : arrows) {
 				if (a.isMouseOver(mouseClickXY)) {
 					mouseOverTransition = a;
 					return;
@@ -389,6 +389,8 @@ public final class PFLAP {
 						// drop dragged state
 						if (newState) {
 							HistoryHandler.buffer(new addState(dragState));
+							// todo check for cycle then create bezier
+							// then update outgoing arrows here
 							newState = false;
 						} else {
 							// dragged existing state
@@ -406,7 +408,7 @@ public final class PFLAP {
 						selected.forEach(s -> s.deselect());
 						selected.clear();
 						for (State s : nodes) {
-							if (withinRegion(s.getPosition(), selectionBox.startPosition, selectionBox.endPosition)) {
+							if (withinRegion(s.getPosition(), selectionBox.startPosition, mouseCoords)) {
 								s.select();
 								selected.add(s);
 							}

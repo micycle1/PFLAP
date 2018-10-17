@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
 
-import p5.Arrow;
+import p5.AbstractArrow;
 import p5.State;
 
 /**
@@ -91,12 +91,12 @@ public final class Batch implements Command {
 	
 	/**
 	 * Creates a an ArrayList of Commands; suitable for input into a Batch instance.
-	 * @param arrows Arraylist of {@link Arrow Arrows} to be deleted.
+	 * @param arrows Arraylist of {@link ArrowOld Arrows} to be deleted.
 	 * @return ArrayList of {@link deleteTransition} Commands.
 	 */
-	public static ArrayList<Command> createDeleteTransitionBatch(ArrayList<Arrow> arrows) {
+	public static ArrayList<Command> createDeleteTransitionBatch(ArrayList<AbstractArrow> arrows) {
 		ArrayList<Command> tempCommands = new ArrayList<Command>();
-		for (Arrow a : arrows) {
+		for (AbstractArrow a : arrows) {
 			tempCommands.add(new deleteTransition(a));
 		}
 		return tempCommands;

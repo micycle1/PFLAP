@@ -9,8 +9,7 @@ import com.google.common.graph.NetworkBuilder;
 import main.Functions;
 import main.PFLAP;
 import main.Step;
-
-import p5.Arrow;
+import p5.AbstractArrow;
 import p5.Notification;
 import p5.State;
 
@@ -27,7 +26,7 @@ public class DPA implements Machine {
 
 	private Queue<Character> stack, previousStack;
 	private State initial, stepState;
-	private MutableNetwork<State, Arrow> transitionGraph;
+	private final MutableNetwork<State, AbstractArrow> transitionGraph;
 	private Character initialStackSymbol;
 	private String stepInput;
 	private static final Toggle toggleAcceptByStackEmpty, toggleAcceptByAcceptState;
@@ -106,12 +105,12 @@ public class DPA implements Machine {
 	}
 
 	@Override
-	public void addTransition(Arrow a) {
+	public void addTransition(AbstractArrow a) {
 		transitionGraph.addEdge(a.getTail(), a.getHead(), a);
 	}
 
 	@Override
-	public void removeTransition(Arrow a) {
+	public void removeTransition(AbstractArrow a) {
 		transitionGraph.removeEdge(a);
 	}
 
@@ -133,7 +132,7 @@ public class DPA implements Machine {
 			char symbol = stepInput.charAt(0);
 			stepInput = stepInput.substring(1);
 			checkOneState : {
-				for (Arrow a : transitionGraph.outEdges(stepState)) {
+				for (AbstractArrow a : transitionGraph.outEdges(stepState)) {
 					if ((a.getSymbol() == symbol) && (a.getStackPop() == stack.peek() || a.getStackPop() == lambda)) {
 						stack.poll();
 						for (Character c : a.getStackPush().toCharArray()) {
@@ -180,7 +179,7 @@ public class DPA implements Machine {
 			input = input.substring(1);
 
 			checkOneState : {
-				for (Arrow a : transitionGraph.outEdges(s)) {
+				for (AbstractArrow a : transitionGraph.outEdges(s)) {
 					if ((a.getSymbol() == symbol) && (a.getStackPop() == stack.peek() || a.getStackPop() == lambda)) {
 						stack.poll();
 						for (Character c : a.getStackPush().toCharArray()) {
@@ -212,8 +211,8 @@ public class DPA implements Machine {
 	}
 
 	@Override
-	public boolean testUniqueTransition(Arrow transition, char symbol, char stackPop, String stackPush) {
-		for (Arrow a : transitionGraph.outEdges(transition.getTail())) {
+	public boolean testUniqueTransition(AbstractArrow transition, char symbol, char stackPop, String stackPush) {
+		for (AbstractArrow a : transitionGraph.outEdges(transition.getTail())) {
 			if (a.getSymbol() == symbol && a.getStackPop() == stackPop && a.getStackPush().equals(stackPush)) {
 				return false;
 			}
