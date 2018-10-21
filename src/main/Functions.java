@@ -174,8 +174,8 @@ public final class Functions {
 	/**
 	 * Determines whether there is a loop in the machine.
 	 * Used to determine whether a transition should be direct or bezier.
-	 * @param tail
-	 * @param head
+	 * @param tail tail node (from)
+	 * @param head head node (to)
 	 * @return
 	 */
 	public static boolean detectCycle(State tail, State head) {
@@ -191,7 +191,7 @@ public final class Functions {
 			return false;
 		} else {
 			for (AbstractArrow a : cache) {
-
+				// todo morph?
 			}
 			return true;
 		}

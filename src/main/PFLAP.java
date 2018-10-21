@@ -20,6 +20,8 @@ import controlP5.ControlFont;
 import controlP5.ControlP5;
 import controlP5.Textarea;
 
+import org.gicentre.utils.move.*;
+
 import machines.DFA;
 import machines.DPA;
 import machines.Machine;
@@ -37,6 +39,7 @@ import static main.Functions.withinRegion;
 /**
  * @author micycle1
  * @version 1.0
+ * todo existing arrow gui showing when new one added
  * remove cp5 when arrow/states deleted
  */
 public final class PFLAP {
@@ -63,6 +66,8 @@ public final class PFLAP {
 	public static Color stateColour = new Color(255, 220, 0), stateSelectedColour = new Color(0, 35, 255),
 			transitionColour = new Color(0, 0, 0), bgColour = new Color(255, 255, 255);
 
+	public static float zoom;
+
 	public static void main(String[] args) {
 		PApplet.init();
 	}
@@ -75,7 +80,6 @@ public final class PFLAP {
 	public final static class PApplet extends processing.core.PApplet {
 
 		private static final HashSet<Integer> keysDown = new HashSet<Integer>();
-		private static final HashSet<Integer> mouseDown = new HashSet<Integer>();
 		private static PFont comfortaaRegular, comfortaaBold;
 		private static State mouseOverState, arrowTailState, arrowHeadState, dragState;
 		private static AbstractArrow mouseOverTransition;
@@ -84,6 +88,7 @@ public final class PFLAP {
 		private static PVector mouseClickXY, mouseReleasedXY, mouseCoords;
 		protected static Textarea trace;
 		private static ArrayList<Command> moveCache;
+		private static ZoomPan zoomPan;
 
 		private static void init() {
 			main(PApplet.class);
@@ -103,6 +108,22 @@ public final class PFLAP {
 			surface.setTitle(Consts.title);
 			surface.setLocation(displayWidth / 2 - width / 2, displayHeight / 2 - height / 2);
 			surface.setResizable(true);
+
+			zoom = 1;
+			zoomPan = new ZoomPan(this);
+			zoomPan.setMouseMask(SHIFT);
+			zoomPan.setMaxZoomScale(3);
+			zoomPan.setMinZoomScale(0.5);
+			zoomPan.addZoomPanListener(new ZoomPanListener() {
+				@Override
+				public void zoomEnded() {
+					// TODO
+				}
+				@Override
+				public void panEnded() {
+					// TODO
+				}
+			});
 
 			FontTextParameters : {
 				try {
@@ -145,15 +166,18 @@ public final class PFLAP {
 		@SuppressWarnings("unused")
 		@Override
 		public void draw() {
-			mouseCoords = new PVector(constrain(mouseX, 0, width), constrain(mouseY, 0, height));
 			background(bgColour.getRGB());
+			zoomPan.transform();
+			zoom = (float) zoomPan.getZoomScale();
+			mouseCoords = new PVector(constrain(zoomPan.getMouseCoord().x, 0, width),
+					constrain(zoomPan.getMouseCoord().y, 0, height));
 
 			if (drawingArrow) {
-				float angle = angleBetween(mouseClickXY, new PVector(p.mouseX, p.mouseY)) + PI % TWO_PI;
+				float angle = angleBetween(mouseClickXY, new PVector(mouseCoords.x, mouseCoords.y)) + PI % TWO_PI;
 				noFill();
 				stroke(transitionColour.getRed(), transitionColour.getGreen(), transitionColour.getBlue(), 80);
 				pushMatrix();
-				translate(mouseX, mouseY);
+				translate(mouseCoords.x, mouseCoords.y);
 				rotate(angle);
 				beginShape();
 				vertex(-10, -7);
@@ -162,7 +186,7 @@ public final class PFLAP {
 				endShape();
 				popMatrix();
 				strokeWeight(2);
-				line(mouseClickXY.x, mouseClickXY.y, mouseX, mouseY);
+				line(mouseClickXY.x, mouseClickXY.y, mouseCoords.x, mouseCoords.y);
 			}
 			if (selectionBox != null) {
 				selectionBox.setEndPosition(mouseCoords);
@@ -231,9 +255,14 @@ public final class PFLAP {
 			}
 		}
 
+		protected static void setZoom(float zoom) {
+			zoomPan.reset();
+			zoomPan.setZoomScale(zoom);
+		}
+
 		private void nodeMouseOver() {
 			for (State s : nodes) {
-				if (withinRange(s.getPosition().x, s.getPosition().y, s.getRadius(), mouseX, mouseY)
+				if (withinRange(s.getPosition().x, s.getPosition().y, s.getRadius(), mouseCoords.x, mouseCoords.y)
 						|| s.isMouseOver()) {
 					mouseOverState = s;
 					return;
@@ -301,7 +330,9 @@ public final class PFLAP {
 					fullScreen = !fullScreen;
 					break;
 				case 72 : // CTRL-H
-					HistoryList.toggleVisible();
+					if (keysDown.contains(CONTROL)) {
+						HistoryList.toggleVisible(); // not synced with gui
+					}
 					break;
 				default :
 					break;
@@ -311,10 +342,9 @@ public final class PFLAP {
 
 		@Override
 		public void mousePressed(MouseEvent m) {
-			if (cp5.isMouseOver() || !allowGUIInterraction || HistoryList.isMouseOver()) {
+			if (cp5.isMouseOver() || !allowGUIInterraction || HistoryList.isMouseOver() || keysDown.contains(SHIFT)) {
 				return;
 			}
-			mouseDown.add(m.getButton());
 			mouseClickXY = mouseCoords.copy();
 			switch (m.getButton()) {
 				case LEFT :
@@ -378,7 +408,7 @@ public final class PFLAP {
 		public void mouseReleased(MouseEvent m) {
 			cursor(ARROW);
 			mouseReleasedXY = mouseCoords.copy();
-			if (cp5.isMouseOver() || (!allowGUIInterraction && dragState == null)) {
+			if (cp5.isMouseOver() || (!allowGUIInterraction && dragState == null) || keysDown.contains(SHIFT)) {
 				return;
 			}
 			arrows.forEach(a -> a.hideUI());
@@ -453,11 +483,13 @@ public final class PFLAP {
 				default :
 					break;
 			}
-			mouseDown.remove(m.getButton());
 		}
 
 		@Override
 		public void mouseDragged(MouseEvent m) {
+			if (keysDown.contains(SHIFT)) {
+				return;
+			}
 			switch (m.getButton()) {
 				case LEFT :
 					break;
@@ -468,7 +500,7 @@ public final class PFLAP {
 					}
 					break;
 				case CENTER :
-					PVector offset = new PVector(mouseX - mouseClickXY.x, mouseY - mouseClickXY.y);
+					PVector offset = new PVector(mouseCoords.x - mouseClickXY.x, mouseCoords.y - mouseClickXY.y);
 					for (State s : selected) {
 						s.setPosition(new PVector(constrain(offset.x + s.getSelectedPosition().x, 0, width),
 								constrain(offset.y + s.getSelectedPosition().y, 0, height)));

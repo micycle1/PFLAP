@@ -1,13 +1,14 @@
 package main;
 
 /**
- * Stores global constants and strings. All members are immutable.
+ * Stores global constants and strings.
+ * All members are immutable.
  */
 public final class Consts {
 
 	public static final int stateRadius = 50, WIDTH = 800, HEIGHT = 800, SBNodeRadius = 5, stateFontSize = 18,
-			initialNodeIndicatorSize = 12, transitionBezierCurve = 20, CTRL = 17, miniumWidth = 300,
-			minimumHeight = 300, selfTransitionLength = 105;
+			initialNodeIndicatorSize = 12, transitionBezierCurve = 20, miniumWidth = 300, minimumHeight = 300,
+			selfTransitionLength = 105;
 
 	public static final int notificationWidth = 275, notificationHeight = 125, notificationTextPadding = 10,
 			notificationLifetime = 240, notificationLifetimeFast = 150, notificationLifetimeVeryFast = 60;
@@ -16,7 +17,7 @@ public final class Consts {
 
 	public static final String title = "PFLAP: Processing Formal Languages and Automata Package";
 
-	public static final String directory = System.getProperty("user.dir");
+	protected static final String directory = System.getProperty("user.dir");
 
 	public static final char lambda = 'λ';
 
@@ -48,10 +49,10 @@ public final class Consts {
 	}
 
 	// @formatter:off
-	public static final String about = "PFLAP: Processing Formal Languages and Automata Package.\r\n" + 
+	protected static final String about = "PFLAP: Processing Formal Languages and Automata Package.\r\n" + 
 			"A JFLAP alternative using the Processing library as the graphics backend.",
 
-			helpPFLAP = "In PFLAP, spaces (' ') are read as lambda (blank) transitions.\r\n" +
+			helpPFLAP = "In PFLAP, spaces (' ') are read as lambda (blank) transitions.\r\n\n" +
 					"Mouse:\r\n" + 
 					"\r\n" + 
 					"Left-Click (press): Add New State / Select State.\r\n" + 
@@ -62,11 +63,17 @@ public final class Consts {
 					"Middle-Mouse (Drag): Move all selected states.\r\n" +
 					"\r\n" + 
 					"Keyboard:\r\n" + 
-					"\r\n" + 
+					"\r\n" +
+					"ESC: Exit Program.\r\n" +
 					"DEL: Delete Selected States.\r\n" + 
-					"ESC: Exit Program.\r\n";
+					"LEFT: Step Backward [Stepping Mode].\r\n" +
+					"RIGHT: Step Forward [Stepping Mode].\r\n" +
+					"CTRL-H: Toggle History List.\r\n" +
+					"CTRL-Z: Undo.\r\n" +
+					"CTRL-Y: Redo.\r\n" +
+					"F-11: Toggle Fullscreen.";
 	
-	public static final String helpStep = "Step backward and forward with the left and right arrow keys respectively.\r\n" +
+	protected static final String helpStep = "Step backward and forward with the left and right arrow keys respectively.\r\n" +
 	"Once the machine terminates, the terminating state will turn green to indicate acceptance or red to indicate the contrary.\r\n" +
 	"A pink-colored state indicates the progress of the current step procedure; this is the state the machine is currently at.\r\n" +
 	"\r\n" +

@@ -79,7 +79,7 @@ final class InitUI {
 
 		final MenuItem fileMenuItem0, fileMenuItem1, fileMenuItem2;
 		final MenuItem editMenuItem0, editMenuItem1, editMenuItem2, editMenuItem3;
-		final MenuItem viewMenuItem0, viewMenuItem1, viewMenuItem2;
+		final MenuItem viewMenuItem0, viewMenuItem1, viewMenuItem2, viewMenuItem3;
 		final CheckboxMenuItem viewMenuCheckboxItem0, viewMenuCheckboxItem1;
 		final MenuItem machineMenuItem0, machineMenuItem1, machineMenuItem2, machineMenuItem3;
 		final MenuItem inputMenuItem0, inputMenuItem1;
@@ -117,6 +117,7 @@ final class InitUI {
 		editMenuItem3 = new MenuItem("Reset");
 
 		// View Menu
+		viewMenuItem3 = new MenuItem("Reset Zoom");
 		viewMenuItem0 = new MenuItem("Save Stage As Image");
 		viewMenuItem1 = new MenuItem("Reorder States");
 		viewMenuItem1.setEnabled(false);
@@ -153,6 +154,7 @@ final class InitUI {
 		editMenu.add(editMenuItem2);
 
 		// Add view items to view menu
+		viewMenu.add(viewMenuItem3);
 		viewMenu.add(viewMenuItem0);
 		viewMenu.add(viewMenuItem1);
 		viewMenu.add(viewMenuItem2);
@@ -261,6 +263,9 @@ final class InitUI {
 			@Override
 			public void actionPerformed(ActionEvent event) {
 				switch (event.getActionCommand()) {
+					case "Reset Zoom" :
+						PFLAP.PApplet.setZoom(1);
+						break;
 					case "Save Stage As Image" :
 						FileDialog saveImage = new FileDialog(f, "Save", FileDialog.SAVE);
 						saveImage.setDirectory(Consts.directory);

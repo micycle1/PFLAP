@@ -12,23 +12,25 @@ import p5.BezierArrow;
 
 public final class addTransition implements Command {
 
-	private final AbstractArrow a;
+	private final AbstractArrow a; // todo change final if changing type
 	private final State head, tail;
 
 	public addTransition(State tail, State head) {
 		this.head = head;
 		this.tail = tail;
-		
-//		a = new BezierArrow(head, tail);
-		
+
+		// a = new BezierArrow(head, tail);
+
 		if (Functions.detectCycle(tail, head)) {
-			a = new BezierArrow(head, tail);
+			a = new BezierArrow(head, tail); // todo detect loop here? + morph existing?
 		} else {
 			if (head.equals(tail)) {
 				a = new SelfArrow(tail);
-			}
-			else {
+			} else {
 				a = new DirectArrow(head, tail); // todo detect loop here?
+				// todo when deleted, if bezier, check for loop again; and others to direct
+				// check for cycles in historyhandler when relevant commands undone
+				// or in execute & undo?
 			}
 		}
 	}
