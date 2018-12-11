@@ -51,6 +51,7 @@ public abstract class AbstractArrow implements Serializable {
 		this.head = head;
 		this.tail = tail;
 		initCP5();
+		initialEntry();
 		update();
 	}
 	
@@ -71,13 +72,14 @@ public abstract class AbstractArrow implements Serializable {
 	public final void initCP5() {
 		cp5 = new ControlP5(p);
 		cp5.setFont(cp5Font);
-		cp5.show();
+//		cp5.show(); remove
+		cp5.hide();
 		// @formatter:off
 		transitionSymbolEntry = cp5.addTextfield("Symbol Entry")
 				.setColorLabel(0)
 				.setLabel("")
 				.setSize(30, 15)
-				.setFocus(true)
+//				.setFocus(true) remove
 				.addCallback(new CallbackListener() {
 		// @formatter:on
 					@Override
@@ -136,10 +138,15 @@ public abstract class AbstractArrow implements Serializable {
 		// @formatter:on
 	}
 	
+	private final void initialEntry() {
+		cp5.show();
+		transitionSymbolEntry.setFocus(true);
+	}
+	
 	/**
 	 * Specifies behaviour when entering transition info.
 	 */
-	private void entry(entryTypes entryType) {
+	private final void entry(entryTypes entryType) {
 		transitionSymbolEntry.clear();
 		switch (entryType) {
 			case SYMBOL :
@@ -183,6 +190,7 @@ public abstract class AbstractArrow implements Serializable {
 	public final void parentKill() {
 		PFLAP.arrows.remove(this);
 		machine.removeTransition(this);
+		disableUI();
 	}
 
 	public final void kill() {
@@ -191,6 +199,7 @@ public abstract class AbstractArrow implements Serializable {
 		machine.removeTransition(this);
 		PFLAP.arrows.remove(this);
 		disableUI();
+//		cp5.dispose();
 	}
 	
 	public abstract void draw();
@@ -225,22 +234,6 @@ public abstract class AbstractArrow implements Serializable {
 		p.popMatrix();
 	}
 
-	/**
-	 * Naive approach.
-	 * Detects loops in the machine, to draw bezier transitions when needed.
-	 */
-//	private final boolean detectCycles() {
-//		for (AbstractArrow a : head.getOutgoingArrows()) {
-//			if (a.head == tail && !a.head.equals(a.tail)) {
-////				a.arrowType = arrowTypes.BEZIER; // instanceof todo
-//				// todo morph to bezier Arrow
-//				a.update(false);
-//				return true;
-//			}
-//		}
-//		return false;
-//	}
-	
 	public abstract boolean isMouseOver(PVector mousePos);
 	
 	public final void hideUI() {
@@ -261,6 +254,10 @@ public abstract class AbstractArrow implements Serializable {
 	private final void disableUI() {
 		cp5.hide();
 		cp5.setUpdate(false);
+	}
+	
+	public final void disposeUI() {
+		cp5.dispose();
 	}
 
 	public final State getHead() {

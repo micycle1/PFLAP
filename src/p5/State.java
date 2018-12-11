@@ -44,8 +44,8 @@ public class State implements Serializable {
 	private transient ControlListener listener, sizeSliderListener;
 	private transient Textfield moorePushInput;
 	private PVector position, selectedPosition;
-	private final ArrayList<AbstractArrow> arrowHeads = new ArrayList<>();
-	private final ArrayList<AbstractArrow> arrowTails = new ArrayList<>();
+	private transient ArrayList<AbstractArrow> arrowHeads = new ArrayList<>();
+	private transient ArrayList<AbstractArrow> arrowTails = new ArrayList<>();
 	private boolean initial = false;
 	private transient boolean accepting = false, selected = false, highlighted = false;
 	private int radius = stateRadius, highlightColor;
@@ -87,6 +87,8 @@ public class State implements Serializable {
 		this.liveID = liveID;
 		position = XY;
 		initCP5();
+//		arrowHeads = new ArrayList<>();
+//		arrowTails = new ArrayList<>();
 	}
 
 	public void initCP5() {
@@ -207,6 +209,10 @@ public class State implements Serializable {
 		arrowHeads.forEach(a -> a.parentKill());
 		arrowTails.forEach(a -> a.parentKill());
 	}
+	
+	public final void disposeUI() {
+		cp5.dispose();
+	}
 
 	protected void childKill(AbstractArrow a) {
 		// Transition arrows call this.
@@ -272,6 +278,11 @@ public class State implements Serializable {
 		resizeGUI.hide();
 		selected = false;
 		selectedPosition = null;
+	}
+	
+	public void load() {
+		arrowHeads = new ArrayList<>();
+		arrowTails = new ArrayList<>();
 	}
 
 	public void toggleAccepting() {

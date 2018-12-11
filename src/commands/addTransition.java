@@ -2,8 +2,10 @@ package commands;
 
 import static main.PFLAP.machine;
 
-import main.Functions;
+import java.util.HashSet;
+
 import main.PFLAP;
+
 import p5.AbstractArrow;
 import p5.DirectArrow;
 import p5.SelfArrow;
@@ -19,25 +21,38 @@ public final class addTransition implements Command {
 		this.head = head;
 		this.tail = tail;
 
-		// a = new BezierArrow(head, tail);
+		HashSet<AbstractArrow> buffer = new HashSet<>();
+		for (AbstractArrow a : head.getOutgoingArrows()) {
+			if (a.getHead().equals(tail) && !a.getHead().equals(a.getTail()) && !(a instanceof BezierArrow)) {
+				buffer.add(a);
+			}
+		}
 
-		if (Functions.detectCycle(tail, head)) {
-			a = new BezierArrow(head, tail); // todo detect loop here? + morph existing?
+		if (!buffer.isEmpty()) {
+			a = new BezierArrow(head, tail);
+			while (buffer.iterator().hasNext()) {
+				AbstractArrow replace = buffer.iterator().next();
+				BezierArrow newArrow = new BezierArrow(replace.getHead(), replace.getTail(), replace.getSymbol(),
+						replace.getStackPop(), replace.getStackPush());
+				replace.getHead().addArrowHead(newArrow);
+				replace.getTail().addArrowTail(newArrow);
+				replace.kill();
+				PFLAP.arrows.add(newArrow);
+				machine.addTransition(newArrow);
+				buffer.remove(replace);
+			}
 		} else {
 			if (head.equals(tail)) {
 				a = new SelfArrow(tail);
 			} else {
-				a = new DirectArrow(head, tail); // todo detect loop here?
-				// todo when deleted, if bezier, check for loop again; and others to direct
-				// check for cycles in historyhandler when relevant commands undone
-				// or in execute & undo?
+				a = new DirectArrow(head, tail);
 			}
 		}
 	}
 
 	@Override
 	public void execute() {
-		head.addArrowHead(a); // remove head and tail references from this class, arrow constructor calls add on head and tail
+		head.addArrowHead(a);
 		tail.addArrowTail(a);
 		if (a.getSymbol() != '\u0000') {
 			machine.addTransition(a);

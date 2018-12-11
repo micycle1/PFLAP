@@ -39,7 +39,6 @@ import static main.Functions.withinRegion;
 /**
  * @author micycle1
  * @version 1.0
- * todo existing arrow gui showing when new one added
  * remove cp5 when arrow/states deleted
  */
 public final class PFLAP {
@@ -67,9 +66,13 @@ public final class PFLAP {
 			transitionColour = new Color(0, 0, 0), bgColour = new Color(255, 255, 255);
 
 	public static float zoom;
-
+	
 	public static void main(String[] args) {
 		PApplet.init();
+	}
+	
+	public static void reset() {
+		PApplet.reset = true;
 	}
 
 	/**
@@ -84,7 +87,7 @@ public final class PFLAP {
 		private static State mouseOverState, arrowTailState, arrowHeadState, dragState;
 		private static AbstractArrow mouseOverTransition;
 		private static SelectionBox selectionBox;
-		private static boolean fullScreen = false, newState = false, drawingArrow = false;
+		private static boolean fullScreen = false, newState = false, drawingArrow = false, reset = false;
 		private static PVector mouseClickXY, mouseReleasedXY, mouseCoords;
 		protected static Textarea trace;
 		private static ArrayList<Command> moveCache;
@@ -220,11 +223,18 @@ public final class PFLAP {
 			HistoryHandler.executeBufferedCommands();
 			Notification.run();
 			Step.draw();
+			
+			if (reset) {
+				reset();
+			}
 		}
 
-		public static void reset() {
+		private static void reset() {
 			// HistoryHandler.resetAll();
+			
+			arrows.forEach(a -> a.disposeUI());
 			arrows.clear();
+			nodes.forEach(n -> n.disposeUI());
 			nodes.clear();
 			selected.clear();
 			Notification.clear();
@@ -253,6 +263,7 @@ public final class PFLAP {
 				default :
 					break;
 			}
+			reset = false;
 		}
 
 		protected static void setZoom(float zoom) {

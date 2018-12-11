@@ -249,7 +249,7 @@ final class InitUI {
 						undo.setEnabled(true);
 						break;
 					case "Reset" :
-						PFLAP.PApplet.reset();
+						PFLAP.reset();
 						HistoryHandler.resetAll();
 						break;
 					default :

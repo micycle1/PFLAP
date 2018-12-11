@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.Queue;
 
+import commands.Batch;
 import commands.Command;
 import commands.addState;
 import commands.addTransition;
@@ -125,14 +126,19 @@ public final class HistoryHandler {
 
 	@SuppressWarnings("unchecked")
 	protected static void loadHistory(String path) {
-		p.noLoop();
 		try {
 			resetAll();
-			PFLAP.PApplet.reset();
+//			PFLAP.reset();
+			p.noLoop();
 			ObjectInputStream in = new ObjectInputStream(new FileInputStream(path));
 			history.addAll((ArrayList<Command>) in.readObject());
+//			p.println(history.size()); remove
 			Queue<Command> executeLast = new LinkedList<>();
 			for (Command c : history) {
+//				p.println(history.indexOf(c), c.getClass().getName()); remove
+//				if (c instanceof Batch) {
+//					continue;
+//				}
 				if (c instanceof moveState) {
 					executeLast.add(c);
 				} else {
@@ -146,6 +152,7 @@ public final class HistoryHandler {
 					PFLAP.arrows.get(PFLAP.arrows.size() - 1).update();
 				}
 			}
+			PFLAP.arrows.forEach(a -> a.update());
 			while (!executeLast.isEmpty()) {
 				executeLast.poll().execute();
 			}

@@ -14,6 +14,7 @@ public final class addState implements Command {
 
 	@Override
 	public void execute() {
+		s.load(); // todo
 		PFLAP.nodes.add(s);
 		machine.addNode(s);
 	}

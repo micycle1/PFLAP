@@ -1,7 +1,6 @@
 package commands;
 
 import main.PFLAP;
-import main.PFLAP.PApplet;
 import p5.Notification;
 
 public class changeMode implements Command {
@@ -16,14 +15,14 @@ public class changeMode implements Command {
 	@Override
 	public void execute() {
 		PFLAP.mode = mode;
-		PApplet.reset();
+		PFLAP.reset();
 		Notification.addNotification("Mode Changed", mode + " mode selected.");
 	}
 
 	@Override
 	public void undo() {
 		PFLAP.mode = oldMode;
-		PApplet.reset();
+		PFLAP.reset();
 		Notification.addNotification("Mode Changed", mode + " mode selected.");
 	}
 

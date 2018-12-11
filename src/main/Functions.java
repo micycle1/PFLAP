@@ -171,33 +171,6 @@ public final class Functions {
 		return new Color(r, g, b).getRGB();
 	}
 
-	/**
-	 * Determines whether there is a loop in the machine.
-	 * Used to determine whether a transition should be direct or bezier.
-	 * @param tail tail node (from)
-	 * @param head head node (to)
-	 * @return
-	 */
-	public static boolean detectCycle(State tail, State head) {
-		HashSet<AbstractArrow> cache = new HashSet<>();
-		for (AbstractArrow a : head.getOutgoingArrows()) {
-			if (a.getHead().equals(tail) && !a.getHead().equals(a.getTail())) {
-				// todo change other looped to beziers/back
-				PFLAP.machine.removeTransition(a);
-				cache.add(new BezierArrow(a.getHead(), a.getTail(), a.getSymbol(), a.getStackPop(), a.getStackPush()));
-			}
-		}
-		if (cache.isEmpty()) {
-			return false;
-		} else {
-			for (AbstractArrow a : cache) {
-				// todo morph?
-			}
-			return true;
-		}
-
-	}
-
 	private Functions() {
 		throw new AssertionError();
 	}
