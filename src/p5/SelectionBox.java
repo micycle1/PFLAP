@@ -1,11 +1,10 @@
 package p5;
 
-import garciadelcastillo.dashedlines.DashedLines;
-
-import processing.core.PVector;
-
 import static main.Consts.SBNodeRadius;
 import static main.PFLAP.p;
+
+import garciadelcastillo.dashedlines.DashedLines;
+import processing.core.PVector;
 
 public final class SelectionBox {
 

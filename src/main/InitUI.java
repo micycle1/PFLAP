@@ -11,16 +11,13 @@ import java.awt.Frame;
 import java.awt.Menu;
 import java.awt.MenuBar;
 import java.awt.MenuItem;
-
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
-
 import java.lang.reflect.Field;
-
 import java.util.ArrayList;
 
 import javax.swing.JColorChooser;
@@ -29,14 +26,10 @@ import javax.swing.JOptionPane;
 import commands.Batch;
 import commands.changeMode;
 import commands.setBackgroundColor;
-
 import controlP5.ControlP5;
-
 import machines.DPA;
-
 import p5.Notification;
 import p5.State;
-
 import processing.awt.PSurfaceAWT;
 import processing.core.PFont;
 

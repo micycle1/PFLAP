@@ -1,21 +1,20 @@
 package p5;
 
+import static main.Consts.notificationHeight;
+import static main.Consts.notificationLifetime;
+import static main.Consts.notificationLifetimeFast;
+import static main.Consts.notificationLifetimeVeryFast;
+import static main.Consts.notificationTextPadding;
+import static main.Consts.notificationWidth;
+import static main.PFLAP.p;
+
+import java.util.LinkedList;
+
 import main.Consts;
 import main.Functions;
 import processing.core.PApplet;
 import processing.core.PImage;
 import processing.core.PVector;
-
-import static main.PFLAP.p;
-
-import java.util.LinkedList;
-
-import static main.Consts.notificationWidth;
-import static main.Consts.notificationHeight;
-import static main.Consts.notificationTextPadding;
-import static main.Consts.notificationLifetime;
-import static main.Consts.notificationLifetimeFast;
-import static main.Consts.notificationLifetimeVeryFast;
 
 /**
  * Handles both drawing and logic of notifications.

@@ -3,7 +3,6 @@ package p5;
 import static main.Consts.selfTransitionLength;
 import static main.Functions.angleBetween;
 import static main.PFLAP.p;
-
 import static processing.core.PApplet.cos;
 import static processing.core.PApplet.radians;
 import static processing.core.PApplet.sin;

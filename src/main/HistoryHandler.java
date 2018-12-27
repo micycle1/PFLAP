@@ -1,23 +1,22 @@
 package main;
 
+import static main.PFLAP.p;
+
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
 import java.io.IOException;
 import java.io.InvalidClassException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.Queue;
 
-import commands.Batch;
 import commands.Command;
 import commands.addState;
 import commands.addTransition;
 import commands.moveState;
 import p5.Notification;
-
-import static main.PFLAP.p;
 
 public final class HistoryHandler {
 

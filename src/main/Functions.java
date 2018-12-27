@@ -1,21 +1,20 @@
 package main;
 
-import processing.core.PApplet;
-import processing.core.PConstants;
-import processing.core.PVector;
-
+import static main.PFLAP.machine;
 import static processing.core.PApplet.pow;
 import static processing.core.PApplet.sq;
 import static processing.core.PApplet.sqrt;
 
 import java.awt.Color;
 import java.util.HashSet;
-import java.util.LinkedList;
-import java.util.Queue;
 
 import p5.AbstractArrow;
 import p5.BezierArrow;
+import p5.DirectArrow;
 import p5.State;
+import processing.core.PApplet;
+import processing.core.PConstants;
+import processing.core.PVector;
 
 /**
  * <b>Functions</b>
@@ -169,6 +168,67 @@ public final class Functions {
 		int g = c.getGreen() - (int) (c.getGreen() * percentage);
 		int b = c.getBlue() - (int) (c.getBlue() * percentage);
 		return new Color(r, g, b).getRGB();
+	}
+
+	/**
+	 * Call when there is a change in transitions (added/deleted)
+	 * to update arrow types accordingly.
+	 * @param head Head state of transition change
+	 * @param tail Tail state of transition change
+	 */
+	public static AbstractArrow transitionChange(State head, State tail) {
+		if (head.getConnectedArrows().size() == 0 || tail.getConnectedArrows().size() == 0 || head.equals(tail)) {
+			return null;
+		}
+
+		HashSet<AbstractArrow> headOut = new HashSet<>();
+		HashSet<AbstractArrow> tailOut = new HashSet<>();
+
+		for (AbstractArrow a : head.getOutgoingArrows()) {
+			if (a.getHead().equals(tail) && !a.getHead().equals(a.getTail())) {
+				headOut.add(a);
+			}
+		}
+		for (AbstractArrow a : tail.getOutgoingArrows()) {
+			if (a.getHead().equals(head) && !a.getHead().equals(a.getTail())) {
+				tailOut.add(a);
+			}
+		}
+
+		if (headOut.size() > 0 && tailOut.size() > 0) { // to bezier
+			headOut.addAll(tailOut);
+
+			while (headOut.iterator().hasNext()) {
+				AbstractArrow replace = headOut.iterator().next();
+				if (!(replace instanceof BezierArrow)) {
+					BezierArrow newArrow = new BezierArrow(replace.getHead(), replace.getTail(), replace.getSymbol(),
+							replace.getStackPop(), replace.getStackPush());
+					replace.getHead().addArrowHead(newArrow);
+					replace.getTail().addArrowTail(newArrow);
+					replace.kill(); // removes from machine and PFLAP.arrows
+					PFLAP.arrows.add(newArrow);
+					machine.addTransition(newArrow);
+				}
+				headOut.remove(replace);
+			}
+		} else { // to direct
+			headOut.addAll(tailOut);
+			
+			while (headOut.iterator().hasNext()) {
+				AbstractArrow replace = headOut.iterator().next();
+				if (!(replace instanceof DirectArrow)) {
+					DirectArrow newArrow = new DirectArrow(replace.getHead(), replace.getTail(), replace.getSymbol(),
+							replace.getStackPop(), replace.getStackPush());
+					replace.getHead().addArrowHead(newArrow);
+					replace.getTail().addArrowTail(newArrow);
+					replace.kill(); // removes from PFLAP.arrows
+					PFLAP.arrows.add(newArrow);
+					machine.addTransition(newArrow);
+				}
+				headOut.remove(replace);
+			}
+
+		}
 	}
 
 	private Functions() {

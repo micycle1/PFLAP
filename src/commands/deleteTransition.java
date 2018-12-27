@@ -5,7 +5,6 @@ import static main.PFLAP.machine;
 import java.util.HashSet;
 
 import main.PFLAP;
-
 import p5.AbstractArrow;
 import p5.BezierArrow;
 import p5.DirectArrow;
@@ -52,6 +51,7 @@ public final class deleteTransition implements Command {
 	@Override
 	public void undo() {
 		a.enableUI();
+		a.hideUI();
 		head.addArrowHead(a);
 		tail.addArrowTail(a);
 		machine.addTransition(a);

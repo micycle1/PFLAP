@@ -1,27 +1,25 @@
 package main;
 
-import java.awt.Color;
+import static main.Functions.angleBetween;
+import static main.Functions.withinRange;
+import static main.Functions.withinRegion;
 
+import java.awt.Color;
 import java.util.ArrayList;
 import java.util.HashSet;
+
+import org.gicentre.utils.move.ZoomPan;
+import org.gicentre.utils.move.ZoomPanListener;
 
 import commands.Batch;
 import commands.Command;
 import commands.addState;
-import commands.moveState;
 import commands.addTransition;
 import commands.deleteState;
-
-import processing.core.PFont;
-import processing.core.PVector;
-import processing.event.KeyEvent;
-import processing.event.MouseEvent;
+import commands.moveState;
 import controlP5.ControlFont;
 import controlP5.ControlP5;
 import controlP5.Textarea;
-
-import org.gicentre.utils.move.*;
-
 import machines.DFA;
 import machines.DPA;
 import machines.Machine;
@@ -31,15 +29,15 @@ import p5.AbstractArrow;
 import p5.Notification;
 import p5.SelectionBox;
 import p5.State;
-
-import static main.Functions.angleBetween;
-import static main.Functions.withinRange;
-import static main.Functions.withinRegion;
+import processing.core.PFont;
+import processing.core.PVector;
+import processing.event.KeyEvent;
+import processing.event.MouseEvent;
 
 /**
  * @author micycle1
- * @version 1.0
- * remove cp5 when arrow/states deleted
+ * @version 1.x
+ * remove arrow reference in addtransition command 
  */
 public final class PFLAP {
 

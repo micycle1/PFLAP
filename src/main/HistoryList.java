@@ -1,15 +1,14 @@
 package main;
 
-import controlP5.CallbackEvent;
-import controlP5.CallbackListener;
-import controlP5.ControlP5;
-import controlP5.DropdownList;
-
 import static main.PFLAP.p;
 
 import java.awt.Color;
 
 import commands.Command;
+import controlP5.CallbackEvent;
+import controlP5.CallbackListener;
+import controlP5.ControlP5;
+import controlP5.DropdownList;
 
 /**
  * Manages the controlP5 representation of the user's action history.

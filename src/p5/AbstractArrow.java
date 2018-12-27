@@ -1,11 +1,17 @@
 package p5;
 
+import static main.Consts.notificationData.symbolInvalid;
+import static main.Consts.notificationData.transitionInvalid;
+import static main.Functions.testForLambda;
+import static main.PFLAP.cp5Font;
+import static main.PFLAP.machine;
+import static main.PFLAP.p;
+
 import java.io.Serializable;
 
 import commands.Command;
 import commands.deleteTransition;
 import commands.modifyTransition;
-
 import controlP5.CallbackEvent;
 import controlP5.CallbackListener;
 import controlP5.ControlEvent;
@@ -13,21 +19,10 @@ import controlP5.ControlListener;
 import controlP5.ControlP5;
 import controlP5.ListBox;
 import controlP5.Textfield;
-
 import main.Functions;
 import main.HistoryHandler;
 import main.PFLAP;
-
 import processing.core.PVector;
-
-import static main.Consts.notificationData.symbolInvalid;
-import static main.Consts.notificationData.transitionInvalid;
-
-import static main.Functions.testForLambda;
-
-import static main.PFLAP.cp5Font;
-import static main.PFLAP.machine;
-import static main.PFLAP.p;
 
 public abstract class AbstractArrow implements Serializable {
 	
@@ -173,6 +168,8 @@ public abstract class AbstractArrow implements Serializable {
 
 		if (machine.testUniqueTransition(this, transitionSymbol, stackPop, stackPush)) {
 			machine.addTransition(this);
+			Functions.transitionChange(head, tail); // todo
+			
 			PFLAP.allowGUIInterraction = true;
 			transitionSymbolEntry.hide();
 			if (modifyBuffer != null) {

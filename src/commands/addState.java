@@ -1,8 +1,9 @@
 package commands;
 
+import static main.PFLAP.machine;
+
 import main.PFLAP;
 import p5.State;
-import static main.PFLAP.machine;
 
 public final class addState implements Command {
 

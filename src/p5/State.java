@@ -1,12 +1,19 @@
 package p5;
 
+import static main.Consts.initialNodeIndicatorSize;
+import static main.Consts.stateRadius;
+import static main.PFLAP.cp5Font;
+import static main.PFLAP.machine;
+import static main.PFLAP.p;
+import static main.PFLAP.stateColour;
+import static main.PFLAP.stateSelectedColour;
+
 import java.io.Serializable;
 import java.util.ArrayList;
 
 import commands.addTransition;
 import commands.setInitialState;
 import commands.toggleAccepting;
-
 import controlP5.CallbackEvent;
 import controlP5.CallbackListener;
 import controlP5.ControlEvent;
@@ -15,25 +22,14 @@ import controlP5.ControlP5;
 import controlP5.ListBox;
 import controlP5.Slider;
 import controlP5.Textfield;
-
-import processing.core.PApplet;
-import processing.core.PGraphics;
-import processing.core.PVector;
-
 import main.Consts;
 import main.Functions;
 import main.HistoryHandler;
 import main.PFLAP;
 import main.PFLAP.modes;
-
-import static main.Consts.stateRadius;
-import static main.Consts.initialNodeIndicatorSize;
-
-import static main.PFLAP.p;
-import static main.PFLAP.stateColour;
-import static main.PFLAP.stateSelectedColour;
-import static main.PFLAP.machine;
-import static main.PFLAP.cp5Font;
+import processing.core.PApplet;
+import processing.core.PGraphics;
+import processing.core.PVector;
 
 public class State implements Serializable {
 

@@ -8,7 +8,6 @@ import com.google.common.collect.Table;
 
 import main.Consts;
 import main.Step;
-
 import p5.AbstractArrow;
 import p5.Notification;
 import p5.State;

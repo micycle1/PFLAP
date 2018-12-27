@@ -1,21 +1,20 @@
 package machines;
 
+import static main.Consts.lambda;
+
 import java.util.LinkedList;
 import java.util.Queue;
 
 import com.google.common.graph.MutableNetwork;
 import com.google.common.graph.NetworkBuilder;
 
+import controlP5.Toggle;
 import main.Functions;
 import main.PFLAP;
 import main.Step;
 import p5.AbstractArrow;
 import p5.Notification;
 import p5.State;
-
-import controlP5.Toggle;
-
-import static main.Consts.lambda;
 
 /**
  * <p><b> Deterministic Pushdown Automaton</b>

@@ -1,13 +1,7 @@
 package p5;
 
-import main.Functions;
-
-import processing.core.PApplet;
-import processing.core.PVector;
-
 import static main.Functions.angleBetween;
 import static main.PFLAP.p;
-
 import static processing.core.PApplet.abs;
 import static processing.core.PApplet.cos;
 import static processing.core.PApplet.dist;
@@ -15,6 +9,10 @@ import static processing.core.PApplet.map;
 import static processing.core.PApplet.sin;
 import static processing.core.PConstants.PI;
 import static processing.core.PConstants.TWO_PI;
+
+import main.Functions;
+import processing.core.PApplet;
+import processing.core.PVector;
 
 public class DirectArrow extends AbstractArrow {
 
