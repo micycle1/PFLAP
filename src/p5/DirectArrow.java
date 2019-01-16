@@ -47,7 +47,7 @@ public class DirectArrow extends AbstractArrow {
 
 		directHead = new PVector(head.getPosition().x + head.getRadius() * -0.5f * cos(theta1),
 				head.getPosition().y + head.getRadius() * -0.5f * sin(theta1));
-		transitionSymbolEntry.setPosition(midPoint.x - transitionSymbolEntry.getWidth() / 2, midPoint.y + 10);
+//		transitionSymbolEntry.setPosition(midPoint.x - transitionSymbolEntry.getWidth() / 2, midPoint.y + 10);
 		stateOptions.setPosition(midPoint.x, midPoint.y + 20);
 	}
 

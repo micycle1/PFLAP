@@ -121,7 +121,7 @@ public class State implements Serializable {
 				switch ((int) optionSelected.getValue()) {
 					case 0 : // Add Self-Transition
 						PFLAP.allowGUIInterraction = false;
-						HistoryHandler.buffer(new addTransition(State.this, State.this));
+//						HistoryHandler.buffer(new addTransition(State.this, State.this)); // todo 
 						break;
 					case 1 : // Set As Initial
 						HistoryHandler.buffer(new setInitialState(State.this));
@@ -196,7 +196,7 @@ public class State implements Serializable {
 
 	public void kill() {
 		for (AbstractArrow a : arrowHeads) {
-			machine.removeTransition(a);
+//			machine.removeTransition(a); // todo
 		}
 		machine.deleteNode(this);
 		if (initial) {

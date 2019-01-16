@@ -36,7 +36,7 @@ public class BezierArrow extends AbstractArrow {
 		arrowTipAngle = angleBetween(head.getPosition(), bezierApex);
 		arrowTip = new PVector(head.getPosition().x + (head.getRadius() + 2) * -0.5f * cos(arrowTipAngle),
 				head.getPosition().y + (head.getRadius() + 2) * -0.5f * sin(arrowTipAngle));
-		transitionSymbolEntry.setPosition(bezierApex.x - transitionSymbolEntry.getWidth() / 2, bezierApex.y + 10);
+//		transitionSymbolEntry.setPosition(bezierApex.x - transitionSymbolEntry.getWidth() / 2, bezierApex.y + 10);
 		stateOptions.setPosition(bezierApex.x, bezierApex.y + 10);
 	}
 

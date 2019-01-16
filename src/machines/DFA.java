@@ -11,6 +11,7 @@ import main.Step;
 import p5.AbstractArrow;
 import p5.Notification;
 import p5.State;
+import transitionView.LogicalTransition;
 
 /**
  * <p>
@@ -44,11 +45,11 @@ public class DFA implements Machine {
 	public void deleteNode(State s) {
 	}
 
-	public void addTransition(AbstractArrow a) {
+	public void addTransition(LogicalTransition a) {
 		transitionTable.put(a.getTail(), a.getSymbol(), a.getHead());
 	}
 
-	public void removeTransition(AbstractArrow a) {
+	public void removeTransition(LogicalTransition a) {
 		transitionTable.remove(a.getTail(), a.getSymbol());
 	}
 
@@ -132,8 +133,8 @@ public class DFA implements Machine {
 	}
 
 	@Override
-	public boolean testUniqueTransition(AbstractArrow transition, char symbol, char stackPop, String stackPush) {
-		return !transitionTable.contains(transition.getTail(), symbol);
+	public boolean assureUniqueTransition(LogicalTransition transition) {
+		return !transitionTable.contains(transition.getTail(), transition.getSymbol());
 	}
 
 }

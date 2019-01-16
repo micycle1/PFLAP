@@ -1,7 +1,7 @@
 package machines;
 
-import p5.AbstractArrow;
 import p5.State;
+import transitionView.LogicalTransition;
 
 public interface Machine {
 	
@@ -13,8 +13,8 @@ public interface Machine {
 	void setInitialState(State s);
 	State getInitialState();
 
-	void addTransition(AbstractArrow a); //infer transtion from arrow based on machine type
-	void removeTransition(AbstractArrow a); //infer transtion from arrow based on machine type
+	void addTransition(LogicalTransition a); //infer transtion from arrow based on machine type
+	void removeTransition(LogicalTransition a); //infer transtion from arrow based on machine type
 
 	void beginStep(String input);
 	boolean run(String input);
@@ -31,5 +31,5 @@ public interface Machine {
 	 */
 	void stepBackward(State s, String input);
 	
-	boolean testUniqueTransition(AbstractArrow transition, char symbol, char stackPop, String stackPush);
+	boolean assureUniqueTransition(LogicalTransition transition);
 }

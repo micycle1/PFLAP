@@ -15,6 +15,7 @@ import main.Step;
 import p5.AbstractArrow;
 import p5.Notification;
 import p5.State;
+import transitionView.LogicalTransition;
 
 /**
  * <p><b> Deterministic Pushdown Automaton</b>
@@ -25,7 +26,7 @@ public class DPA implements Machine {
 
 	private Queue<Character> stack, previousStack;
 	private State initial, stepState;
-	private final MutableNetwork<State, AbstractArrow> transitionGraph;
+	private final MutableNetwork<State, LogicalTransition> transitionGraph;
 	private Character initialStackSymbol;
 	private String stepInput;
 	private static final Toggle toggleAcceptByStackEmpty, toggleAcceptByAcceptState;
@@ -104,12 +105,12 @@ public class DPA implements Machine {
 	}
 
 	@Override
-	public void addTransition(AbstractArrow a) {
+	public void addTransition(LogicalTransition a) {
 		transitionGraph.addEdge(a.getTail(), a.getHead(), a);
 	}
 
 	@Override
-	public void removeTransition(AbstractArrow a) {
+	public void removeTransition(LogicalTransition a) {
 		transitionGraph.removeEdge(a);
 	}
 
@@ -131,7 +132,7 @@ public class DPA implements Machine {
 			char symbol = stepInput.charAt(0);
 			stepInput = stepInput.substring(1);
 			checkOneState : {
-				for (AbstractArrow a : transitionGraph.outEdges(stepState)) {
+				for (LogicalTransition a : transitionGraph.outEdges(stepState)) {
 					if ((a.getSymbol() == symbol) && (a.getStackPop() == stack.peek() || a.getStackPop() == lambda)) {
 						stack.poll();
 						for (Character c : a.getStackPush().toCharArray()) {
@@ -178,7 +179,7 @@ public class DPA implements Machine {
 			input = input.substring(1);
 
 			checkOneState : {
-				for (AbstractArrow a : transitionGraph.outEdges(s)) {
+				for (LogicalTransition a : transitionGraph.outEdges(s)) {
 					if ((a.getSymbol() == symbol) && (a.getStackPop() == stack.peek() || a.getStackPop() == lambda)) {
 						stack.poll();
 						for (Character c : a.getStackPush().toCharArray()) {
@@ -210,8 +211,8 @@ public class DPA implements Machine {
 	}
 
 	@Override
-	public boolean testUniqueTransition(AbstractArrow transition, char symbol, char stackPop, String stackPush) {
-		for (AbstractArrow a : transitionGraph.outEdges(transition.getTail())) {
+	public boolean assureUniqueTransition(LogicalTransition transition, char symbol, char stackPop, String stackPush) {
+		for (LogicalTransition a : transitionGraph.outEdges(transition.getTail())) {
 			if (a.getSymbol() == symbol && a.getStackPop() == stackPop && a.getStackPush().equals(stackPush)) {
 				return false;
 			}

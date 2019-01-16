@@ -19,7 +19,8 @@ public class SelfArrow extends AbstractArrow {
 
 	public SelfArrow(State s) {
 		super(s, s);
-		selfTransitionAngle = radians((PFLAP.arrows.size() * 50));
+//		selfTransitionAngle = radians((PFLAP.arrows.size() * 50)); todo
+		selfTransitionAngle = radians((2 * 50));
 		update();
 	}
 
@@ -40,8 +41,8 @@ public class SelfArrow extends AbstractArrow {
 						+ 15 * sin(selfTransitionAngle),
 				p.bezierPoint(head.getPosition().y, selfBezierCP1.y, selfBezierCP2.y, head.getPosition().y, 0.5f)
 						+ 15 * cos(selfTransitionAngle));
-		transitionSymbolEntry.setPosition(selfBezierTextLoc.x - transitionSymbolEntry.getWidth() / 2,
-				selfBezierTextLoc.y + 10);
+//		transitionSymbolEntry.setPosition(selfBezierTextLoc.x - transitionSymbolEntry.getWidth() / 2,
+//				selfBezierTextLoc.y + 10);
 		stateOptions.setPosition(selfBezierTextLoc.x, selfBezierTextLoc.y + 10);
 	}
 
