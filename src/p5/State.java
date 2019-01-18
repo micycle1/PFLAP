@@ -2,6 +2,7 @@ package p5;
 
 import static main.Consts.initialNodeIndicatorSize;
 import static main.Consts.stateRadius;
+
 import static main.PFLAP.cp5Font;
 import static main.PFLAP.machine;
 import static main.PFLAP.p;
@@ -9,11 +10,10 @@ import static main.PFLAP.stateColour;
 import static main.PFLAP.stateSelectedColour;
 
 import java.io.Serializable;
-import java.util.ArrayList;
 
-import commands.addTransition;
 import commands.setInitialState;
 import commands.toggleAccepting;
+
 import controlP5.CallbackEvent;
 import controlP5.CallbackListener;
 import controlP5.ControlEvent;
@@ -22,11 +22,13 @@ import controlP5.ControlP5;
 import controlP5.ListBox;
 import controlP5.Slider;
 import controlP5.Textfield;
+
 import main.Consts;
 import main.Functions;
 import main.HistoryHandler;
 import main.PFLAP;
 import main.PFLAP.modes;
+
 import processing.core.PApplet;
 import processing.core.PGraphics;
 import processing.core.PVector;
@@ -40,8 +42,6 @@ public class State implements Serializable {
 	private transient ControlListener listener, sizeSliderListener;
 	private transient Textfield moorePushInput;
 	private PVector position, selectedPosition;
-	private transient ArrayList<AbstractArrow> arrowHeads = new ArrayList<>(); // todo remove (since view contains map of connections)
-	private transient ArrayList<AbstractArrow> arrowTails = new ArrayList<>();
 	private boolean initial = false;
 	private transient boolean accepting = false, selected = false, highlighted = false;
 	private int radius = stateRadius, highlightColor;
@@ -83,8 +83,6 @@ public class State implements Serializable {
 		this.liveID = liveID;
 		position = XY;
 		initCP5();
-//		arrowHeads = new ArrayList<>();
-//		arrowTails = new ArrayList<>();
 	}
 
 	public void initCP5() {
@@ -108,8 +106,6 @@ public class State implements Serializable {
 			@Override
 			public void controlEvent(ControlEvent radiusChange) {
 				radius = (int) sizeSlider.getValue();
-				arrowHeads.forEach(a -> a.update());
-				arrowTails.forEach(a -> a.update());
 			}
 		};
 		sizeSlider.addListener(sizeSliderListener);
@@ -195,28 +191,14 @@ public class State implements Serializable {
 	}
 
 	public void kill() {
-		for (AbstractArrow a : arrowHeads) {
-//			machine.removeTransition(a); // todo
-		}
 		machine.deleteNode(this);
 		if (initial) {
 			machine.setInitialState(null);
 		}
-		arrowHeads.forEach(a -> a.parentKill());
-		arrowTails.forEach(a -> a.parentKill());
 	}
 	
 	public final void disposeUI() {
 		cp5.dispose();
-	}
-
-	protected void childKill(AbstractArrow a) {
-		// Transition arrows call this.
-		if (arrowHeads.contains(a)) {
-			arrowHeads.remove(a);
-		} else {
-			arrowTails.remove(a);
-		}
 	}
 
 	public void draw() {
@@ -259,8 +241,6 @@ public class State implements Serializable {
 		this.position = position;
 		cp5.setPosition((int) this.position.x + 10, (int) this.position.y + 10);
 		resizeGUI.setPosition((int) (position.x) - 50, (int) (position.y));
-		arrowHeads.forEach(a -> a.update());
-		arrowTails.forEach(a -> a.update());
 	}
 
 	public void select() {
@@ -276,11 +256,6 @@ public class State implements Serializable {
 		selectedPosition = null;
 	}
 	
-	public void load() {
-		arrowHeads = new ArrayList<>();
-		arrowTails = new ArrayList<>();
-	}
-
 	public void toggleAccepting() {
 		accepting = !accepting;
 	}
@@ -289,17 +264,6 @@ public class State implements Serializable {
 		this.highlightColor = highlightColor;
 		highlighted = true;
 		deselect();
-	}
-
-	public ArrayList<AbstractArrow> getConnectedArrows() {
-		ArrayList<AbstractArrow> all = new ArrayList<>();
-		all.addAll(arrowHeads);
-		all.addAll(arrowTails);
-		return all;
-	}
-
-	public ArrayList<AbstractArrow> getOutgoingArrows() {
-		return arrowTails;
 	}
 
 	public PVector getPosition() {
@@ -332,14 +296,6 @@ public class State implements Serializable {
 
 	public int getID() {
 		return liveID;
-	}
-
-	public void addArrowHead(AbstractArrow a) {
-		arrowHeads.add(a);
-	}
-
-	public void addArrowTail(AbstractArrow a) {
-		arrowTails.add(a);
 	}
 
 	private void hideUI() {

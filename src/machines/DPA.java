@@ -9,19 +9,20 @@ import com.google.common.graph.MutableNetwork;
 import com.google.common.graph.NetworkBuilder;
 
 import controlP5.Toggle;
+
 import main.Functions;
 import main.PFLAP;
 import main.Step;
-import p5.AbstractArrow;
+
 import p5.Notification;
 import p5.State;
+
 import transitionView.LogicalTransition;
 
 /**
  * <p><b> Deterministic Pushdown Automaton</b>
  * <p> Accepts on accept state or stack empty.
  */
-
 public class DPA implements Machine {
 
 	private Queue<Character> stack, previousStack;
@@ -211,12 +212,14 @@ public class DPA implements Machine {
 	}
 
 	@Override
-	public boolean assureUniqueTransition(LogicalTransition transition, char symbol, char stackPop, String stackPush) {
-		for (LogicalTransition a : transitionGraph.outEdges(transition.getTail())) {
-			if (a.getSymbol() == symbol && a.getStackPop() == stackPop && a.getStackPush().equals(stackPush)) {
+	public boolean assureUniqueTransition(LogicalTransition t) {
+		for (LogicalTransition a : transitionGraph.outEdges(t.getTail())) {
+			if (a.getSymbol() == t.getSymbol() && a.getStackPop() == t.getStackPop() && a.getStackPush().equals(t.getStackPush())) {
 				return false;
 			}
 		}
 		return true;
 	}
+	
+	
 }

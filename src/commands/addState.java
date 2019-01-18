@@ -2,14 +2,14 @@ package commands;
 
 import static main.PFLAP.machine;
 
-import main.PFLAP;
-import static main.PFLAP.p;
+import main.PFLAP.PApplet;
+
 import p5.State;
-import transitionView.View;
 
 public final class addState implements Command {
 
 	private final State s;
+	private transient boolean initial = true;
 
 	public addState(State s) {
 		this.s = s;
@@ -17,16 +17,18 @@ public final class addState implements Command {
 
 	@Override
 	public void execute() {
-		s.load(); // todo
+		if (!initial) {
+			s.initCP5();  // re-create cp5 after load
+			initial = true;
+		}
 		machine.addNode(s);
-		p.view.addState(s);
+		PApplet.view.addState(s);
 	}
 
 	@Override
 	public void undo() {
-		s.kill();
-		s.deselect();
-//		PFLAP.nodes.remove(s);
+		// if was initial, restore
+		PApplet.view.deleteState(s);
 	}
 
 	@Override

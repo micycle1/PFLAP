@@ -35,7 +35,7 @@ PFLAP
 ## Tasks
 - [x] Implement Save/Load of machine configuration.
 - [ ] Visualise DPA machine stack (in stepping mode).
-- [ ] Collapse multiple transitions between the same pair of states into a single transition.
+- [x] Collapse multiple transitions between the same pair of states into a single transition.
 - [ ] Batch input for fast-run mode.
 - [x] Implement Moore and Mealy machines
 

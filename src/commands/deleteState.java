@@ -2,32 +2,31 @@ package commands;
 
 import static main.PFLAP.machine;
 
+import java.util.ArrayList;
+
 import main.PFLAP;
 import p5.State;
+import transitionView.LogicalTransition;
 
 public final class deleteState implements Command {
 
 	private final State s;
-	private final Batch affectedTransitions;
+	private final ArrayList<LogicalTransition> affectedTransitions;
 
 	public deleteState(State s) {
 		this.s = s;
-		affectedTransitions = new Batch(Batch.createDeleteTransitionBatch(s.getConnectedArrows()));
+		affectedTransitions = PFLAP.PApplet.view.getConnectingTransitions(s);
 	}
 
 	@Override
 	public void execute() {
-		affectedTransitions.execute();
-		s.kill();
-		s.deselect();
-		PFLAP.nodes.remove(s);
+		PFLAP.PApplet.view.deleteState(s);
 	}
 
 	@Override
 	public void undo() {
-		machine.addNode(s);
-		PFLAP.nodes.add(s);
-		affectedTransitions.undo();
+		PFLAP.PApplet.view.addState(s);
+		PFLAP.PApplet.view.addTransitions(affectedTransitions);
 	}
 
 	@Override

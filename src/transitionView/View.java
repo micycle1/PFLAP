@@ -7,14 +7,13 @@ import static processing.core.PApplet.constrain;
 import static processing.core.PConstants.CENTER;
 
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedList;
 
 import com.google.common.graph.MutableNetwork;
 import com.google.common.graph.NetworkBuilder;
 
 import commands.addState;
-import commands.addTransition;
 
 import main.Consts;
 import main.HistoryHandler;
@@ -28,6 +27,7 @@ import p5.SelfArrow;
 import p5.State;
 
 import processing.core.PApplet;
+import processing.core.PConstants;
 import processing.core.PVector;
 
 /**
@@ -37,13 +37,12 @@ import processing.core.PVector;
 public final class View {
 
 	private MutableNetwork<State, LogicalTransition> transitionGraph; // logical transitions
-	private AbstractArrow cache; // most recently added transition
 
 	private ArrayList<AbstractArrow> liveTransitions; // rendered transitions (type of transition) or hashmap of tail state to transition
-	private HashMap<State, ArrayList<AbstractArrow>> liveTransitions1; // rendered transitions (type of transition) or hashmap of tail state to transition
+//	private HashMap<State, ArrayList<AbstractArrow>> liveTransitions1; // rendered transitions (type of transition) or hashmap of tail state to transition
 	// private BiMap<LogicalTransition, AbstractArrow> mapping = HashBiMap.create();
 
-	private ArrayList<State> states = new ArrayList<>();
+	private ArrayList<State> states = new ArrayList<>(); // todo use transitionGraph.nodes? 
 
 	private PApplet p;
 
@@ -58,12 +57,32 @@ public final class View {
 
 	public void addTransition(LogicalTransition t) {
 		transitionGraph.addEdge(t.tail, t.head, t);
-		HistoryHandler.buffer(new addTransition(t)); // todo buffer here?
+		rebuild();
+	}
+	
+	/**
+	 * Called from undoing deleteTransition command.
+	 */
+	public void addTransitions(ArrayList<LogicalTransition> transitions) {
+		for (LogicalTransition t : transitions) {
+			transitionGraph.addEdge(t.tail, t.head, t);
+		}
+		rebuild();
+	}
+	
+	/**
+	 * Called from undoing addTransition command.
+	 */
+	public void deleteTransition(LogicalTransition t) {
+		transitionGraph.removeEdge(t);
 		rebuild();
 	}
 
-	public void deleteTransition(AbstractArrow a) {
-		for (LogicalTransition t : a.transitions) {
+	/**
+	 * Called from UI deleting.
+	 */
+	public void deleteTransition(ArrayList<LogicalTransition> transitions) {
+		for (LogicalTransition t : transitions) {
 			transitionGraph.removeEdge(t); // delete all transitions it represented
 		}
 		rebuild();
@@ -72,6 +91,22 @@ public final class View {
 	public void addState(State s) {
 		transitionGraph.addNode(s);
 		states.add(s);
+		rebuild();
+	}
+	
+	public void deleteState(State s) {
+		transitionGraph.removeNode(s);
+		states.remove(s);
+		rebuild();
+	}
+	
+	public void moveState(State s, PVector pos) {
+		s.setPosition(pos);
+		liveTransitions.forEach(t -> t.update());
+	}
+	
+	public ArrayList<LogicalTransition> getConnectingTransitions(State s) {
+		return new ArrayList<>(transitionGraph.incidentEdges(s));
 	}
 
 	public void entryArrow(State head, State tail) {
@@ -108,17 +143,6 @@ public final class View {
 		liveTransitions.forEach(t -> t.update());
 	}
 
-	@Deprecated
-	public void undoAddTransition() {
-		cache.kill();
-		liveTransitions.remove(cache);
-	}
-
-	@Deprecated
-	public void redo() {
-		liveTransitions.add(cache);
-	}
-
 	public void draw() {
 		p.textAlign(CENTER, CENTER);
 		p.noFill();
@@ -126,6 +150,7 @@ public final class View {
 		p.stroke(PFLAP.transitionColour.getRGB()); // todo
 		p.textSize(18);
 		// p.textFont(comfortaaRegular); // todo
+		p.textAlign(PConstants.CENTER, PConstants.BOTTOM);
 		liveTransitions.forEach(t -> t.draw());
 		if (entryArrow != null) {
 			if (entryArrow.dispose) {
@@ -168,8 +193,8 @@ public final class View {
 		}
 	}
 
-	public ArrayList<State> getSelectedStates() {
-		ArrayList<State> selected = new ArrayList<>();
+	public HashSet<State> getSelectedStates() {
+		HashSet<State> selected = new HashSet<>();
 		for (State state : states) {
 			if (state.isSelected()) {
 				selected.add(state);
@@ -187,6 +212,7 @@ public final class View {
 	 * todo Rebuild only those that are affected?
 	 */
 	private void rebuild() {
+		liveTransitions.forEach(t -> t.disposeUI());
 		liveTransitions.clear();
 		LinkedList<LogicalTransition> edges = new LinkedList<>(transitionGraph.edges());
 

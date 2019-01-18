@@ -58,8 +58,8 @@ public class DirectArrow extends AbstractArrow {
 		p.pushMatrix();
 		p.translate(directTail.x, directTail.y);
 		p.rotate(labelRotationOffset);
-
 		p.textSize(textSize);
+		p.textLeading(textSize/1.5f);
 		drawTransitionLabel(new PVector(
 				labelRotationModifier * dist(directTail.x, directTail.y, directHead.x, directHead.y) / 2, 10));
 		p.popMatrix();

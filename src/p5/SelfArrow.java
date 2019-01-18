@@ -2,13 +2,13 @@ package p5;
 
 import static main.Consts.selfTransitionLength;
 import static main.Functions.angleBetween;
+import static main.Functions.withinRange;
 import static main.PFLAP.p;
+
 import static processing.core.PApplet.cos;
 import static processing.core.PApplet.radians;
 import static processing.core.PApplet.sin;
 
-import main.Functions;
-import main.PFLAP;
 import processing.core.PVector;
 
 public class SelfArrow extends AbstractArrow {
@@ -58,7 +58,7 @@ public class SelfArrow extends AbstractArrow {
 
 	@Override
 	public boolean isMouseOver(PVector mousePos) {
-		return Functions.withinRange(selfBezierTextLoc.x, selfBezierTextLoc.y, textSize * 2, mousePos.x, mousePos.y)
+		return withinRange(selfBezierTextLoc.x, selfBezierTextLoc.y, textSize * 2, mousePos.x, mousePos.y)
 				|| cp5.isMouseOver();
 	}
 }

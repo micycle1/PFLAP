@@ -1,5 +1,6 @@
 package commands;
 
+import main.PFLAP;
 import p5.State;
 import processing.core.PVector;
 
@@ -13,7 +14,6 @@ public final class moveState implements Command {
 		this.s = s;
 		oldPos = oldPosition;
 		newPos = s.getPosition();
-		// use state selected position
 	}
 	
 	public void updatePos() {
@@ -22,12 +22,12 @@ public final class moveState implements Command {
 	
 	@Override
 	public void execute() {
-		s.setPosition(newPos);
+		PFLAP.PApplet.view.moveState(s, newPos);
 	}
 
 	@Override
 	public void undo() {
-		s.setPosition(oldPos);
+		PFLAP.PApplet.view.moveState(s, oldPos);
 	}
 
 	@Override

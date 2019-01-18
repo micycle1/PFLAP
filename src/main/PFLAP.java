@@ -1,9 +1,6 @@
 package main;
 
 import static main.Functions.angleBetween;
-import static main.Functions.withinRange;
-import static main.Functions.withinRegion;
-
 import java.awt.Color;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -13,9 +10,6 @@ import org.gicentre.utils.move.ZoomPanListener;
 
 import commands.Batch;
 import commands.Command;
-import commands.addState;
-import commands.addTransition;
-import commands.deleteState;
 import commands.moveState;
 
 import controlP5.ControlFont;
@@ -29,7 +23,6 @@ import machines.Mealy;
 import machines.Moore;
 
 import p5.AbstractArrow;
-import p5.EntryArrow;
 import p5.Notification;
 import p5.SelectionBox;
 import p5.State;
@@ -42,9 +35,9 @@ import processing.event.MouseEvent;
 import transitionView.View;
 
 /**
+ * sync view with machine
  * @author micycle1
  * @version 1.x
- * arrows need a set of transitions they represent
  */
 public final class PFLAP {
 
@@ -90,8 +83,8 @@ public final class PFLAP {
 		private static boolean fullScreen = false, newState = false, drawingArrow = false, reset = false;
 		private static PVector mouseClickXY, mouseReleasedXY, mouseCoords;
 		protected static Textarea trace;
-		private static ArrayList<Command> moveCache;
 		private static ZoomPan zoomPan;
+		private static ArrayList<Command> multiMoveCache; 
 
 		public static View view;
 
@@ -102,7 +95,7 @@ public final class PFLAP {
 		@Override
 		public void settings() {
 			size(Consts.WIDTH, Consts.HEIGHT);
-//			size(Consts.WIDTH, Consts.HEIGHT, FX2D);
+			// size(Consts.WIDTH, Consts.HEIGHT, FX2D);
 			smooth(4);
 		}
 
@@ -130,7 +123,7 @@ public final class PFLAP {
 					// TODO show new zoom GUI
 				}
 			});
-			
+
 			FontTextParameters : {
 				try {
 					surface.setIcon(loadImage("icon_small.png"));
@@ -200,10 +193,6 @@ public final class PFLAP {
 				selectionBox.draw();
 			}
 
-			drawTransitions : {
-				view.draw();
-			}
-
 			if (dragState != null) {
 				view.dragging(dragState, mouseCoords);
 			}
@@ -211,6 +200,7 @@ public final class PFLAP {
 			HistoryHandler.executeBufferedCommands();
 			Notification.run();
 			Step.draw();
+			view.draw();
 
 			if (reset) {
 				reset();
@@ -225,7 +215,7 @@ public final class PFLAP {
 			view.reset();
 			// nodes.forEach(n -> n.disposeUI());
 			// nodes.clear();
-//			selected.clear();
+			// selected.clear();
 			Notification.clear();
 			Step.endStep();
 			mouseOverState = null;
@@ -289,14 +279,14 @@ public final class PFLAP {
 			}
 			switch (key.getKeyCode()) {
 				case 127 : // 127 == delete key
-//					if (!selected.isEmpty()) {
-//						if (selected.size() == 1) {
-//							HistoryHandler.buffer(new deleteState(selected.iterator().next()));
-//						} else {
-//							HistoryHandler.buffer(new Batch(Batch.createDeleteBatch(selected)));
-//						}
-//						selected.clear();
-//					}
+					// if (!selected.isEmpty()) {
+					// if (selected.size() == 1) {
+					// HistoryHandler.buffer(new deleteState(selected.iterator().next()));
+					// } else {
+					// HistoryHandler.buffer(new Batch(Batch.createDeleteBatch(selected)));
+					// }
+					// selected.clear();
+					// }
 					break;
 				case 122 : // F11
 					if (fullScreen) {
@@ -365,9 +355,7 @@ public final class PFLAP {
 					}
 					break;
 				case CENTER :
-//					if (!selected.isEmpty()) {
-//						moveCache = Batch.createMoveBatch(selected);
-//					}
+					 multiMoveCache = Batch.createMoveBatch(view.getSelectedStates());
 					break;
 				default :
 					break;
@@ -426,19 +414,11 @@ public final class PFLAP {
 					break;
 
 				case CENTER :
-//					if (!selected.isEmpty() && !mouseClickXY.equals(mouseReleasedXY)) {
-//						selected.forEach(s -> s.select());
-//						moveCache.forEach(c -> ((moveState) c).updatePos());
-//						HistoryHandler.buffer(new Batch(moveCache));
-//					}
-					for (State s : view.getSelectedStates()) {
-						s.select(); // re-do selected position
+					if (!multiMoveCache.isEmpty() && !mouseClickXY.equals(mouseReleasedXY)) {
+						multiMoveCache.forEach(c -> ((moveState) c).updatePos());
+						HistoryHandler.buffer(new Batch(multiMoveCache));
 					}
-//					HistoryHandler.buffer(new Batch(moveCache));
-					
-					// todo update selected position
 					break;
-
 				default :
 					break;
 			}
@@ -467,14 +447,6 @@ public final class PFLAP {
 				default :
 					break;
 			}
-		}
-
-		@Override
-		public void exit() {
-			/**
-			 * Finish-up
-			 */
-			super.exit();
 		}
 	}
 }

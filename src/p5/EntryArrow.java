@@ -2,31 +2,31 @@ package p5;
 
 import static main.Consts.notificationData.symbolInvalid;
 import static main.Consts.notificationData.transitionInvalid;
+
 import static main.Functions.angleBetween;
 import static main.Functions.testForLambda;
+
 import static main.PFLAP.cp5Font;
 import static main.PFLAP.machine;
 import static main.PFLAP.p;
+
 import static processing.core.PApplet.cos;
 import static processing.core.PApplet.sin;
-import static processing.core.PConstants.PI;
 import static processing.core.PConstants.TWO_PI;
 
 import commands.addTransition;
-import commands.deleteTransition;
-import commands.modifyTransition;
+
 import controlP5.CallbackEvent;
 import controlP5.CallbackListener;
-import controlP5.ControlEvent;
-import controlP5.ControlListener;
 import controlP5.ControlP5;
 import controlP5.Textfield;
-import main.Functions;
+
 import main.HistoryHandler;
 import main.PFLAP;
+
 import processing.core.PVector;
+
 import transitionView.LogicalTransition;
-import transitionView.View;
 
 /**
  * Temporary arrow that displays between user adding arrow and entering transition info
@@ -59,7 +59,8 @@ public final class EntryArrow {
 
 	public void draw() {
 		p.noFill();
-		p.stroke(PFLAP.transitionColour.getRed(), PFLAP.transitionColour.getGreen(), PFLAP.transitionColour.getBlue(), 80); // 80
+		p.stroke(PFLAP.transitionColour.getRed(), PFLAP.transitionColour.getGreen(), PFLAP.transitionColour.getBlue(),
+				80); // 80
 		p.pushMatrix();
 		p.translate(directHead.x, directHead.y);
 		p.rotate(angle);
@@ -130,9 +131,7 @@ public final class EntryArrow {
 		LogicalTransition t = new LogicalTransition(head, tail, transitionSymbol, stackPop, stackPush);
 
 		if (machine.assureUniqueTransition(t)) {
-			machine.addTransition(t);
-			p.view.addTransition(t);
-			// HistoryHandler.buffer(new addTransition(t));
+			HistoryHandler.buffer(new addTransition(t));
 			PFLAP.allowGUIInterraction = true;
 			transitionSymbolEntry.hide();
 		} else {

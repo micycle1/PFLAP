@@ -3,12 +3,9 @@ package p5;
 import static main.PFLAP.cp5Font;
 import static main.PFLAP.p;
 
-import java.io.Serializable;
 import java.util.ArrayList;
 
-import commands.Command;
 import commands.deleteTransition;
-import commands.modifyTransition;
 
 import controlP5.ControlEvent;
 import controlP5.ControlListener;
@@ -20,60 +17,39 @@ import main.Functions;
 import main.HistoryHandler;
 import main.PFLAP;
 
-import processing.core.PConstants;
 import processing.core.PVector;
 
 import transitionView.LogicalTransition;
 
-public abstract class AbstractArrow implements Serializable {
+public abstract class AbstractArrow {
 	
-	// shouldn't be serialised - is created from the view
-
 	protected State tail, head; // remove references, get positions from View class 
-	protected transient ControlP5 cp5;
-	protected transient ListBox stateOptions;
-	private transient ControlListener menuListener;
-	protected transient Textfield transitionSymbolEntry;
+	protected ControlP5 cp5;
+	protected ListBox stateOptions;
+	private ControlListener menuListener;
+	private Textfield transitionSymbolEntry;
 //	private ArrayList<Character> transitionSymbol, stackPop;
 //	private ArrayList<String> stackPush; //  = "";
 	private String transitionInfo = "";
 	protected final int ID;
-	private transient Command modifyBuffer;
-	public  ArrayList<LogicalTransition> transitions;
+	public ArrayList<LogicalTransition> transitions;
 
 	private static enum entryTypes {
 		SYMBOL, POP, PUSH;
 	}
 	private entryTypes entryType = entryTypes.SYMBOL;
-
-	// public AbstractArrow(State head, State tail) {
-	// ID = this.hashCode();
-	// this.head = head;
-	// this.tail = tail;
-	// initCP5();
-	//// initialEntry(); todo
-	// update();
-	// }
-
-//	public AbstractArrow(State head, State tail, char transitionSymbol, char stackPop, String stackPush) {
-//		ID = this.hashCode();
-//		this.head = head;
-//		this.tail = tail;
-//		this.transitionSymbol = transitionSymbol;
-//		this.stackPop = stackPop;
-//		this.stackPush = stackPush;
-//		initCP5();
-//		update();
-//	}
+	
+	public AbstractArrow(State head, State tail) {
+		ID = this.hashCode();
+		this.head = head;
+		this.tail = tail;
+	}
 
 	public AbstractArrow(State head, State tail, ArrayList<LogicalTransition> transitions) {
 		ID = this.hashCode();
 		this.head = head;
 		this.tail = tail;
 		this.transitions = transitions;
-//		this.transitionSymbol = transitionSymbol;
-//		this.stackPop = stackPop;
-//		this.stackPush = stackPush;
 		
 		switch (PFLAP.mode) {
 			case MOORE :
@@ -86,10 +62,12 @@ public abstract class AbstractArrow implements Serializable {
 				for (LogicalTransition t : transitions) {
 					transitionInfo += t.getSymbol() + " ; " + t.getStackPop() + "/" + t.getStackPush() + "\n";
 				}
+				break;
 			case MEALY :
 				for (LogicalTransition t : transitions) {
 					transitionInfo += t.getSymbol() + " ; " + t.getStackPush() + "\n";
 				}
+				break;
 		}
 		initCP5();
 		update();
@@ -127,15 +105,14 @@ public abstract class AbstractArrow implements Serializable {
 			@Override
 			public void controlEvent(ControlEvent optionSelected) {
 				switch ((int) optionSelected.getValue()) {
-					case 0 : // Modify
-						modifyBuffer = new modifyTransition(AbstractArrow.this);
+					case -1 : // Modify [Deprecated]
 						entryType = entryTypes.SYMBOL;
 						stateOptions.hide();
 						transitionSymbolEntry.show();
 						transitionSymbolEntry.setFocus(true);
 						PFLAP.allowGUIInterraction = false;
 						break;
-					case 1 : // Delete
+					case 0 : // Delete
 						HistoryHandler.buffer(new deleteTransition(AbstractArrow.this));
 						stateOptions.hide();
 						break;
@@ -147,7 +124,7 @@ public abstract class AbstractArrow implements Serializable {
 		};
 		stateOptions = cp5.addListBox("          Options");
 		// @formatter:off
-		stateOptions.addItems(new String[]{"Modify Transition", "Delete Transition"})
+		stateOptions.addItems(new String[]{"Delete Transition"})
 			.open()
 			.hide()
 			.setWidth(140)
@@ -162,78 +139,12 @@ public abstract class AbstractArrow implements Serializable {
 		// @formatter:on
 	}
 
-	private final void initialEntry() {
-		cp5.show();
-		transitionSymbolEntry.setFocus(true);
-	}
-
-	/**
-	 * Specifies behaviour when entering transition info.
-	 */
-	// private final void entry(entryTypes entryType) {
-	// transitionSymbolEntry.clear();
-	// switch (entryType) {
-	// case SYMBOL :
-	// transitionSymbol = testForLambda(transitionSymbolEntry.getStringValue().charAt(0));
-	// switch (PFLAP.mode) {
-	// case MOORE :
-	// case DFA :
-	// break;
-	// case DPA :
-	// this.entryType = entryTypes.POP;
-	// return;
-	// case MEALY :
-	// this.entryType = entryTypes.PUSH;
-	// return;
-	// }
-	// break;
-	// case POP :
-	// stackPop = testForLambda(transitionSymbolEntry.getStringValue().charAt(0));
-	// this.entryType = entryTypes.PUSH;
-	// return;
-	// case PUSH :
-	// stackPush = testForLambda(transitionSymbolEntry.getStringValue());
-	// }
-	//
-	// LogicalTransition t = new LogicalTransition(head, tail, transitionSymbol, stackPop, stackPush);
-	// if (machine.assureUniqueTransition(t)) {
-	// machine.addTransition(t);
-	// View.addTransition(t);
-	//
-	// PFLAP.allowGUIInterraction = true;
-	// transitionSymbolEntry.hide();
-	// if (modifyBuffer != null) {
-	// HistoryHandler.buffer(modifyBuffer);
-	// modifyBuffer = null;
-	// }
-	// } else {
-	// Notification.addNotification(transitionInvalid);
-	// entryType = entryTypes.SYMBOL;
-	// }
-	// }
-
 	public abstract void update();
-
-	public final void parentKill() {
-		// PFLAP.arrows.remove(this);
-		// machine.removeTransition(this); todo (in view???)
-		disableUI();
-	}
-
-	public final void kill() {
-		head.childKill(this);
-		tail.childKill(this);
-		// machine.removeTransition(this); todo
-		// PFLAP.arrows.remove(this); todo
-		disableUI();
-		// cp5.dispose();
-	}
-
+	
 	public abstract void draw();
 
 	protected final void drawTransitionLabel(PVector pos) {
 		p.fill(0);
-		p.textAlign(PConstants.CENTER, PConstants.BOTTOM); // todo ?
 		p.text(transitionInfo, pos.x, pos.y);
 	}
 
@@ -263,16 +174,6 @@ public abstract class AbstractArrow implements Serializable {
 		stateOptions.open();
 	}
 
-	public final void enableUI() {
-		cp5.show();
-		cp5.setUpdate(true);
-	}
-
-	private final void disableUI() {
-		cp5.hide();
-		cp5.setUpdate(false);
-	}
-
 	public final void disposeUI() {
 		cp5.dispose();
 	}
@@ -281,42 +182,10 @@ public abstract class AbstractArrow implements Serializable {
 		return head;
 	}
 
-	public final void setHead(State head) {
-		this.head = head;
-	}
-
 	public final State getTail() {
 		return tail;
 	}
-
-	public final void setTail(State tail) {
-		this.tail = tail;
-	}
-
-//	public final char getSymbol() {
-//		return transitionSymbol;
-//	}
-//
-//	public final void setTransitionSymbol(char transitionSymbol) {
-//		this.transitionSymbol = transitionSymbol;
-//	}
-//
-//	public final char getStackPop() {
-//		return stackPop;
-//	}
-//
-//	public final void setStackPop(char stackPop) {
-//		this.stackPop = stackPop;
-//	}
-//
-//	public final String getStackPush() {
-//		return stackPush;
-//	}
-//
-//	public final void setStackPush(String stackPush) {
-//		this.stackPush = stackPush;
-//	}
-
+	
 	@Override
 	public final String toString() {
 		return String.valueOf(ID) + tail.getLabel() + head.getLabel();

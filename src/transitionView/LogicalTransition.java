@@ -1,17 +1,17 @@
 package transitionView;
 
-import p5.AbstractArrow;
+import java.io.Serializable;
+
 import p5.State;
 
 /**
- * Model representation (not graphical) for transitions.
+ * Model/Logical representation (not graphical) of transition.
  */
-public class LogicalTransition {
+public class LogicalTransition implements Serializable {
 	
 	protected State head, tail;
 	protected char transitionSymbol, stackPop;
 	protected String stackPush = "";
-	protected AbstractArrow a;
 	
 	public LogicalTransition(State head, State tail, char transitionSymbol, char stackPop, String stackPush) {
 		this.head = head;
@@ -38,13 +38,6 @@ public class LogicalTransition {
 
 	public char getSymbol() {
 		return transitionSymbol;
-	}
-	
-	public AbstractArrow getAArrow() {
-		return a;
-	}
-	public void setAArrow(AbstractArrow a) {
-		this.a = a;
 	}
 	
 }

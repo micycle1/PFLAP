@@ -119,6 +119,8 @@ public final class HistoryHandler {
 			out.writeObject(liveHistory);
 			out.close();
 		} catch (IOException e) {
+			p.println(e.getStackTrace());
+			p.println(e.getMessage());
 			Notification.addNotification("Saving Failed", "Could not save the machine file.");
 		}
 	}
@@ -138,20 +140,24 @@ public final class HistoryHandler {
 //				if (c instanceof Batch) {
 //					continue;
 //				}
-				if (c instanceof moveState) {
-					executeLast.add(c); // still needed w/ view class?
-				} else {
-					c.execute();
-				}
-				if (c instanceof addState) {
-					PFLAP.nodes.get(PFLAP.nodes.size() - 1).initCP5();
-				}
-				if (c instanceof addTransition) {
-					PFLAP.arrows.get(PFLAP.arrows.size() - 1).initCP5();
-					PFLAP.arrows.get(PFLAP.arrows.size() - 1).update();
-				}
+				
+//				if (c instanceof moveState) {
+//					executeLast.add(c); // still needed w/ view class?
+//				} else {
+//					c.execute();
+//				}
+				
+				c.execute();
+				
+//				if (c instanceof addState) {
+//					PFLAP.nodes.get(PFLAP.nodes.size() - 1).initCP5();
+//				}
+//				if (c instanceof addTransition) {
+//					PFLAP.arrows.get(PFLAP.arrows.size() - 1).initCP5();
+//					PFLAP.arrows.get(PFLAP.arrows.size() - 1).update();
+//				}
 			}
-			PFLAP.arrows.forEach(a -> a.update());
+//			PFLAP.arrows.forEach(a -> a.update());
 			while (!executeLast.isEmpty()) {
 				executeLast.poll().execute();
 			}
