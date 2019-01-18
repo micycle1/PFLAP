@@ -51,7 +51,7 @@ public final class EntryArrow {
 		this.tail = tail;
 		midPoint = new PVector((head.getPosition().x + tail.getPosition().x) / 2,
 				(head.getPosition().y + tail.getPosition().y) / 2);
-		angle = angleBetween(head.getPosition(), tail.getPosition()) + PI % TWO_PI;
+		angle = angleBetween(head.getPosition(), tail.getPosition()) % TWO_PI;
 		directHead = new PVector(head.getPosition().x + head.getRadius() * -0.5f * cos(angle),
 				head.getPosition().y + head.getRadius() * -0.5f * sin(angle));
 		initCP5();
@@ -59,8 +59,7 @@ public final class EntryArrow {
 
 	public void draw() {
 		p.noFill();
-		// stroke(transitionColour.getRed(), transitionColour.getGreen(), transitionColour.getBlue(), 80); todo
-		p.stroke(0);
+		p.stroke(PFLAP.transitionColour.getRed(), PFLAP.transitionColour.getGreen(), PFLAP.transitionColour.getBlue(), 80); // 80
 		p.pushMatrix();
 		p.translate(directHead.x, directHead.y);
 		p.rotate(angle);
@@ -72,9 +71,6 @@ public final class EntryArrow {
 		p.popMatrix();
 		p.strokeWeight(2);
 		p.line(tail.getPosition().x, tail.getPosition().y, head.getPosition().x, head.getPosition().y);
-		p.fill(125, 124, 0);
-
-		p.ellipse(100, 100, 100, 100); // todo temove
 	}
 
 	private void kill() {
@@ -135,8 +131,8 @@ public final class EntryArrow {
 
 		if (machine.assureUniqueTransition(t)) {
 			machine.addTransition(t);
-			View.addTransition(t);
-			HistoryHandler.buffer(new addTransition(t));
+			p.view.addTransition(t);
+			// HistoryHandler.buffer(new addTransition(t));
 			PFLAP.allowGUIInterraction = true;
 			transitionSymbolEntry.hide();
 		} else {

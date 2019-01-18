@@ -7,20 +7,23 @@ import static processing.core.PApplet.cos;
 import static processing.core.PApplet.map;
 import static processing.core.PApplet.sin;
 
+import java.util.ArrayList;
+
 import main.Functions;
 import processing.core.PVector;
+import transitionView.LogicalTransition;
 
 public class BezierArrow extends AbstractArrow {
 
 	private float textSize, arrowTipAngle, theta2;
 	private PVector bezierCPoint, bezierApex, arrowTip, midPoint;
 
-	public BezierArrow(State head, State tail) {
-		super(head, tail);
-	}
+//	public BezierArrow(State head, State tail) {
+//		super(head, tail);
+//	}
 	
-	public BezierArrow(State head, State tail, char transitionSymbol, char stackPop, String stackPush) {
-		super(head, tail, transitionSymbol, stackPop, stackPush);
+	public BezierArrow(State head, State tail, ArrayList<LogicalTransition> t) {
+		super(head, tail, t);
 	}
 
 	@Override
@@ -34,8 +37,8 @@ public class BezierArrow extends AbstractArrow {
 		bezierApex = new PVector(midPoint.x - (bezierCPoint.x - midPoint.x),
 				midPoint.y - (bezierCPoint.y - midPoint.y));
 		arrowTipAngle = angleBetween(head.getPosition(), bezierApex);
-		arrowTip = new PVector(head.getPosition().x + (head.getRadius() + 2) * -0.5f * cos(arrowTipAngle),
-				head.getPosition().y + (head.getRadius() + 2) * -0.5f * sin(arrowTipAngle));
+		arrowTip = new PVector(head.getPosition().x + (head.getRadius() + 3) * -0.5f * cos(arrowTipAngle),
+				head.getPosition().y + (head.getRadius() + 3) * -0.5f * sin(arrowTipAngle));
 //		transitionSymbolEntry.setPosition(bezierApex.x - transitionSymbolEntry.getWidth() / 2, bezierApex.y + 10);
 		stateOptions.setPosition(bezierApex.x, bezierApex.y + 10);
 	}

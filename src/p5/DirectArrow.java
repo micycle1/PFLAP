@@ -10,22 +10,21 @@ import static processing.core.PApplet.sin;
 import static processing.core.PConstants.PI;
 import static processing.core.PConstants.TWO_PI;
 
+import java.util.ArrayList;
+
 import main.Functions;
 import processing.core.PApplet;
 import processing.core.PVector;
+import transitionView.LogicalTransition;
 
 public class DirectArrow extends AbstractArrow {
 
 	private int labelRotationModifier;
 	private float theta1, theta2, labelRotationOffset, textSize;
 	private PVector directTail, directHead, midPoint;
-
-	public DirectArrow(State head, State tail) {
-		super(head, tail);
-	}
 	
-	public DirectArrow(State head, State tail, char transitionSymbol, char stackPop, String stackPush) {
-		super(head, tail, transitionSymbol, stackPop, stackPush);
+	public DirectArrow(State head, State tail, ArrayList<LogicalTransition> t) {
+		super(head, tail, t);
 	}
 
 	@Override
@@ -45,8 +44,8 @@ public class DirectArrow extends AbstractArrow {
 		directTail = new PVector(tail.getPosition().x + tail.getRadius() * -0.5f * cos(theta2),
 				tail.getPosition().y + tail.getRadius() * -0.5f * sin(theta2));
 
-		directHead = new PVector(head.getPosition().x + head.getRadius() * -0.5f * cos(theta1),
-				head.getPosition().y + head.getRadius() * -0.5f * sin(theta1));
+		directHead = new PVector(head.getPosition().x + (head.getRadius()+3) * -0.5f * cos(theta1),
+				head.getPosition().y + (head.getRadius()+3) * -0.5f * sin(theta1));
 //		transitionSymbolEntry.setPosition(midPoint.x - transitionSymbolEntry.getWidth() / 2, midPoint.y + 10);
 		stateOptions.setPosition(midPoint.x, midPoint.y + 20);
 	}

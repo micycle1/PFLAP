@@ -28,6 +28,7 @@ import commands.changeMode;
 import commands.setBackgroundColor;
 import controlP5.ControlP5;
 import machines.DPA;
+import main.PFLAP.PApplet;
 import p5.Notification;
 import p5.State;
 import processing.awt.PSurfaceAWT;
@@ -214,21 +215,13 @@ final class InitUI {
 			public void actionPerformed(ActionEvent event) {
 				switch (event.getActionCommand()) {
 					case "Select All States" :
-						PFLAP.selected.addAll(PFLAP.nodes);
-						PFLAP.nodes.forEach(s -> s.select());
+						PApplet.view.selectAllStates();
 						break;
 					case "Delete All States" :
-						HistoryHandler.buffer(new Batch(Batch.createDeleteBatch(PFLAP.nodes)));
+//						HistoryHandler.buffer(new Batch(Batch.createDeleteBatch(PFLAP.nodes))); todo
 						break;
 					case "Invert Selection" :
-						if (PFLAP.selected.size() > 0) { // only if >=1 selected
-							ArrayList<State> temp = new ArrayList<>(PFLAP.nodes);
-							temp.removeAll(PFLAP.selected);
-							PFLAP.selected.forEach(s -> s.deselect());
-							PFLAP.selected.clear();
-							PFLAP.selected.addAll(temp);
-							PFLAP.selected.forEach(s -> s.select());
-						}
+						PApplet.view.invertSelectedStates();
 						break;
 					case "Undo" :
 						HistoryHandler.undo();
@@ -277,7 +270,7 @@ final class InitUI {
 					case "Reorder States" : // TODO
 						break;
 					case "Machine Information" :
-						String info = "Transitions: " + PFLAP.arrows.size() + "\r\n" + "States: " + PFLAP.nodes.size()
+						String info = "Transitions: " + PFLAP.p.view.nTransitions() + "\r\n" + "States: " + PFLAP.p.view.nStates()
 								+ "\r\n" + "Type: " + PFLAP.mode;
 						JOptionPane.showMessageDialog(f, info, "Machine Info", JOptionPane.INFORMATION_MESSAGE);
 						break;

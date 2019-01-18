@@ -17,34 +17,36 @@ import commands.addState;
 import commands.addTransition;
 import commands.deleteState;
 import commands.moveState;
+
 import controlP5.ControlFont;
 import controlP5.ControlP5;
 import controlP5.Textarea;
+
 import machines.DFA;
 import machines.DPA;
 import machines.Machine;
 import machines.Mealy;
 import machines.Moore;
+
 import p5.AbstractArrow;
 import p5.EntryArrow;
 import p5.Notification;
 import p5.SelectionBox;
 import p5.State;
+
 import processing.core.PFont;
 import processing.core.PVector;
 import processing.event.KeyEvent;
 import processing.event.MouseEvent;
+
 import transitionView.View;
 
 /**
  * @author micycle1
  * @version 1.x
+ * arrows need a set of transitions they represent
  */
 public final class PFLAP {
-
-	// public static final ArrayList<AbstractArrow> arrows = new ArrayList<>();
-	public static final ArrayList<State> nodes = new ArrayList<>();
-	protected static final HashSet<State> selected = new HashSet<>();
 
 	public static boolean allowGUIInterraction = true;
 
@@ -84,14 +86,14 @@ public final class PFLAP {
 		private static final HashSet<Integer> keysDown = new HashSet<Integer>();
 		private static PFont comfortaaRegular, comfortaaBold;
 		private static State mouseOverState, arrowTailState, arrowHeadState, dragState;
-		// private static AbstractArrow mouseOverTransition;
 		private static SelectionBox selectionBox;
 		private static boolean fullScreen = false, newState = false, drawingArrow = false, reset = false;
 		private static PVector mouseClickXY, mouseReleasedXY, mouseCoords;
 		protected static Textarea trace;
 		private static ArrayList<Command> moveCache;
 		private static ZoomPan zoomPan;
-		private static EntryArrow entryArrow;
+
+		public static View view;
 
 		private static void init() {
 			main(PApplet.class);
@@ -100,7 +102,8 @@ public final class PFLAP {
 		@Override
 		public void settings() {
 			size(Consts.WIDTH, Consts.HEIGHT);
-			smooth(8);
+//			size(Consts.WIDTH, Consts.HEIGHT, FX2D);
+			smooth(4);
 		}
 
 		@SuppressWarnings("unused")
@@ -120,14 +123,14 @@ public final class PFLAP {
 			zoomPan.addZoomPanListener(new ZoomPanListener() {
 				@Override
 				public void zoomEnded() {
-					// TODO
+					// TODO show new zoom GUI
 				}
 				@Override
 				public void panEnded() {
-					// TODO
+					// TODO show new zoom GUI
 				}
 			});
-
+			
 			FontTextParameters : {
 				try {
 					surface.setIcon(loadImage("icon_small.png"));
@@ -163,6 +166,7 @@ public final class PFLAP {
 			InitUI.initCp5();
 			InitUI.initMenuBar();
 			mode = modes.DFA;
+			view = new View(this);
 			reset();
 		}
 
@@ -197,31 +201,11 @@ public final class PFLAP {
 			}
 
 			drawTransitions : {
-				if (entryArrow != null) {
-					if (entryArrow.dispose) {
-						entryArrow = null;
-					} else {
-						entryArrow.draw();
-					}
-				}
-				View.draw();
-			}
-
-			drawStates : {
-				textAlign(CENTER, CENTER);
-				textSize(Consts.stateFontSize);
-				textFont(comfortaaBold);
-				stroke(0);
-				strokeWeight(3);
-				nodes.forEach(s -> s.draw());
+				view.draw();
 			}
 
 			if (dragState != null) {
-				dragState.setPosition(mouseCoords);
-				dragState.draw();
-				if (!newState) {
-					View.dragging(dragState);
-				}
+				view.dragging(dragState, mouseCoords);
 			}
 
 			HistoryHandler.executeBufferedCommands();
@@ -238,10 +222,10 @@ public final class PFLAP {
 
 			// arrows.forEach(a -> a.disposeUI());
 			// arrows.clear();
-			View.reset();
-			nodes.forEach(n -> n.disposeUI());
-			nodes.clear();
-			selected.clear();
+			view.reset();
+			// nodes.forEach(n -> n.disposeUI());
+			// nodes.clear();
+//			selected.clear();
 			Notification.clear();
 			Step.endStep();
 			mouseOverState = null;
@@ -276,27 +260,6 @@ public final class PFLAP {
 			zoomPan.setZoomScale(zoom);
 		}
 
-		private void nodeMouseOver() {
-			for (State s : nodes) {
-				if (withinRange(s.getPosition().x, s.getPosition().y, s.getRadius(), mouseCoords.x, mouseCoords.y)
-						|| s.isMouseOver()) {
-					mouseOverState = s;
-					return;
-				}
-			}
-			mouseOverState = null;
-		}
-
-		// private void transitionMouseOver() {
-		// for (AbstractArrow a : arrows) {
-		// if (a.isMouseOver(mouseClickXY)) {
-		// mouseOverTransition = a;
-		// return;
-		// }
-		// }
-		// mouseOverTransition = null;
-		// }
-
 		@Override
 		public void keyPressed(KeyEvent e) {
 			keysDown.add(e.getKeyCode());
@@ -326,14 +289,14 @@ public final class PFLAP {
 			}
 			switch (key.getKeyCode()) {
 				case 127 : // 127 == delete key
-					if (!selected.isEmpty()) {
-						if (selected.size() == 1) {
-							HistoryHandler.buffer(new deleteState(selected.iterator().next()));
-						} else {
-							HistoryHandler.buffer(new Batch(Batch.createDeleteBatch(selected)));
-						}
-						selected.clear();
-					}
+//					if (!selected.isEmpty()) {
+//						if (selected.size() == 1) {
+//							HistoryHandler.buffer(new deleteState(selected.iterator().next()));
+//						} else {
+//							HistoryHandler.buffer(new Batch(Batch.createDeleteBatch(selected)));
+//						}
+//						selected.clear();
+//					}
 					break;
 				case 122 : // F11
 					if (fullScreen) {
@@ -362,36 +325,29 @@ public final class PFLAP {
 				return;
 			}
 			mouseClickXY = mouseCoords.copy();
-			AbstractArrow mouseOver = View.transitionMouseOver(mouseClickXY);
+			AbstractArrow mouseOver = view.transitionMouseOver(mouseClickXY);
 			switch (m.getButton()) {
 				case LEFT :
-					nodeMouseOver();
-					if (mouseOverState == null && mouseOver == null) {
-						// mouse over empty region
-						if (!(selected.isEmpty())) {
-							selected.forEach(s -> s.deselect());
-							selected.clear();
+					mouseOverState = view.stateMouseOver(mouseClickXY);
+					if (mouseOverState == null && mouseOver == null) { // mouse over empty region
+						if (!(view.getSelectedStates().isEmpty())) {
+							view.deselectAllStates();
 						} else {
-							if (selectionBox == null) {
-								// create new state
+							if (selectionBox == null) { // new state
 								cursor(HAND);
-								dragState = new State(mouseClickXY, nodes.size());
+								dragState = view.newState(mouseCoords);
 								newState = true;
 							}
 						}
 					} else {
 						if (mouseOverState != null) {
-							if (!mouseOverState.isMouseOver()) {
-								// move existing state
+							if (!mouseOverState.isMouseOver()) { // move existing state
 								cursor(HAND);
 								dragState = mouseOverState;
-								nodes.remove(dragState);
-								selected.add(dragState);
 								dragState.select();
 							}
 						} else {
-							if (mouseOver != null) {
-								// clicked on transition GUI
+							if (mouseOver != null) { // clicked on transition GUI
 							}
 						}
 					}
@@ -399,9 +355,8 @@ public final class PFLAP {
 
 				case RIGHT :
 					if (dragState == null) {
-						nodeMouseOver();
-						selected.forEach(s -> s.deselect());
-						selected.clear();
+						mouseOverState = view.stateMouseOver(mouseClickXY);
+						view.deselectAllStates();
 						if (!(mouseOverState == null) && allowGUIInterraction && mouseOver == null) {
 							arrowTailState = mouseOverState;
 							drawingArrow = true;
@@ -410,9 +365,9 @@ public final class PFLAP {
 					}
 					break;
 				case CENTER :
-					if (!selected.isEmpty()) {
-						moveCache = Batch.createMoveBatch(selected);
-					}
+//					if (!selected.isEmpty()) {
+//						moveCache = Batch.createMoveBatch(selected);
+//					}
 					break;
 				default :
 					break;
@@ -426,60 +381,42 @@ public final class PFLAP {
 			if (cp5.isMouseOver() || (!allowGUIInterraction && dragState == null) || keysDown.contains(SHIFT)) {
 				return;
 			}
-			// arrows.forEach(a -> a.hideUI());
-			View.hideUI();
+			view.hideUI();
 			switch (m.getButton()) {
 				case LEFT :
-					nodeMouseOver();
-					if (dragState != null) {
-						// drop dragged state
+					mouseOverState = view.stateMouseOver(mouseClickXY);
+					if (dragState != null) { // drop dragged state
 						if (newState) {
-							HistoryHandler.buffer(new addState(dragState));
-							// todo check for cycle then create bezier
-							// then update outgoing arrows here
 							newState = false;
-						} else {
-							// dragged existing state
+						} else { // drag existing state
 							HistoryHandler.buffer(new moveState(dragState, mouseClickXY));
-							nodes.add(dragState); // re-add dragstate to nodes
 						}
-						selected.forEach(s -> s.deselect());
-						selected.remove(dragState);
+						dragState.deselect();
 						dragState = null;
 					}
 					break;
 				case RIGHT :
 					if (selectionBox != null) {
-						selected.forEach(s -> s.deselect());
-						selected.clear();
-						for (State s : nodes) {
-							if (withinRegion(s.getPosition(), selectionBox.startPosition, mouseCoords)) {
-								s.select();
-								selected.add(s);
-							}
-						}
 						selectionBox = null;
 					} else {
 						if (!(mouseClickXY.equals(mouseReleasedXY))) {
-							nodeMouseOver();
+							mouseOverState = view.stateMouseOver(mouseReleasedXY);
 							arrowHeadState = mouseOverState;
 							if (arrowTailState != arrowHeadState && (arrowHeadState != null) && drawingArrow == true) {
 								allowGUIInterraction = false;
-								// HistoryHandler.buffer(new addTransition(arrowTailState, arrowHeadState)); // todo remove
-								entryArrow = new EntryArrow(arrowHeadState, arrowTailState); // todo
+								view.entryArrow(arrowHeadState, arrowTailState);
 							}
 							drawingArrow = false;
 							if (arrowHeadState == null) {
 								allowGUIInterraction = true;
 							}
-						} else {
+						} else { // right-click on state
 							drawingArrow = false;
 							if (mouseOverState != null) {
-								selected.add(mouseOverState);
 								mouseOverState.select();
 								mouseOverState.showUI();
 							} else {
-								AbstractArrow mouseOver = View.transitionMouseOver(mouseClickXY);
+								AbstractArrow mouseOver = view.transitionMouseOver(mouseClickXY);
 								if (mouseOver != null) {
 									mouseOver.showUI();
 								}
@@ -489,11 +426,17 @@ public final class PFLAP {
 					break;
 
 				case CENTER :
-					if (!selected.isEmpty() && !mouseClickXY.equals(mouseReleasedXY)) {
-						selected.forEach(s -> s.select());
-						moveCache.forEach(c -> ((moveState) c).updatePos());
-						HistoryHandler.buffer(new Batch(moveCache));
+//					if (!selected.isEmpty() && !mouseClickXY.equals(mouseReleasedXY)) {
+//						selected.forEach(s -> s.select());
+//						moveCache.forEach(c -> ((moveState) c).updatePos());
+//						HistoryHandler.buffer(new Batch(moveCache));
+//					}
+					for (State s : view.getSelectedStates()) {
+						s.select(); // re-do selected position
 					}
+//					HistoryHandler.buffer(new Batch(moveCache));
+					
+					// todo update selected position
 					break;
 
 				default :
@@ -510,18 +453,16 @@ public final class PFLAP {
 				case LEFT :
 					break;
 				case RIGHT :
-					if (selectionBox == null && drawingArrow == false && allowGUIInterraction
-							&& !HistoryList.isMouseOver()) {
-						selectionBox = new SelectionBox(mouseCoords);
+					if (selectionBox == null) {
+						if (drawingArrow == false && allowGUIInterraction && !HistoryList.isMouseOver()) {
+							selectionBox = new SelectionBox(mouseCoords);
+						}
+					} else {
+						view.statesInRegion(selectionBox.startPosition, mouseCoords);
 					}
 					break;
 				case CENTER :
-					PVector offset = new PVector(mouseCoords.x - mouseClickXY.x, mouseCoords.y - mouseClickXY.y);
-					for (State s : selected) {
-						s.setPosition(new PVector(constrain(offset.x + s.getSelectedPosition().x, 0, width),
-								constrain(offset.y + s.getSelectedPosition().y, 0, height)));
-					}
-					View.dragging(selected);
+					view.dragging(mouseClickXY, mouseCoords);
 					break;
 				default :
 					break;

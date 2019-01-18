@@ -40,7 +40,7 @@ public class State implements Serializable {
 	private transient ControlListener listener, sizeSliderListener;
 	private transient Textfield moorePushInput;
 	private PVector position, selectedPosition;
-	private transient ArrayList<AbstractArrow> arrowHeads = new ArrayList<>();
+	private transient ArrayList<AbstractArrow> arrowHeads = new ArrayList<>(); // todo remove (since view contains map of connections)
 	private transient ArrayList<AbstractArrow> arrowTails = new ArrayList<>();
 	private boolean initial = false;
 	private transient boolean accepting = false, selected = false, highlighted = false;
@@ -356,5 +356,9 @@ public class State implements Serializable {
 	
 	public boolean isMouseOver() {
 		return (cp5.isMouseOver() && cp5.isVisible()) || (resizeGUI.isMouseOver() && sizeSlider.isVisible());
+	}
+	
+	public boolean isSelected() {
+		return selected;
 	}
 }

@@ -139,7 +139,7 @@ public final class HistoryHandler {
 //					continue;
 //				}
 				if (c instanceof moveState) {
-					executeLast.add(c);
+					executeLast.add(c); // still needed w/ view class?
 				} else {
 					c.execute();
 				}

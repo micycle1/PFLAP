@@ -1,124 +1,223 @@
 package transitionView;
 
+import static main.Functions.withinRange;
+import static main.Functions.withinRegion;
+
+import static processing.core.PApplet.constrain;
+import static processing.core.PConstants.CENTER;
+
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
+import java.util.LinkedList;
 
-import com.google.common.collect.BiMap;
-import com.google.common.collect.HashBasedTable;
-import com.google.common.collect.HashBiMap;
-import com.google.common.collect.Maps;
 import com.google.common.graph.MutableNetwork;
 import com.google.common.graph.NetworkBuilder;
-import static main.PFLAP.p;
-import static processing.core.PConstants.CENTER;
-import commands.deleteTransition;
+
+import commands.addState;
+import commands.addTransition;
+
+import main.Consts;
+import main.HistoryHandler;
+import main.PFLAP;
+
 import p5.AbstractArrow;
 import p5.BezierArrow;
 import p5.DirectArrow;
+import p5.EntryArrow;
 import p5.SelfArrow;
 import p5.State;
+
+import processing.core.PApplet;
 import processing.core.PVector;
 
 /**
- * Create arrow objects after transition info entry.
- * They are rendered in this class
+ * Renders the view of the abstract transitions etc.
  * @author micycle1
- *
  */
-public class View {
+public final class View {
 
-	private static MutableNetwork<State, LogicalTransition> transitionGraph; // logical transitions
-	private static AbstractArrow cache; // most recently added transition
+	private MutableNetwork<State, LogicalTransition> transitionGraph; // logical transitions
+	private AbstractArrow cache; // most recently added transition
 
-	static ArrayList<AbstractArrow> liveTransitions; // rendered transitions (type of transition) or hashmap of tail state to transition
-	static HashMap<State, ArrayList<AbstractArrow>> liveTransitions1; // rendered transitions (type of transition) or hashmap of tail state to transition
-	static BiMap<LogicalTransition, AbstractArrow> mapping = HashBiMap.create();
+	private ArrayList<AbstractArrow> liveTransitions; // rendered transitions (type of transition) or hashmap of tail state to transition
+	private HashMap<State, ArrayList<AbstractArrow>> liveTransitions1; // rendered transitions (type of transition) or hashmap of tail state to transition
+	// private BiMap<LogicalTransition, AbstractArrow> mapping = HashBiMap.create();
 
-	static {
+	private ArrayList<State> states = new ArrayList<>();
+
+	private PApplet p;
+
+	private EntryArrow entryArrow;
+
+	public View(PApplet parent) {
+		p = parent;
 		transitionGraph = NetworkBuilder.directed().allowsParallelEdges(true).expectedNodeCount(100)
 				.expectedEdgeCount(200).allowsSelfLoops(true).build();
 		liveTransitions = new ArrayList<>();
 	}
 
-	public static void addTransition(LogicalTransition t) {
+	public void addTransition(LogicalTransition t) {
 		transitionGraph.addEdge(t.tail, t.head, t);
+		HistoryHandler.buffer(new addTransition(t)); // todo buffer here?
 		rebuild();
 	}
 
-	public static void deleteTransition(AbstractArrow a) {
-		transitionGraph.removeEdge(mapping.inverse().get(a));
+	public void deleteTransition(AbstractArrow a) {
+		for (LogicalTransition t : a.transitions) {
+			transitionGraph.removeEdge(t); // delete all transitions it represented
+		}
 		rebuild();
 	}
 
-	public static void dragging(State s) {
+	public void addState(State s) {
+		transitionGraph.addNode(s);
+		states.add(s);
+	}
+
+	public void entryArrow(State head, State tail) {
+		entryArrow = new EntryArrow(head, tail);
+	}
+
+	/**
+	 * Called when user clicks to create a new state
+	 */
+	public State newState(PVector mouseCoords) {
+		State s = new State(mouseCoords, states.size());
+		HistoryHandler.buffer(new addState(s));
+		return s;
+	}
+
+	public void dragging(State s, PVector mouseCoords) {
 		if (transitionGraph.nodes().contains(s)) {
-		for (LogicalTransition t : transitionGraph.incidentEdges(s)) {
-			mapping.get(t).update();
+			liveTransitions.forEach(t -> t.update());
 		}
-		}
+		s.setPosition(mouseCoords);
 	}
 
-	public static void dragging(HashSet<State> states) {
+	/**
+	 * Multi-state drag
+	 */
+	public void dragging(PVector mouseClickXY, PVector mouseCoords) {
+		PVector offset = new PVector(mouseCoords.x - mouseClickXY.x, mouseCoords.y - mouseClickXY.y);
 		for (State s : states) {
-			for (LogicalTransition t : transitionGraph.incidentEdges(s)) {
-//				mapping.get(t).update();
+			if (s.isSelected()) {
+				s.setPosition(new PVector(constrain(offset.x + s.getSelectedPosition().x, 0, p.width),
+						constrain(offset.y + s.getSelectedPosition().y, 0, p.height)));
 			}
 		}
+		liveTransitions.forEach(t -> t.update());
 	}
 
-	public static void undoAddTransition() {
+	@Deprecated
+	public void undoAddTransition() {
 		cache.kill();
 		liveTransitions.remove(cache);
 	}
 
-	public static void redo() {
+	@Deprecated
+	public void redo() {
 		liveTransitions.add(cache);
 	}
 
-	public static void draw() {
+	public void draw() {
 		p.textAlign(CENTER, CENTER);
 		p.noFill();
 		p.strokeWeight(2);
-//		p.stroke(transitionColour.getRGB()); //todo
+		p.stroke(PFLAP.transitionColour.getRGB()); // todo
 		p.textSize(18);
-//		p.textFont(comfortaaRegular);
+		// p.textFont(comfortaaRegular); // todo
 		liveTransitions.forEach(t -> t.draw());
+		if (entryArrow != null) {
+			if (entryArrow.dispose) {
+				entryArrow = null;
+			} else {
+				entryArrow.draw();
+			}
+		}
+
+		p.textSize(Consts.stateFontSize);
+		// p.textFont(comfortaaBold);
+		p.stroke(0);
+		p.strokeWeight(3);
+		p.textAlign(CENTER, CENTER);
+		states.forEach(s -> s.draw());
 	}
 
-	public static void hideUI() {
+	public void selectAllStates() {
+		for (State state : states) {
+			state.select();
+		}
+	}
+
+	public void deselectAllStates() {
+		for (State state : states) {
+			state.deselect();
+		}
+	}
+
+	/**
+	 * Invert user selection
+	 */
+	public void invertSelectedStates() {
+		for (State state : states) {
+			if (state.isSelected()) {
+				state.deselect();
+			} else {
+				state.select();
+			}
+		}
+	}
+
+	public ArrayList<State> getSelectedStates() {
+		ArrayList<State> selected = new ArrayList<>();
+		for (State state : states) {
+			if (state.isSelected()) {
+				selected.add(state);
+			}
+		}
+		return selected;
+	}
+
+	public void hideUI() {
 		liveTransitions.forEach(a -> a.hideUI());
 	}
 
 	/**
-	 * Rebuild 
+	 * Rebuilds list of p5 arrows
+	 * todo Rebuild only those that are affected?
 	 */
-	private static void rebuild() {
+	private void rebuild() {
 		liveTransitions.clear();
-		for (LogicalTransition t : transitionGraph.edges()) {
+		LinkedList<LogicalTransition> edges = new LinkedList<>(transitionGraph.edges());
+
+		while (!edges.isEmpty()) {
+			LogicalTransition edge = edges.poll();
 			AbstractArrow a;
-			if (t.head.equals(t.tail)) {
-				a = new SelfArrow(t.head);
+			if (edge.head.equals(edge.tail)) {
+				a = new SelfArrow(edge.head);
 			} else {
-				if (transitionGraph.edgesConnecting(t.tail, t.head).size() == 1) {
-					a = new DirectArrow(t.head, t.tail);
+				if (transitionGraph.edgesConnecting(edge.head, edge.tail).size() == 0) {
+					a = new DirectArrow(edge.head, edge.tail,
+							new ArrayList<LogicalTransition>(transitionGraph.edgesConnecting(edge.tail, edge.head)));
 				} else {
-					a = new BezierArrow(t.head, t.tail, t.transitionSymbol, t.stackPop, t.stackPush);
+					a = new BezierArrow(edge.head, edge.tail,
+							new ArrayList<LogicalTransition>(transitionGraph.edgesConnecting(edge.tail, edge.head)));
 				}
 			}
+			edges.removeAll(transitionGraph.edgesConnecting(edge.tail, edge.head));
 			liveTransitions.add(a);
-			mapping.put(t, a);
+			// mapping.put(t, a); // map from abstract transition to concrete p5 arrow
 		}
 	}
 
-	public static void reset() {
+	public void reset() {
 		liveTransitions.forEach(t -> t.disposeUI());
 		liveTransitions.clear();
-		mapping.clear();
+		states.forEach(n -> n.disposeUI());
+		states.clear();
 	}
 
-	public static AbstractArrow transitionMouseOver(PVector mouseClick) {
+	public AbstractArrow transitionMouseOver(PVector mouseClick) {
 		for (AbstractArrow a : liveTransitions) {
 			if (a.isMouseOver(mouseClick)) {
 				return a;
@@ -127,4 +226,30 @@ public class View {
 		return null;
 	}
 
+	public State stateMouseOver(PVector mouseClick) {
+		for (State s : states) {
+			if (withinRange(s.getPosition().x, s.getPosition().y, s.getRadius(), mouseClick.x, mouseClick.y)
+					|| s.isMouseOver()) {
+				return s;
+			}
+		}
+		return null;
+	}
+
+	public void statesInRegion(PVector startPos, PVector mouseCoords) {
+		states.forEach(s -> s.deselect());
+		for (State s : states) { // check for nodes in selection box
+			if (withinRegion(s.getPosition(), startPos, mouseCoords)) {
+				s.select();
+			}
+		}
+	}
+
+	public int nTransitions() {
+		return transitionGraph.edges().size();
+	}
+	
+	public int nStates() {
+		return transitionGraph.nodes().size();
+	}
 }

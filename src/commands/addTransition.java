@@ -45,7 +45,7 @@ public final class addTransition implements Command {
 //			machine.addTransition(a);
 //		}
 //		PFLAP.arrows.add(a); // removed anyway in transtionchange
-		View.addTransition(t);
+//		View.addTransition(t);
 	}
 
 	@Override
