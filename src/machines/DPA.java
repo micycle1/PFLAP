@@ -13,11 +13,10 @@ import controlP5.Toggle;
 import main.Functions;
 import main.PFLAP;
 import main.Step;
-
+import model.LogicalTransition;
+import model.Machine;
 import p5.Notification;
 import p5.State;
-
-import transitionView.LogicalTransition;
 
 /**
  * <p><b> Deterministic Pushdown Automaton</b>

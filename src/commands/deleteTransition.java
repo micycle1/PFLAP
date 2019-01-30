@@ -3,9 +3,9 @@ package commands;
 import java.util.ArrayList;
 
 import main.PFLAP;
-
+import model.LogicalTransition;
+import model.Model;
 import p5.AbstractArrow;
-import transitionView.LogicalTransition;
 
 public final class deleteTransition implements Command {
 
@@ -17,12 +17,14 @@ public final class deleteTransition implements Command {
 
 	@Override
 	public void execute() {
-		PFLAP.PApplet.view.deleteTransition(transitions);
+//		PFLAP.PApplet.view.deleteTransition(transitions);
+		Model.deleteTransition(transitions);
 	}
 
 	@Override
 	public void undo() {
-		PFLAP.PApplet.view.addTransitions(transitions);
+//		PFLAP.PApplet.view.addTransitions(transitions);
+		Model.addTransition(transitions);
 	}
 
 	@Override

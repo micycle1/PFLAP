@@ -14,6 +14,7 @@ import javax.swing.JOptionPane;
 import controlP5.Button;
 import controlP5.ControlEvent;
 import controlP5.ControlListener;
+import model.Model;
 import p5.Notification;
 import p5.State;
 import processing.core.PConstants;
@@ -30,7 +31,7 @@ public class Step {
 
 	private static boolean live = false, completed = false, accepted;
 	private static String initialInput, remainingInput, stack;
-	private static State liveState;
+	private static Integer liveState;
 	private static ArrayList<State> visited;
 	private static int visitedIndex;
 	private static final Button closeStep, help;
@@ -84,7 +85,7 @@ public class Step {
 		closeStep.show();
 		help.show();
 		live = true;
-		liveState = PFLAP.machine.getInitialState();
+		liveState = Model.initialState;
 		initialInput = input;
 		remainingInput = initialInput;
 		PFLAP.machine.beginStep(input);
@@ -160,7 +161,7 @@ public class Step {
 			p.textSize(20);
 			p.fill(0, 0, 0);
 			p.textAlign(PConstants.LEFT, PConstants.BOTTOM);
-			p.text("Current State: " + liveState.getLabel(), stepGUIPadding * 2, p.height - 70);
+//			p.text("Current State: " + liveState.getLabel(), stepGUIPadding * 2, p.height - 70);
 			p.text("Input: [" + remainingInput + "]", stepGUIPadding * 2, p.height - 50);
 			switch (PFLAP.mode) {
 				case DFA :
@@ -169,20 +170,20 @@ public class Step {
 					p.text("Stack: [" + stack + "]", stepGUIPadding * 2, p.height - 30);
 					break;
 				case MEALY :
-					p.text("Ouput: [" + ((machines.Mealy)machine).getOutput() + "]", stepGUIPadding * 2, p.height - 30);
+//					p.text("Ouput: [" + ((machines.Mealy)machine).getOutput() + "]", stepGUIPadding * 2, p.height - 30);
 					break;
 				case MOORE :
-					p.text("Ouput: [" + ((machines.Moore)machine).getOutput() + "]", stepGUIPadding * 2, p.height - 30);
+//					p.text("Ouput: [" + ((machines.Moore)machine).getOutput() + "]", stepGUIPadding * 2, p.height - 30);
 					break;
 			}
-			liveState.highLight(color(255, 0, 255)); // specify color
-			if (completed && visitedIndex == visited.size() - 1) {
-				if (accepted) {
-					liveState.highLight(color(0, 255, 0));
-				} else {
-					liveState.highLight(color(255, 0, 0));
-				}
-			}
+//			liveState.highLight(color(255, 0, 255)); // specify color
+//			if (completed && visitedIndex == visited.size() - 1) {
+//				if (accepted) {
+//					liveState.highLight(color(0, 255, 0));
+//				} else {
+//					liveState.highLight(color(255, 0, 0));
+//				}
+//			}
 		}
 	}
 

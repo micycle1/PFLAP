@@ -10,14 +10,17 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.LinkedList;
 
-import com.google.common.graph.MutableNetwork;
-import com.google.common.graph.NetworkBuilder;
+import com.google.common.collect.BiMap;
+import com.google.common.collect.HashBiMap;
 
 import commands.addState;
 
 import main.Consts;
 import main.HistoryHandler;
 import main.PFLAP;
+
+import model.LogicalTransition;
+import model.Model;
 
 import p5.AbstractArrow;
 import p5.BezierArrow;
@@ -32,17 +35,22 @@ import processing.core.PVector;
 
 /**
  * Renders the view of the abstract transitions etc.
+ * handle initial & accepting state here , not in state class
  * @author micycle1
  */
 public final class View {
 
-	private MutableNetwork<State, LogicalTransition> transitionGraph; // logical transitions
+//	private MutableNetwork<State, LogicalTransition> transitionGraph; // logical transitions
 
-	private ArrayList<AbstractArrow> liveTransitions; // rendered transitions (type of transition) or hashmap of tail state to transition
+	private final ArrayList<AbstractArrow> liveTransitions; // rendered transitions (type of transition) or hashmap of tail state to transition
 //	private HashMap<State, ArrayList<AbstractArrow>> liveTransitions1; // rendered transitions (type of transition) or hashmap of tail state to transition
-	// private BiMap<LogicalTransition, AbstractArrow> mapping = HashBiMap.create();
+	public final BiMap<Integer, State> liveStates;
 
-	private ArrayList<State> states = new ArrayList<>(); // todo use transitionGraph.nodes? 
+//	private final  ArrayList<State> states = new ArrayList<>(); // todo use transitionGraph.nodes? 
+	
+//	private HashMap<Integer, State> liveStates;
+	
+	// map from int to states
 
 	private PApplet p;
 
@@ -50,54 +58,8 @@ public final class View {
 
 	public View(PApplet parent) {
 		p = parent;
-		transitionGraph = NetworkBuilder.directed().allowsParallelEdges(true).expectedNodeCount(100)
-				.expectedEdgeCount(200).allowsSelfLoops(true).build();
 		liveTransitions = new ArrayList<>();
-	}
-
-	public void addTransition(LogicalTransition t) {
-		transitionGraph.addEdge(t.tail, t.head, t);
-		rebuild();
-	}
-	
-	/**
-	 * Called from undoing deleteTransition command.
-	 */
-	public void addTransitions(ArrayList<LogicalTransition> transitions) {
-		for (LogicalTransition t : transitions) {
-			transitionGraph.addEdge(t.tail, t.head, t);
-		}
-		rebuild();
-	}
-	
-	/**
-	 * Called from undoing addTransition command.
-	 */
-	public void deleteTransition(LogicalTransition t) {
-		transitionGraph.removeEdge(t);
-		rebuild();
-	}
-
-	/**
-	 * Called from UI deleting.
-	 */
-	public void deleteTransition(ArrayList<LogicalTransition> transitions) {
-		for (LogicalTransition t : transitions) {
-			transitionGraph.removeEdge(t); // delete all transitions it represented
-		}
-		rebuild();
-	}
-
-	public void addState(State s) {
-		transitionGraph.addNode(s);
-		states.add(s);
-		rebuild();
-	}
-	
-	public void deleteState(State s) {
-		transitionGraph.removeNode(s);
-		states.remove(s);
-		rebuild();
+		liveStates = HashBiMap.create();
 	}
 	
 	public void moveState(State s, PVector pos) {
@@ -105,10 +67,6 @@ public final class View {
 		liveTransitions.forEach(t -> t.update());
 	}
 	
-	public ArrayList<LogicalTransition> getConnectingTransitions(State s) {
-		return new ArrayList<>(transitionGraph.incidentEdges(s));
-	}
-
 	public void entryArrow(State head, State tail) {
 		entryArrow = new EntryArrow(head, tail);
 	}
@@ -117,13 +75,21 @@ public final class View {
 	 * Called when user clicks to create a new state
 	 */
 	public State newState(PVector mouseCoords) {
-		State s = new State(mouseCoords, states.size());
-		HistoryHandler.buffer(new addState(s));
+		State s = new State(mouseCoords, liveStates.size());
+		HistoryHandler.buffer(new addState(Model.getNextIdAndInc()));
+		liveStates.put(Model.getLastID(), s);
 		return s;
+	}
+	
+	public void deleteState(int n) {
+		p.println(n);
+		liveStates.get(n).disposeUI();
+		liveStates.remove(n);
+		rebuild();
 	}
 
 	public void dragging(State s, PVector mouseCoords) {
-		if (transitionGraph.nodes().contains(s)) {
+		if (liveStates.values().contains(s)) {
 			liveTransitions.forEach(t -> t.update());
 		}
 		s.setPosition(mouseCoords);
@@ -134,7 +100,7 @@ public final class View {
 	 */
 	public void dragging(PVector mouseClickXY, PVector mouseCoords) {
 		PVector offset = new PVector(mouseCoords.x - mouseClickXY.x, mouseCoords.y - mouseClickXY.y);
-		for (State s : states) {
+		for (State s : liveStates.values()) {
 			if (s.isSelected()) {
 				s.setPosition(new PVector(constrain(offset.x + s.getSelectedPosition().x, 0, p.width),
 						constrain(offset.y + s.getSelectedPosition().y, 0, p.height)));
@@ -165,17 +131,18 @@ public final class View {
 		p.stroke(0);
 		p.strokeWeight(3);
 		p.textAlign(CENTER, CENTER);
-		states.forEach(s -> s.draw());
+//		states.forEach(s -> s.draw());
+		liveStates.values().forEach(s -> s.draw());
 	}
 
 	public void selectAllStates() {
-		for (State state : states) {
+		for (State state : liveStates.values()) {
 			state.select();
 		}
 	}
 
 	public void deselectAllStates() {
-		for (State state : states) {
+		for (State state : liveStates.values()) {
 			state.deselect();
 		}
 	}
@@ -184,7 +151,7 @@ public final class View {
 	 * Invert user selection
 	 */
 	public void invertSelectedStates() {
-		for (State state : states) {
+		for (State state : liveStates.values()) {
 			if (state.isSelected()) {
 				state.deselect();
 			} else {
@@ -195,12 +162,20 @@ public final class View {
 
 	public HashSet<State> getSelectedStates() {
 		HashSet<State> selected = new HashSet<>();
-		for (State state : states) {
+		for (State state : liveStates.values()) {
 			if (state.isSelected()) {
 				selected.add(state);
 			}
 		}
 		return selected;
+	}
+	
+	/**
+	 * Return live state GUI object corresponding to abstract ID
+	 * @return
+	 */
+	public State getStateByID(int n) {
+		return liveStates.get(n);
 	}
 
 	public void hideUI() {
@@ -211,36 +186,44 @@ public final class View {
 	 * Rebuilds list of p5 arrows
 	 * todo Rebuild only those that are affected?
 	 */
-	private void rebuild() {
+	public void rebuild() {
+		
 		liveTransitions.forEach(t -> t.disposeUI());
 		liveTransitions.clear();
-		LinkedList<LogicalTransition> edges = new LinkedList<>(transitionGraph.edges());
+		LinkedList<LogicalTransition> edges = new LinkedList<>(Model.transitionGraph.edges());
 
 		while (!edges.isEmpty()) {
 			LogicalTransition edge = edges.poll();
 			AbstractArrow a;
-			if (edge.head.equals(edge.tail)) {
-				a = new SelfArrow(edge.head);
+			State head = liveStates.get(edge.head); // need to save livestates
+			State tail = liveStates.get(edge.tail);
+			
+			if (head.equals(tail)) {
+				a = new SelfArrow(head);
 			} else {
-				if (transitionGraph.edgesConnecting(edge.head, edge.tail).size() == 0) {
-					a = new DirectArrow(edge.head, edge.tail,
-							new ArrayList<LogicalTransition>(transitionGraph.edgesConnecting(edge.tail, edge.head)));
+				if (Model.transitionGraph.edgesConnecting(edge.head, edge.tail).size() == 0) {
+					a = new DirectArrow(head, tail,
+							new ArrayList<LogicalTransition>(Model.transitionGraph.edgesConnecting(edge.tail, edge.head)));
 				} else {
-					a = new BezierArrow(edge.head, edge.tail,
-							new ArrayList<LogicalTransition>(transitionGraph.edgesConnecting(edge.tail, edge.head)));
+					a = new BezierArrow(head, tail,
+							new ArrayList<LogicalTransition>(Model.transitionGraph.edgesConnecting(edge.tail, edge.head)));
 				}
 			}
-			edges.removeAll(transitionGraph.edgesConnecting(edge.tail, edge.head));
+			edges.removeAll(Model.transitionGraph.edgesConnecting(edge.tail, edge.head));
 			liveTransitions.add(a);
 			// mapping.put(t, a); // map from abstract transition to concrete p5 arrow
 		}
+	}
+	
+	public void reskin() {
+		// call when states are changed looks
 	}
 
 	public void reset() {
 		liveTransitions.forEach(t -> t.disposeUI());
 		liveTransitions.clear();
-		states.forEach(n -> n.disposeUI());
-		states.clear();
+		liveStates.values().forEach(n -> n.disposeUI());
+		liveStates.clear();
 	}
 
 	public AbstractArrow transitionMouseOver(PVector mouseClick) {
@@ -253,7 +236,7 @@ public final class View {
 	}
 
 	public State stateMouseOver(PVector mouseClick) {
-		for (State s : states) {
+		for (State s : liveStates.values()) {
 			if (withinRange(s.getPosition().x, s.getPosition().y, s.getRadius(), mouseClick.x, mouseClick.y)
 					|| s.isMouseOver()) {
 				return s;
@@ -263,19 +246,11 @@ public final class View {
 	}
 
 	public void statesInRegion(PVector startPos, PVector mouseCoords) {
-		states.forEach(s -> s.deselect());
-		for (State s : states) { // check for nodes in selection box
+		liveStates.values().forEach(s -> s.deselect());
+		for (State s : liveStates.values()) { // check for nodes in selection box
 			if (withinRegion(s.getPosition(), startPos, mouseCoords)) {
 				s.select();
 			}
 		}
-	}
-
-	public int nTransitions() {
-		return transitionGraph.edges().size();
-	}
-	
-	public int nStates() {
-		return transitionGraph.nodes().size();
 	}
 }

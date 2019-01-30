@@ -29,6 +29,7 @@ import commands.setBackgroundColor;
 import controlP5.ControlP5;
 import machines.DPA;
 import main.PFLAP.PApplet;
+import model.Model;
 import p5.Notification;
 import p5.State;
 import processing.awt.PSurfaceAWT;
@@ -270,7 +271,7 @@ final class InitUI {
 					case "Reorder States" : // TODO
 						break;
 					case "Machine Information" :
-						String info = "Transitions: " + PFLAP.p.view.nTransitions() + "\r\n" + "States: " + PFLAP.p.view.nStates()
+						String info = "Transitions: " + Model.nTransitions() + "\r\n" + "States: " + Model.nStates()
 								+ "\r\n" + "Type: " + PFLAP.mode;
 						JOptionPane.showMessageDialog(f, info, "Machine Info", JOptionPane.INFORMATION_MESSAGE);
 						break;
@@ -317,7 +318,7 @@ final class InitUI {
 		inputMenuListener = new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent event) {
-				if (PFLAP.machine.getInitialState() != null) {
+				if (Model.initialState != -1) {
 					String userInput;
 					do {
 						userInput = JOptionPane.showInputDialog("Machine Input: ");
@@ -340,9 +341,8 @@ final class InitUI {
 											return;
 										}
 										if (stackSymbol.length() == 1) {
-											((DPA) PFLAP.machine).setInitialStackSymbol(
-													Functions.testForLambda(stackSymbol.charAt(0)));
-											// PFLAP.machine.run(userInput);
+//											((DPA) PFLAP.machine).setInitialStackSymbol(
+//													Functions.testForLambda(stackSymbol.charAt(0))); todo
 											Step.beginStep(userInput);
 										} else {
 											Notification.addNotification("Invalid Stack Symbol",
@@ -362,7 +362,7 @@ final class InitUI {
 						case "Fast Run" :
 							switch (PFLAP.mode) {
 								case DFA :
-									PFLAP.machine.run(userInput);
+									Model.runMachine(userInput);
 									break;
 								case DPA :
 									String stackSymbol;
@@ -372,9 +372,9 @@ final class InitUI {
 											return;
 										}
 										if (stackSymbol.length() == 1) {
-											((DPA) PFLAP.machine).setInitialStackSymbol(
-													Functions.testForLambda(stackSymbol.charAt(0)));
-											PFLAP.machine.run(userInput);
+//											((DPA) PFLAP.machine).setInitialStackSymbol(
+//													Functions.testForLambda(stackSymbol.charAt(0))); todo
+											Model.runMachine(userInput);
 										} else {
 											Notification.addNotification("Invalid Stack Symbol",
 													"Initial Stack Symbol must be single character.");
@@ -382,17 +382,17 @@ final class InitUI {
 									} while (stackSymbol.length() != 1);
 									break;
 								case MEALY :
-									PFLAP.machine.run(userInput);
-									Notification.addNotification("Machine Terminated",
-											"The machine terminated with output: "
-													+ ((machines.Mealy) PFLAP.machine).getOutput());
+									Model.runMachine(userInput);
+//									Notification.addNotification("Machine Terminated",
+//											"The machine terminated with output: "
+//													+ ((machines.Mealy) PFLAP.machine).getOutput()); todo
 									break;
 								case MOORE :
 									// todo check every state has symbol
-									PFLAP.machine.run(userInput);
-									Notification.addNotification("Machine Terminated",
-											"The machine terminated with output: "
-													+ ((machines.Moore) PFLAP.machine).getOutput());
+									Model.runMachine(userInput);
+//									Notification.addNotification("Machine Terminated",
+//											"The machine terminated with output: "
+//													+ ((machines.Moore) PFLAP.machine).getOutput()); todo
 									break;
 								default :
 									break;

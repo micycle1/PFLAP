@@ -1,28 +1,30 @@
 package commands;
 
+import main.PFLAP;
+import model.Model;
 import p5.State;
 
 public class toggleAccepting implements Command {
 	
-	private final State s;
+	private final int s;
 	
-	public toggleAccepting(State s) {
+	public toggleAccepting(int s) {
 		this.s = s;
 	}
 
 	@Override
 	public void execute() {
-		s.toggleAccepting();
+		Model.acceptingStates.add(s);
 	}
 
 	@Override
 	public void undo() {
-		s.toggleAccepting();
+		Model.acceptingStates.remove(s);
 	}
 
 	@Override
 	public String description() {
-		return "Toggle Accepting: State " + s.getLabel();
+		return "Toggle Accepting: State " + PFLAP.PApplet.view.getStateByID(s).getLabel();
 	}
 
 }

@@ -1,39 +1,35 @@
 package commands;
 
-import static main.PFLAP.machine;
-
-import main.PFLAP.PApplet;
-
-import p5.State;
+import model.Model;
 
 public final class addState implements Command {
 
-	private final State s;
+	private final int n;
 	private transient boolean initial = true;
 
-	public addState(State s) {
-		this.s = s;
+	public addState(Integer s) {
+		this.n = s;
 	}
 
 	@Override
 	public void execute() {
-		if (!initial) {
-			s.initCP5();  // re-create cp5 after load
-			initial = true;
-		}
-		machine.addNode(s);
-		PApplet.view.addState(s);
+//	 
+//		machine.addNode(s);
+//		PApplet.view.addState(s);
+		Model.addState(n);
 	}
 
 	@Override
 	public void undo() {
 		// if was initial, restore
-		PApplet.view.deleteState(s);
+//		PApplet.view.deleteState(s);
+		Model.deleteState(n);
 	}
 
 	@Override
 	public String description() {
-		return "New State: " + s.getLabel();
+		return "New State";
+//		return "New State: " + s.getLabel();
 	}
 
 }

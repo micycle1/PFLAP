@@ -7,7 +7,6 @@ import static main.Functions.angleBetween;
 import static main.Functions.testForLambda;
 
 import static main.PFLAP.cp5Font;
-import static main.PFLAP.machine;
 import static main.PFLAP.p;
 
 import static processing.core.PApplet.cos;
@@ -23,10 +22,9 @@ import controlP5.Textfield;
 
 import main.HistoryHandler;
 import main.PFLAP;
-
+import model.LogicalTransition;
+import model.Model;
 import processing.core.PVector;
-
-import transitionView.LogicalTransition;
 
 /**
  * Temporary arrow that displays between user adding arrow and entering transition info
@@ -128,9 +126,10 @@ public final class EntryArrow {
 				stackPush = testForLambda(transitionSymbolEntry.getStringValue());
 		}
 
-		LogicalTransition t = new LogicalTransition(head, tail, transitionSymbol, stackPop, stackPush);
+		LogicalTransition t = new LogicalTransition(PFLAP.PApplet.view.liveStates.inverse().get(head), // todo
+				PFLAP.PApplet.view.liveStates.inverse().get(tail), transitionSymbol, stackPop, stackPush);
 
-		if (machine.assureUniqueTransition(t)) {
+		if (Model.assureUniqueTransition(t)) {
 			HistoryHandler.buffer(new addTransition(t));
 			PFLAP.allowGUIInterraction = true;
 			transitionSymbolEntry.hide();

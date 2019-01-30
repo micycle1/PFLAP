@@ -10,8 +10,8 @@ import static processing.core.PApplet.sin;
 import java.util.ArrayList;
 
 import main.Functions;
+import model.LogicalTransition;
 import processing.core.PVector;
-import transitionView.LogicalTransition;
 
 public class BezierArrow extends AbstractArrow {
 

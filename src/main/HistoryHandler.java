@@ -133,7 +133,6 @@ public final class HistoryHandler {
 			p.noLoop();
 			ObjectInputStream in = new ObjectInputStream(new FileInputStream(path));
 			history.addAll((ArrayList<Command>) in.readObject());
-//			p.println(history.size()); remove
 			Queue<Command> executeLast = new LinkedList<>();
 			for (Command c : history) {
 //				p.println(history.indexOf(c), c.getClass().getName()); remove

@@ -1,4 +1,4 @@
-package transitionView;
+package model;
 
 import java.io.Serializable;
 
@@ -9,11 +9,11 @@ import p5.State;
  */
 public class LogicalTransition implements Serializable {
 	
-	protected State head, tail;
+	public Integer head, tail;
 	protected char transitionSymbol, stackPop;
 	protected String stackPush = "";
 	
-	public LogicalTransition(State head, State tail, char transitionSymbol, char stackPop, String stackPush) {
+	public LogicalTransition(Integer head, Integer tail, char transitionSymbol, char stackPop, String stackPush) {
 		this.head = head;
 		this.tail = tail;
 		this.transitionSymbol = transitionSymbol;
@@ -21,11 +21,11 @@ public class LogicalTransition implements Serializable {
 		this.stackPush = stackPush;
 	}
 	
-	public State getHead() {
+	public Integer getHead() {
 		return head;
 	}
 	
-	public State getTail() {
+	public Integer getTail() {
 		return tail;
 	}
 	

@@ -4,7 +4,6 @@ import static main.Consts.initialNodeIndicatorSize;
 import static main.Consts.stateRadius;
 
 import static main.PFLAP.cp5Font;
-import static main.PFLAP.machine;
 import static main.PFLAP.p;
 import static main.PFLAP.stateColour;
 import static main.PFLAP.stateSelectedColour;
@@ -28,7 +27,7 @@ import main.Functions;
 import main.HistoryHandler;
 import main.PFLAP;
 import main.PFLAP.modes;
-
+import model.Model;
 import processing.core.PApplet;
 import processing.core.PGraphics;
 import processing.core.PVector;
@@ -41,11 +40,12 @@ public class State implements Serializable {
 	private transient Slider sizeSlider;
 	private transient ControlListener listener, sizeSliderListener;
 	private transient Textfield moorePushInput;
+	private transient boolean selected = false, highlighted = false;
 	private PVector position, selectedPosition;
-	private boolean initial = false;
-	private transient boolean accepting = false, selected = false, highlighted = false;
+	
 	private int radius = stateRadius, highlightColor;
-	private final int liveID;
+	private final int abstractID;
+	
 	private static State renameState;
 	private static final Textfield rename;
 	private static final PGraphics initialIndicator;
@@ -80,7 +80,7 @@ public class State implements Serializable {
 
 	public State(PVector XY, int liveID) {
 		label = "q" + liveID;
-		this.liveID = liveID;
+		this.abstractID = liveID;
 		position = XY;
 		initCP5();
 	}
@@ -120,10 +120,10 @@ public class State implements Serializable {
 //						HistoryHandler.buffer(new addTransition(State.this, State.this)); // todo 
 						break;
 					case 1 : // Set As Initial
-						HistoryHandler.buffer(new setInitialState(State.this));
+						HistoryHandler.buffer(new setInitialState(abstractID));
 						break;
 					case 2 : // Toggle Accepting
-						HistoryHandler.buffer(new toggleAccepting(State.this));
+						HistoryHandler.buffer(new toggleAccepting(abstractID));
 						break;
 					case 3 : // Relabel
 						renameState = State.this;
@@ -191,10 +191,10 @@ public class State implements Serializable {
 	}
 
 	public void kill() {
-		machine.deleteNode(this);
-		if (initial) {
-			machine.setInitialState(null);
-		}
+//		machine.deleteNode(this); // todo
+//		if (initial) {
+//			machine.setInitialState(null);
+//		}
 	}
 	
 	public final void disposeUI() {
@@ -203,7 +203,7 @@ public class State implements Serializable {
 
 	public void draw() {
 
-		if (initial) {
+		if (Model.initialState == abstractID) {
 			p.image(initialIndicator, position.x - radius / 2 - 14, position.y - initialNodeIndicatorSize);
 		}
 		if (!selected) {
@@ -219,7 +219,7 @@ public class State implements Serializable {
 			p.ellipse(position.x, position.y, radius, radius);
 			p.fill(255);
 		}
-		if (accepting) {
+		if (Model.acceptingStates.contains(abstractID)) {
 			p.noFill();
 			p.strokeWeight(2);
 			p.ellipse(position.x, position.y, radius - 9, radius - 9);
@@ -255,11 +255,7 @@ public class State implements Serializable {
 		selected = false;
 		selectedPosition = null;
 	}
-	
-	public void toggleAccepting() {
-		accepting = !accepting;
-	}
-
+		
 	public void highLight(int highlightColor) {
 		this.highlightColor = highlightColor;
 		highlighted = true;
@@ -273,15 +269,7 @@ public class State implements Serializable {
 	public String getMoorePush() {
 		return moorePush;
 	}
-
-	public void setAsInitial() {
-		initial = true;
-	}
-
-	public void deInitial() {
-		initial = false;
-	}
-
+	
 	public PVector getSelectedPosition() {
 		return selectedPosition;
 	}
@@ -295,7 +283,7 @@ public class State implements Serializable {
 	}
 
 	public int getID() {
-		return liveID;
+		return abstractID;
 	}
 
 	private void hideUI() {
@@ -304,10 +292,6 @@ public class State implements Serializable {
 
 	public void showUI() {
 		stateOptions.show();
-	}
-
-	public boolean isAccepting() {
-		return accepting;
 	}
 	
 	public boolean isMouseOver() {

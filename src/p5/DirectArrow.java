@@ -13,9 +13,9 @@ import static processing.core.PConstants.TWO_PI;
 import java.util.ArrayList;
 
 import main.Functions;
+import model.LogicalTransition;
 import processing.core.PApplet;
 import processing.core.PVector;
-import transitionView.LogicalTransition;
 
 public class DirectArrow extends AbstractArrow {
 

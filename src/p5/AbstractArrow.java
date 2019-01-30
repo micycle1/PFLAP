@@ -16,10 +16,8 @@ import controlP5.Textfield;
 import main.Functions;
 import main.HistoryHandler;
 import main.PFLAP;
-
+import model.LogicalTransition;
 import processing.core.PVector;
-
-import transitionView.LogicalTransition;
 
 public abstract class AbstractArrow {
 	

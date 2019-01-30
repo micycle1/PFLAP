@@ -27,7 +27,8 @@ public final class Consts {
 		symbolInvalid(new String[] {"Symbol Entry Invalid", "Symbols must be one character in length."}),
 		transitionInvalid(new String[] {"Non-Unique Transition", "Transitions from each state in a deterministic machine must be unique."}),
 		machineAccepted(new String[] {"String Accepted", "The automaton accepted the input."}),
-		machineRejected(new String[] {"String Rejected", "The automaton rejected the input."}),
+		machineRejected(new String[] {"String Rejected", "The automaton consumed the input but the terminating state is non-accepting."}),
+		machineFailed(new String[] {"String Rejected", "The automaton did not consume the input."})
 		;
 		// @formatter:on
 

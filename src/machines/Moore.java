@@ -4,6 +4,7 @@ import com.google.common.collect.HashBasedTable;
 import com.google.common.collect.Table;
 
 import main.Step;
+import model.Machine;
 import p5.AbstractArrow;
 import p5.State;
 

@@ -4,6 +4,7 @@ import com.google.common.graph.MutableNetwork;
 import com.google.common.graph.NetworkBuilder;
 
 import main.Step;
+import model.Machine;
 import p5.AbstractArrow;
 import p5.State;
 

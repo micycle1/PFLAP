@@ -1,38 +1,32 @@
 package commands;
 
 import main.PFLAP;
+import model.Model;
 import p5.State;
 
 public class setInitialState implements Command {
 
-	private final State previousInitial, newInitial;
+	private final int previousInitial, newInitial;
 
-	public setInitialState(State s) {
-		previousInitial = PFLAP.machine.getInitialState();
+	public setInitialState(int s) {
+		previousInitial = Model.initialState;
 		newInitial = s;
 	}
 
 	@Override
 	public void execute() {
-		if (previousInitial != null) {
-			previousInitial.deInitial();
-		}
-		newInitial.setAsInitial();
-		PFLAP.machine.setInitialState(newInitial);
+		Model.initialState = newInitial;
 	}
 
 	@Override
 	public void undo() {
-		newInitial.deInitial();
-		if (previousInitial != null) {
-			previousInitial.setAsInitial();
-		}
-		PFLAP.machine.setInitialState(previousInitial);
+		Model.initialState = previousInitial;
 	}
 
 	@Override
 	public String description() {
-		return "Set Initial State: State " + newInitial.getLabel();
+		return "Set Initial State: State ";
+//		return "Set Initial State: State " + newInitial.getLabel();
 	}
 
 }

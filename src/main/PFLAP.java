@@ -10,6 +10,7 @@ import org.gicentre.utils.move.ZoomPanListener;
 
 import commands.Batch;
 import commands.Command;
+import commands.deleteState;
 import commands.moveState;
 
 import controlP5.ControlFont;
@@ -18,10 +19,10 @@ import controlP5.Textarea;
 
 import machines.DFA;
 import machines.DPA;
-import machines.Machine;
 import machines.Mealy;
 import machines.Moore;
-
+import model.Machine;
+import model.Model;
 import p5.AbstractArrow;
 import p5.Notification;
 import p5.SelectionBox;
@@ -52,7 +53,7 @@ public final class PFLAP {
 		DFA, DPA, MEALY, MOORE;
 	}
 
-	public static Machine machine;
+	// public static Machine machine; // move to model
 
 	public static modes mode;
 
@@ -84,7 +85,7 @@ public final class PFLAP {
 		private static PVector mouseClickXY, mouseReleasedXY, mouseCoords;
 		protected static Textarea trace;
 		private static ZoomPan zoomPan;
-		private static ArrayList<Command> multiMoveCache; 
+		private static ArrayList<Command> multiMoveCache;
 
 		public static View view;
 
@@ -227,17 +228,17 @@ public final class PFLAP {
 			DPA.hideUI();
 			switch (mode) {
 				case DFA :
-					machine = new DFA();
+					Model.newMachine(new DFA());
 					break;
 				case DPA :
-					machine = new DPA();
+					Model.newMachine(new DPA());
 					DPA.showUI();
 					break;
 				case MEALY :
-					machine = new Mealy();
+					Model.newMachine(new Mealy());
 					break;
 				case MOORE :
-					machine = new Moore();
+					Model.newMachine(new Moore());
 					break;
 				default :
 					break;
@@ -279,14 +280,13 @@ public final class PFLAP {
 			}
 			switch (key.getKeyCode()) {
 				case 127 : // 127 == delete key
-					// if (!selected.isEmpty()) {
-					// if (selected.size() == 1) {
-					// HistoryHandler.buffer(new deleteState(selected.iterator().next()));
-					// } else {
-					// HistoryHandler.buffer(new Batch(Batch.createDeleteBatch(selected)));
-					// }
-					// selected.clear();
-					// }
+					if (!view.getSelectedStates().isEmpty()) { // todo
+						if (view.getSelectedStates().size() == 1) {
+							HistoryHandler.buffer(new deleteState(view.getSelectedStates().iterator().next().getID()));
+						} else {
+							HistoryHandler.buffer(new Batch(Batch.createDeleteBatch(view.getSelectedStates())));
+						}
+					}
 					break;
 				case 122 : // F11
 					if (fullScreen) {
@@ -312,6 +312,7 @@ public final class PFLAP {
 		@Override
 		public void mousePressed(MouseEvent m) {
 			if (cp5.isMouseOver() || !allowGUIInterraction || HistoryList.isMouseOver() || keysDown.contains(SHIFT)) {
+				print("adasd");
 				return;
 			}
 			mouseClickXY = mouseCoords.copy();
@@ -355,7 +356,7 @@ public final class PFLAP {
 					}
 					break;
 				case CENTER :
-					 multiMoveCache = Batch.createMoveBatch(view.getSelectedStates());
+					multiMoveCache = Batch.createMoveBatch(view.getSelectedStates());
 					break;
 				default :
 					break;
@@ -379,7 +380,7 @@ public final class PFLAP {
 						} else { // drag existing state
 							HistoryHandler.buffer(new moveState(dragState, mouseClickXY));
 						}
-						dragState.deselect();
+						view.deselectAllStates();
 						dragState = null;
 					}
 					break;

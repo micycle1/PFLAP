@@ -5,19 +5,20 @@ import static main.PFLAP.machine;
 import java.util.ArrayList;
 
 import main.PFLAP;
+import model.LogicalTransition;
 import p5.State;
-import transitionView.LogicalTransition;
 
 public final class deleteState implements Command {
 
-	private final State s;
+	private final int s;
 	private final ArrayList<LogicalTransition> affectedTransitions;
 
-	public deleteState(State s) {
+	public deleteState(int s) {
 		this.s = s;
 		affectedTransitions = PFLAP.PApplet.view.getConnectingTransitions(s);
 	}
 
+	// todo delete by ID
 	@Override
 	public void execute() {
 		PFLAP.PApplet.view.deleteState(s);
@@ -26,7 +27,7 @@ public final class deleteState implements Command {
 	@Override
 	public void undo() {
 		PFLAP.PApplet.view.addState(s);
-		PFLAP.PApplet.view.addTransitions(affectedTransitions);
+		PFLAP.PApplet.view.addTransition(affectedTransitions);
 	}
 
 	@Override
