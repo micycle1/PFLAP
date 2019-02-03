@@ -21,8 +21,9 @@ import machines.DFA;
 import machines.DPA;
 import machines.Mealy;
 import machines.Moore;
-import model.Machine;
+
 import model.Model;
+
 import p5.AbstractArrow;
 import p5.Notification;
 import p5.SelectionBox;
@@ -36,7 +37,6 @@ import processing.event.MouseEvent;
 import transitionView.View;
 
 /**
- * sync view with machine
  * @author micycle1
  * @version 1.x
  */
@@ -52,8 +52,6 @@ public final class PFLAP {
 	public static enum modes {
 		DFA, DPA, MEALY, MOORE;
 	}
-
-	// public static Machine machine; // move to model
 
 	public static modes mode;
 
@@ -211,12 +209,7 @@ public final class PFLAP {
 		private static void reset() {
 			// HistoryHandler.resetAll();
 
-			// arrows.forEach(a -> a.disposeUI());
-			// arrows.clear();
 			view.reset();
-			// nodes.forEach(n -> n.disposeUI());
-			// nodes.clear();
-			// selected.clear();
 			Notification.clear();
 			Step.endStep();
 			mouseOverState = null;
@@ -224,21 +217,20 @@ public final class PFLAP {
 			arrowHeadState = null;
 			dragState = null;
 			drawingArrow = false;
-			// mouseOverTransition = null;
 			DPA.hideUI();
 			switch (mode) {
 				case DFA :
-					Model.newMachine(new DFA());
+					Model.reset(new DFA());
 					break;
 				case DPA :
-					Model.newMachine(new DPA());
+					Model.reset(new DPA());
 					DPA.showUI();
 					break;
 				case MEALY :
-					Model.newMachine(new Mealy());
+					Model.reset(new Mealy());
 					break;
 				case MOORE :
-					Model.newMachine(new Moore());
+					Model.reset(new Moore());
 					break;
 				default :
 					break;
@@ -282,7 +274,7 @@ public final class PFLAP {
 				case 127 : // 127 == delete key
 					if (!view.getSelectedStates().isEmpty()) { // todo
 						if (view.getSelectedStates().size() == 1) {
-							HistoryHandler.buffer(new deleteState(view.getSelectedStates().iterator().next().getID()));
+							HistoryHandler.buffer(new deleteState(view.getSelectedStates().iterator().next()));
 						} else {
 							HistoryHandler.buffer(new Batch(Batch.createDeleteBatch(view.getSelectedStates())));
 						}
@@ -312,7 +304,6 @@ public final class PFLAP {
 		@Override
 		public void mousePressed(MouseEvent m) {
 			if (cp5.isMouseOver() || !allowGUIInterraction || HistoryList.isMouseOver() || keysDown.contains(SHIFT)) {
-				print("adasd");
 				return;
 			}
 			mouseClickXY = mouseCoords.copy();

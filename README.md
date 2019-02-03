@@ -37,7 +37,8 @@ PFLAP
 - [ ] Visualise DPA machine stack (in stepping mode).
 - [x] Collapse multiple transitions between the same pair of states into a single transition.
 - [ ] Batch input for fast-run mode.
-- [x] Implement Moore and Mealy machines
+- [x] Implement Moore and Mealy machines.
+- [ ] Replace Java AWT GUI elements with JavaFX.
 
 ## Libraries
 - `processing` [github](https://github.com/processing/processing)

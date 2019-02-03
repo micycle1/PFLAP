@@ -9,6 +9,11 @@ import static processing.core.PApplet.cos;
 import static processing.core.PApplet.radians;
 import static processing.core.PApplet.sin;
 
+import java.util.ArrayList;
+
+import model.LogicalTransition;
+import model.Model;
+import processing.core.PConstants;
 import processing.core.PVector;
 
 public class SelfArrow extends AbstractArrow {
@@ -17,10 +22,9 @@ public class SelfArrow extends AbstractArrow {
 	private final float selfTransitionAngle;
 	private float selfBezierAngle, textSize;
 
-	public SelfArrow(State s) {
-		super(s, s);
-//		selfTransitionAngle = radians((PFLAP.arrows.size() * 50)); todo
-		selfTransitionAngle = radians((2 * 50));
+	public SelfArrow(State s, ArrayList<LogicalTransition> t) {
+		super(s, s, t);
+		selfTransitionAngle = radians((s.getID() * 50));
 		update();
 	}
 
@@ -48,11 +52,11 @@ public class SelfArrow extends AbstractArrow {
 
 	@Override
 	public void draw() {
-		p.strokeWeight(2);
 		p.noFill();
 		p.bezier(head.getPosition().x, head.getPosition().y, selfBezierCP1.x, selfBezierCP1.y, selfBezierCP2.x,
 				selfBezierCP2.y, head.getPosition().x, head.getPosition().y);
 		drawArrowTip(selfBezierTranslate, selfBezierAngle);
+		p.textAlign(PConstants.LEFT, PConstants.CENTER);
 		drawTransitionLabel(selfBezierTextLoc);
 	}
 

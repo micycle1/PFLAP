@@ -4,8 +4,10 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
 
+import main.PFLAP;
 import p5.AbstractArrow;
 import p5.State;
+import transitionView.View;
 
 /**
  * Container object for multiple Commands, such as when multiple states are
@@ -55,22 +57,9 @@ public final class Batch implements Command {
 	 * @param states HashSet of {@link State States} to be deleted.
 	 * @return ArrayList of {@link deleteState} Commands.
 	 */
-	public static ArrayList<Command> createDeleteBatch(HashSet<State> states) {
+	public static ArrayList<Command> createDeleteBatch(HashSet<Integer> states) {
 		ArrayList<Command> tempCommands = new ArrayList<Command>();
-		for (State s : states) {
-			tempCommands.add(new deleteState(s));
-		}
-		return tempCommands;
-	}
-
-	/**
-	 * Creates a an ArrayList of Commands; suitable for input into a Batch instance.
-	 * @param states
-	 * @return ArrayList of {@link deleteState} Commands.
-	 */
-	public static ArrayList<Command> createDeleteBatch(ArrayList<State> states) {
-		ArrayList<Command> tempCommands = new ArrayList<Command>();
-		for (State s : states) {
+		for (Integer s : states) {
 			tempCommands.add(new deleteState(s));
 		}
 		return tempCommands;
@@ -81,14 +70,15 @@ public final class Batch implements Command {
 	 * @param states HashSet of {@link State States} to be moved.
 	 * @return ArrayList of {@link moveState} Commands.
 	 */
-	public static ArrayList<Command> createMoveBatch(HashSet<State> states) {
+	public static ArrayList<Command> createMoveBatch(HashSet<Integer> states) {
 		ArrayList<Command> tempCommands = new ArrayList<Command>();
-		for (State s : states) {
-			tempCommands.add(new moveState(s, s.getPosition()));
+		for (Integer s : states) {
+			tempCommands.add(new moveState(PFLAP.PApplet.view.getStateByID(s),
+					PFLAP.PApplet.view.getStateByID(s).getPosition()));
 		}
 		return tempCommands;
 	}
-	
+
 	/**
 	 * Creates a an ArrayList of Commands; suitable for input into a Batch instance.
 	 * @param arrows Arraylist of {@link ArrowOld Arrows} to be deleted.

@@ -16,7 +16,9 @@ import controlP5.Textfield;
 import main.Functions;
 import main.HistoryHandler;
 import main.PFLAP;
+
 import model.LogicalTransition;
+
 import processing.core.PVector;
 
 public abstract class AbstractArrow {
@@ -26,22 +28,22 @@ public abstract class AbstractArrow {
 	protected ListBox stateOptions;
 	private ControlListener menuListener;
 	private Textfield transitionSymbolEntry;
-//	private ArrayList<Character> transitionSymbol, stackPop;
-//	private ArrayList<String> stackPush; //  = "";
 	private String transitionInfo = "";
 	protected final int ID;
-	public ArrayList<LogicalTransition> transitions;
+	public ArrayList<LogicalTransition> transitions; // Transitions this arrow represents
 
 	private static enum entryTypes {
 		SYMBOL, POP, PUSH;
 	}
 	private entryTypes entryType = entryTypes.SYMBOL;
 	
-	public AbstractArrow(State head, State tail) {
-		ID = this.hashCode();
-		this.head = head;
-		this.tail = tail;
-	}
+//	public AbstractArrow(State head, State tail) {
+//		ID = this.hashCode();
+//		this.head = head;
+//		this.tail = tail;
+//		initCP5();
+//		update();
+//	}
 
 	public AbstractArrow(State head, State tail, ArrayList<LogicalTransition> transitions) {
 		ID = this.hashCode();

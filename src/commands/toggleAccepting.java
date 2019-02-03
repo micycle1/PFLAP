@@ -1,8 +1,6 @@
 package commands;
 
-import main.PFLAP;
 import model.Model;
-import p5.State;
 
 public class toggleAccepting implements Command {
 	
@@ -24,7 +22,7 @@ public class toggleAccepting implements Command {
 
 	@Override
 	public String description() {
-		return "Toggle Accepting: State " + PFLAP.PApplet.view.getStateByID(s).getLabel();
+		return "Toggle Accepting: " + s;
 	}
 
 }

@@ -27,7 +27,9 @@ import main.Functions;
 import main.HistoryHandler;
 import main.PFLAP;
 import main.PFLAP.modes;
+
 import model.Model;
+
 import processing.core.PApplet;
 import processing.core.PGraphics;
 import processing.core.PVector;
@@ -50,7 +52,7 @@ public class State implements Serializable {
 	private static final Textfield rename;
 	private static final PGraphics initialIndicator;
 
-	static { // only one rename box for class
+	static { // only one rename box for all States (class-based)
 		// @formatter:off
 		rename = PFLAP.cp5.addTextfield("Rename State");
 		rename.hide()
@@ -117,7 +119,7 @@ public class State implements Serializable {
 				switch ((int) optionSelected.getValue()) {
 					case 0 : // Add Self-Transition
 						PFLAP.allowGUIInterraction = false;
-//						HistoryHandler.buffer(new addTransition(State.this, State.this)); // todo 
+						PFLAP.PApplet.view.entryArrow(State.this, State.this);
 						break;
 					case 1 : // Set As Initial
 						HistoryHandler.buffer(new setInitialState(abstractID));
@@ -137,7 +139,7 @@ public class State implements Serializable {
 						sizeSlider.show();
 						break;
 					case 5 : // Delete
-						HistoryHandler.buffer(new commands.deleteState(State.this));
+						HistoryHandler.buffer(new commands.deleteState(abstractID));
 						break;
 					case 6 : // Moore Input
 						moorePushInput.setFocus(true).show();
@@ -188,13 +190,6 @@ public class State implements Serializable {
 		}
 		cp5.setPosition((int) this.position.x + 10, (int) this.position.y + 10);
 		resizeGUI.setPosition((int) (position.x) - 50, (int) (position.y));
-	}
-
-	public void kill() {
-//		machine.deleteNode(this); // todo
-//		if (initial) {
-//			machine.setInitialState(null);
-//		}
 	}
 	
 	public final void disposeUI() {

@@ -15,6 +15,7 @@ import java.util.ArrayList;
 import main.Functions;
 import model.LogicalTransition;
 import processing.core.PApplet;
+import processing.core.PConstants;
 import processing.core.PVector;
 
 public class DirectArrow extends AbstractArrow {
@@ -52,7 +53,6 @@ public class DirectArrow extends AbstractArrow {
 
 	@Override
 	public void draw() {
-		p.strokeWeight(2);
 		p.line(directTail.x, directTail.y, directHead.x, directHead.y);
 		drawArrowTip(directHead, theta1);
 		p.pushMatrix();
@@ -60,6 +60,7 @@ public class DirectArrow extends AbstractArrow {
 		p.rotate(labelRotationOffset);
 		p.textSize(textSize);
 		p.textLeading(textSize/1.5f);
+		p.textAlign(PConstants.CENTER, PConstants.BOTTOM);
 		drawTransitionLabel(new PVector(
 				labelRotationModifier * dist(directTail.x, directTail.y, directHead.x, directHead.y) / 2, 10));
 		p.popMatrix();

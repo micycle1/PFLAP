@@ -17,7 +17,7 @@ import p5.Notification;
 public final class Model {
 
 	private static Machine m = new DFA(); // runs on model data
-	public static final MutableNetwork<Integer, LogicalTransition> transitionGraph; // logical transitions
+	public static MutableNetwork<Integer, LogicalTransition> transitionGraph; // logical transitions
 
 	public static int initialState = -1; // -1 = none
 	public static final HashSet<Integer> acceptingStates;
@@ -30,8 +30,13 @@ public final class Model {
 		acceptingStates = new HashSet<>();
 	}
 	
-	public static void newMachine(Machine m) {
+	public static void reset(Machine m) {
 		Model.m = m;
+		transitionGraph = NetworkBuilder.directed().allowsParallelEdges(true).expectedNodeCount(50)
+				.expectedEdgeCount(200).allowsSelfLoops(true).build();
+		acceptingStates.clear();
+		initialState = -1;
+		nextStateID = 0;
 	}
 	
 	public static void runMachine(String input) {
@@ -84,14 +89,14 @@ public final class Model {
 
 	public static void addState(Integer n) {
 		transitionGraph.addNode(n);
-		PFLAP.PApplet.view.rebuild();
+		PFLAP.PApplet.view.rebuild(n);
 	}
 
 	public static void deleteState(Integer n) {
 		transitionGraph.removeNode(n);
 		PFLAP.PApplet.view.deleteState(n);
 	}
-
+	
 	public static ArrayList<LogicalTransition> getConnectingTransitions(Integer s) {
 		return new ArrayList<>(transitionGraph.incidentEdges(s));
 	}

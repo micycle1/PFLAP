@@ -8,14 +8,15 @@ import java.io.IOException;
 import java.io.InvalidClassException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.Queue;
 
 import commands.Command;
-import commands.addState;
-import commands.addTransition;
-import commands.moveState;
+
+import main.PFLAP.PApplet;
+
 import p5.Notification;
 
 public final class HistoryHandler {
@@ -116,11 +117,10 @@ public final class HistoryHandler {
 			ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream(path));
 			ArrayList<Command> liveHistory = new ArrayList<>(
 					history.subList(history.size() - historyStateIndex - 1, history.size()));
-			out.writeObject(liveHistory);
+			Object[] objects = new Object[]{liveHistory, PApplet.view.save()};
+			out.writeObject(objects);
 			out.close();
 		} catch (IOException e) {
-			p.println(e.getStackTrace());
-			p.println(e.getMessage());
 			Notification.addNotification("Saving Failed", "Could not save the machine file.");
 		}
 	}
@@ -129,37 +129,13 @@ public final class HistoryHandler {
 	protected static void loadHistory(String path) {
 		try {
 			resetAll();
-//			PFLAP.reset();
+			// PFLAP.reset();
 			p.noLoop();
 			ObjectInputStream in = new ObjectInputStream(new FileInputStream(path));
-			history.addAll((ArrayList<Command>) in.readObject());
-			Queue<Command> executeLast = new LinkedList<>();
-			for (Command c : history) {
-//				p.println(history.indexOf(c), c.getClass().getName()); remove
-//				if (c instanceof Batch) {
-//					continue;
-//				}
-				
-//				if (c instanceof moveState) {
-//					executeLast.add(c); // still needed w/ view class?
-//				} else {
-//					c.execute();
-//				}
-				
-				c.execute();
-				
-//				if (c instanceof addState) {
-//					PFLAP.nodes.get(PFLAP.nodes.size() - 1).initCP5();
-//				}
-//				if (c instanceof addTransition) {
-//					PFLAP.arrows.get(PFLAP.arrows.size() - 1).initCP5();
-//					PFLAP.arrows.get(PFLAP.arrows.size() - 1).update();
-//				}
-			}
-//			PFLAP.arrows.forEach(a -> a.update());
-			while (!executeLast.isEmpty()) {
-				executeLast.poll().execute();
-			}
+			Object[] data = (Object[]) in.readObject();
+			PApplet.view.load(data[1]);
+			history.addAll((ArrayList<Command>) data[0]);
+			history.forEach(c -> c.execute());
 			historyStateIndex = history.size() - 1;
 			HistoryList.update();
 			in.close();

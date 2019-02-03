@@ -11,16 +11,13 @@ import java.util.ArrayList;
 
 import main.Functions;
 import model.LogicalTransition;
+import processing.core.PConstants;
 import processing.core.PVector;
 
 public class BezierArrow extends AbstractArrow {
 
 	private float textSize, arrowTipAngle, theta2;
 	private PVector bezierCPoint, bezierApex, arrowTip, midPoint;
-
-//	public BezierArrow(State head, State tail) {
-//		super(head, tail);
-//	}
 	
 	public BezierArrow(State head, State tail, ArrayList<LogicalTransition> t) {
 		super(head, tail, t);
@@ -45,11 +42,11 @@ public class BezierArrow extends AbstractArrow {
 
 	@Override
 	public void draw() {
-		p.strokeWeight(2);
 		p.noFill();
 		p.curve(bezierCPoint.x, bezierCPoint.y, tail.getPosition().x, tail.getPosition().y, head.getPosition().x,
 				head.getPosition().y, bezierCPoint.x, bezierCPoint.y);
 		drawArrowTip(arrowTip, arrowTipAngle);
+		p.textAlign(PConstants.CENTER, PConstants.CENTER);
 		drawTransitionLabel(bezierApex);
 	}
 

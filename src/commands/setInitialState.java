@@ -1,8 +1,6 @@
 package commands;
 
-import main.PFLAP;
 import model.Model;
-import p5.State;
 
 public class setInitialState implements Command {
 
@@ -25,8 +23,7 @@ public class setInitialState implements Command {
 
 	@Override
 	public String description() {
-		return "Set Initial State: State ";
-//		return "Set Initial State: State " + newInitial.getLabel();
+		return "Set Initial State: " + newInitial;
 	}
 
 }

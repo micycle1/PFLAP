@@ -2,6 +2,7 @@ package model;
 
 import java.io.Serializable;
 
+import main.PFLAP;
 import p5.State;
 
 /**
@@ -16,6 +17,14 @@ public class LogicalTransition implements Serializable {
 	public LogicalTransition(Integer head, Integer tail, char transitionSymbol, char stackPop, String stackPush) {
 		this.head = head;
 		this.tail = tail;
+		this.transitionSymbol = transitionSymbol;
+		this.stackPop = stackPop;
+		this.stackPush = stackPush;
+	}
+	
+	public LogicalTransition(State head, State tail, char transitionSymbol, char stackPop, String stackPush) {
+		this.head = PFLAP.PApplet.view.getIDByState(head);
+		this.tail = PFLAP.PApplet.view.getIDByState(tail);
 		this.transitionSymbol = transitionSymbol;
 		this.stackPop = stackPop;
 		this.stackPush = stackPush;
@@ -38,6 +47,11 @@ public class LogicalTransition implements Serializable {
 
 	public char getSymbol() {
 		return transitionSymbol;
+	}
+	
+	@Override
+	public String toString() {
+		return tail + " -> " + transitionSymbol + " -> " + head;
 	}
 	
 }

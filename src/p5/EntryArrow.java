@@ -13,6 +13,8 @@ import static processing.core.PApplet.cos;
 import static processing.core.PApplet.sin;
 import static processing.core.PConstants.TWO_PI;
 
+import processing.core.PVector;
+
 import commands.addTransition;
 
 import controlP5.CallbackEvent;
@@ -22,9 +24,9 @@ import controlP5.Textfield;
 
 import main.HistoryHandler;
 import main.PFLAP;
+
 import model.LogicalTransition;
 import model.Model;
-import processing.core.PVector;
 
 /**
  * Temporary arrow that displays between user adding arrow and entering transition info
@@ -126,8 +128,7 @@ public final class EntryArrow {
 				stackPush = testForLambda(transitionSymbolEntry.getStringValue());
 		}
 
-		LogicalTransition t = new LogicalTransition(PFLAP.PApplet.view.liveStates.inverse().get(head), // todo
-				PFLAP.PApplet.view.liveStates.inverse().get(tail), transitionSymbol, stackPop, stackPush);
+		LogicalTransition t = new LogicalTransition(head, tail, transitionSymbol, stackPop, stackPush);
 
 		if (Model.assureUniqueTransition(t)) {
 			HistoryHandler.buffer(new addTransition(t));

@@ -30,7 +30,6 @@ import p5.SelfArrow;
 import p5.State;
 
 import processing.core.PApplet;
-import processing.core.PConstants;
 import processing.core.PVector;
 
 /**
@@ -40,18 +39,10 @@ import processing.core.PVector;
  */
 public final class View {
 
-//	private MutableNetwork<State, LogicalTransition> transitionGraph; // logical transitions
-
 	private final ArrayList<AbstractArrow> liveTransitions; // rendered transitions (type of transition) or hashmap of tail state to transition
-//	private HashMap<State, ArrayList<AbstractArrow>> liveTransitions1; // rendered transitions (type of transition) or hashmap of tail state to transition
-	public final BiMap<Integer, State> liveStates;
-
-//	private final  ArrayList<State> states = new ArrayList<>(); // todo use transitionGraph.nodes? 
+	private final BiMap<Integer, State> liveStates;
+	private final BiMap<Integer, State> disposedStates; // non-live (after undo, etc)
 	
-//	private HashMap<Integer, State> liveStates;
-	
-	// map from int to states
-
 	private PApplet p;
 
 	private EntryArrow entryArrow;
@@ -60,6 +51,7 @@ public final class View {
 		p = parent;
 		liveTransitions = new ArrayList<>();
 		liveStates = HashBiMap.create();
+		disposedStates = HashBiMap.create();
 	}
 	
 	public void moveState(State s, PVector pos) {
@@ -72,7 +64,8 @@ public final class View {
 	}
 
 	/**
-	 * Called when user clicks to create a new state
+	 * Called when user clicks to create a new state.
+	 * Here the view calls the model, which then updates the view.
 	 */
 	public State newState(PVector mouseCoords) {
 		State s = new State(mouseCoords, liveStates.size());
@@ -81,9 +74,12 @@ public final class View {
 		return s;
 	}
 	
+	/**
+	 * Called by model only
+	 */
 	public void deleteState(int n) {
-		p.println(n);
-		liveStates.get(n).disposeUI();
+		disposedStates.put(n, liveStates.get(n));
+//		disposedStates.get(n).hideUI(); todo?
 		liveStates.remove(n);
 		rebuild();
 	}
@@ -111,12 +107,10 @@ public final class View {
 
 	public void draw() {
 		p.textAlign(CENTER, CENTER);
-		p.noFill();
 		p.strokeWeight(2);
-		p.stroke(PFLAP.transitionColour.getRGB()); // todo
+		p.stroke(PFLAP.transitionColour.getRGB());
 		p.textSize(18);
-		// p.textFont(comfortaaRegular); // todo
-		p.textAlign(PConstants.CENTER, PConstants.BOTTOM);
+		p.noFill();
 		liveTransitions.forEach(t -> t.draw());
 		if (entryArrow != null) {
 			if (entryArrow.dispose) {
@@ -127,11 +121,9 @@ public final class View {
 		}
 
 		p.textSize(Consts.stateFontSize);
-		// p.textFont(comfortaaBold);
 		p.stroke(0);
 		p.strokeWeight(3);
 		p.textAlign(CENTER, CENTER);
-//		states.forEach(s -> s.draw());
 		liveStates.values().forEach(s -> s.draw());
 	}
 
@@ -160,11 +152,11 @@ public final class View {
 		}
 	}
 
-	public HashSet<State> getSelectedStates() {
-		HashSet<State> selected = new HashSet<>();
-		for (State state : liveStates.values()) {
-			if (state.isSelected()) {
-				selected.add(state);
+	public HashSet<Integer> getSelectedStates() {
+		HashSet<Integer> selected = new HashSet<>();		
+		for (Integer n : liveStates.keySet()) {
+			if (liveStates.get(n).isSelected()) {
+				selected.add(n);
 			}
 		}
 		return selected;
@@ -177,6 +169,10 @@ public final class View {
 	public State getStateByID(int n) {
 		return liveStates.get(n);
 	}
+	
+	public Integer getIDByState(State s) {
+		return liveStates.inverse().get(s);
+	}
 
 	public void hideUI() {
 		liveTransitions.forEach(a -> a.hideUI());
@@ -186,8 +182,7 @@ public final class View {
 	 * Rebuilds list of p5 arrows
 	 * todo Rebuild only those that are affected?
 	 */
-	public void rebuild() {
-		
+	public void rebuild() {	
 		liveTransitions.forEach(t -> t.disposeUI());
 		liveTransitions.clear();
 		LinkedList<LogicalTransition> edges = new LinkedList<>(Model.transitionGraph.edges());
@@ -199,7 +194,7 @@ public final class View {
 			State tail = liveStates.get(edge.tail);
 			
 			if (head.equals(tail)) {
-				a = new SelfArrow(head);
+				a = new SelfArrow(head, new ArrayList<LogicalTransition>(Model.transitionGraph.edgesConnecting(edge.tail, edge.head)));
 			} else {
 				if (Model.transitionGraph.edgesConnecting(edge.head, edge.tail).size() == 0) {
 					a = new DirectArrow(head, tail,
@@ -211,8 +206,15 @@ public final class View {
 			}
 			edges.removeAll(Model.transitionGraph.edgesConnecting(edge.tail, edge.head));
 			liveTransitions.add(a);
-			// mapping.put(t, a); // map from abstract transition to concrete p5 arrow
 		}
+	}
+	
+	public void rebuild(Integer n) {
+		if (disposedStates.keySet().contains(n)) {
+			liveStates.put(n, disposedStates.get(n));
+			disposedStates.remove(n);
+		}
+		rebuild();
 	}
 	
 	public void reskin() {
@@ -224,6 +226,21 @@ public final class View {
 		liveTransitions.clear();
 		liveStates.values().forEach(n -> n.disposeUI());
 		liveStates.clear();
+		disposedStates.values().forEach(n -> n.disposeUI());
+		disposedStates.clear();
+	}
+	
+	/**
+	 * Export live GUI states to HistoryHandler
+	 */
+	public BiMap<Integer, State> save() {
+		return liveStates;
+	}
+	
+	@SuppressWarnings("unchecked")
+	public void load(Object liveStates) {
+		this.liveStates.putAll((BiMap<Integer, State>) liveStates);
+		this.liveStates.values().forEach(s -> s.initCP5());
 	}
 
 	public AbstractArrow transitionMouseOver(PVector mouseClick) {
