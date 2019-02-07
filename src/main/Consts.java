@@ -50,29 +50,28 @@ public final class Consts {
 	}
 
 	// @formatter:off
-	protected static final String about = "PFLAP: Processing Formal Languages and Automata Package.\r\n" + 
-			"A JFLAP alternative using the Processing library as the graphics backend.",
+	public static final String about = "A JFLAP alternative using the Processing library as the graphics backend.";
 
-			helpPFLAP = "In PFLAP, spaces (' ') are read as lambda (blank) transitions.\r\n\n" +
-					"Mouse:\r\n" + 
-					"\r\n" + 
-					"Left-Click (press): Add New State / Select State.\r\n" + 
-					"Left-Click (hold & drag): Move State.\r\n" + 
-					"Right-Click (press): Open State options menu.\r\n" + 
-					"Right-Click (start on state & drag): Add new transition.\r\n" + 
-					"Right-Click (start on empty region & drag): Selection Box.\r\n" +
-					"Middle-Mouse (Drag): Move all selected states.\r\n" +
-					"\r\n" + 
-					"Keyboard:\r\n" + 
-					"\r\n" +
-					"ESC: Exit Program.\r\n" +
-					"DEL: Delete Selected States.\r\n" + 
-					"LEFT: Step Backward [Stepping Mode].\r\n" +
-					"RIGHT: Step Forward [Stepping Mode].\r\n" +
-					"CTRL-H: Toggle History List.\r\n" +
-					"CTRL-Z: Undo.\r\n" +
-					"CTRL-Y: Redo.\r\n" +
-					"F-11: Toggle Fullscreen.";
+	public static final String helpPFLAP = "In PFLAP, spaces (' ') are read as lambda (blank) transitions.\r\n\n" +
+			"Mouse:\r\n" + 
+			"\r\n" + 
+			"Left-Click (press): Add New State / Select State.\r\n" + 
+			"Left-Click (hold & drag): Move State.\r\n" + 
+			"Right-Click (press): Open State options menu.\r\n" + 
+			"Right-Click (start on state & drag): Add new transition.\r\n" + 
+			"Right-Click (start on empty region & drag): Selection Box.\r\n" +
+			"Middle-Mouse (Drag): Move all selected states.\r\n" +
+			"\r\n" + 
+			"Keyboard:\r\n" + 
+			"\r\n" +
+			"ESC: Exit Program.\r\n" +
+			"DEL: Delete Selected States.\r\n" + 
+			"LEFT: Step Backward [Stepping Mode].\r\n" +
+			"RIGHT: Step Forward [Stepping Mode].\r\n" +
+			"CTRL-H: Toggle History List.\r\n" +
+			"CTRL-Z: Undo.\r\n" +
+			"CTRL-Y: Redo.\r\n" +
+			"F-11: Toggle Fullscreen.";
 	
 	protected static final String helpStep = "Step backward and forward with the left and right arrow keys respectively.\r\n" +
 	"Once the machine terminates, the terminating state will turn green to indicate acceptance or red to indicate the contrary.\r\n" +

@@ -17,6 +17,10 @@ import controlP5.ControlFont;
 import controlP5.ControlP5;
 import controlP5.Textarea;
 
+import javafx.App;
+import javafx.Controller;
+import javafx.application.Application;
+
 import machines.DFA;
 import machines.DPA;
 import machines.Mealy;
@@ -30,15 +34,17 @@ import p5.SelectionBox;
 import p5.State;
 
 import processing.core.PFont;
+import processing.core.PSurface;
 import processing.core.PVector;
 import processing.event.KeyEvent;
 import processing.event.MouseEvent;
-
+import processing.javafx.PSurfaceFX;
 import transitionView.View;
 
 /**
  * @author micycle1
  * @version 1.1
+ * zoompan broken (hotkey)
  */
 public final class PFLAP {
 
@@ -92,20 +98,56 @@ public final class PFLAP {
 		}
 
 		@Override
+		protected PSurface initSurface() {
+			g = createPrimaryGraphics();
+			PSurface genericSurface = g.createSurface();
+			PSurfaceFX fxSurface = (PSurfaceFX) genericSurface;
+			fxSurface.sketch = this;
+			App.surface = fxSurface;
+			Controller.surface = fxSurface;
+
+			new Thread(() -> Application.launch(App.class)).start();
+
+			while (fxSurface.stage == null) {
+				try {
+					Thread.sleep(5);
+				} catch (InterruptedException e) {
+				}
+			}
+			this.surface = fxSurface;
+			return surface;
+		}
+
+		@Override
 		public void settings() {
-			size(Consts.WIDTH, Consts.HEIGHT);
-			// size(Consts.WIDTH, Consts.HEIGHT, FX2D);
+			// size(Consts.WIDTH, Consts.HEIGHT);
+			size(0, 0, FX2D);
 			smooth(4);
+		}
+
+		protected void initCp5() {
+			PFont traceFont = p.createFont("Comfortaa Regular", 12, true);
+			cp5 = new ControlP5(p);
+			cp5.setFont(PFLAP.cp5Font);
+		// @formatter:off
+		PApplet.trace = cp5.addTextarea("Trace")
+			.setVisible(false)
+			.setPosition(10, 670)
+			.setSize(200, 100)
+			.setFont(traceFont)
+			.setLineHeight(14)
+			.setColor(Functions.color(255, 255, 255))
+			.setColorBackground(Functions.color(200, 200, 200))
+			.setMoveable(false)
+			;
+			// @formatter:on
+			// PFLAP.cp5.addConsole(PFLAP.PApplet.trace);
 		}
 
 		@SuppressWarnings("unused")
 		@Override
 		public void setup() {
 			p = this;
-
-			surface.setTitle(Consts.title);
-			surface.setLocation(displayWidth / 2 - width / 2, displayHeight / 2 - height / 2);
-			surface.setResizable(true);
 
 			zoom = 1;
 			zoomPan = new ZoomPan(this);
@@ -124,11 +166,6 @@ public final class PFLAP {
 			});
 
 			FontTextParameters : {
-				try {
-					surface.setIcon(loadImage("icon_small.png"));
-				} catch (NullPointerException e) {
-				}
-
 				comfortaaRegular = createFont("Comfortaa.ttf", 24, true);
 				if (comfortaaRegular == null) {
 					comfortaaRegular = createDefaultFont(24);
@@ -155,8 +192,7 @@ public final class PFLAP {
 			}
 
 			cursor(ARROW);
-			InitUI.initCp5();
-			InitUI.initMenuBar();
+			initCp5();
 			mode = modes.DFA;
 			view = new View(this);
 			reset();
@@ -206,8 +242,7 @@ public final class PFLAP {
 		}
 
 		private static void reset() {
-			// HistoryHandler.resetAll();
-
+			HistoryHandler.resetAll();
 			view.reset();
 			Notification.clear();
 			Step.endStep();
@@ -237,13 +272,14 @@ public final class PFLAP {
 			reset = false;
 		}
 
-		protected static void setZoom(float zoom) {
+		public static void setZoom(float zoom) {
 			zoomPan.reset();
 			zoomPan.setZoomScale(zoom);
 		}
 
 		@Override
 		public void keyPressed(KeyEvent e) {
+			print(e.getKeyCode());
 			keysDown.add(e.getKeyCode());
 			switch (e.getKey()) {
 				default :

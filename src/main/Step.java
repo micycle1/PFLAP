@@ -9,7 +9,7 @@ import static main.PFLAP.p;
 
 import java.util.ArrayList;
 
-import javax.swing.JOptionPane;
+//import javax.swing.JOptionPane;
 
 import controlP5.Button;
 import controlP5.ControlEvent;
@@ -33,7 +33,7 @@ public class Step {
 	private static Integer liveState;
 	private static ArrayList<Integer> visited;
 	private static int visitedIndex;
-	private static final Button closeStep, help;
+//	private static final Button closeStep, help;
 	private static PGraphics staticGUI;
 
 	private Step() {
@@ -43,46 +43,46 @@ public class Step {
 	static {
 		drawStaticGui();
 
-		closeStep = new Button(PFLAP.cp5, "STEPCLOSE");
-		//@formatter:off
-		closeStep.addListener(new ControlListener() {
-			@Override
-			public void controlEvent(ControlEvent onClick) {
-				endStep();
-			}
-		})
-		.setSize(30, 18)
-		.setLabel(" X")
-		.setPosition(p.width - stepGUIPadding - 30 - 1, stepGUIPadding + 2)
-		.setColorBackground(color(80, 0, 0))
-		.setColorForeground(color(200, 0, 0))
-		.setColorActive(color(255, 0, 0))
-		.hide()
-		;
-		help = new Button(PFLAP.cp5, "helpSTEP");
-		help.addListener(new ControlListener() {
-			@Override
-			public void controlEvent(ControlEvent onClick) {
-				JOptionPane.showMessageDialog(p.frame, Consts.helpStep, "Help: Step Mode", JOptionPane.INFORMATION_MESSAGE);
-			}
-		})
-		.setSize(30, 18)
-		.setLabel(" ?")
-		.setPosition(p.width - stepGUIPadding - 60 - 1, stepGUIPadding + 2)
-		.setColorBackground(color(0, 0, 80))
-		.setColorForeground(color(0, 0, 200))
-		.setColorActive(color(0, 0, 255))
-		.hide()
-		;
+//		closeStep = new Button(PFLAP.cp5, "STEPCLOSE");
+//		//@formatter:off
+//		closeStep.addListener(new ControlListener() {
+//			@Override
+//			public void controlEvent(ControlEvent onClick) {
+//				endStep();
+//			}
+//		})
+//		.setSize(30, 18)
+//		.setLabel(" X")
+//		.setPosition(p.width - stepGUIPadding - 30 - 1, stepGUIPadding + 2)
+//		.setColorBackground(color(80, 0, 0))
+//		.setColorForeground(color(200, 0, 0))
+//		.setColorActive(color(255, 0, 0))
+//		.hide()
+//		;
+//		help = new Button(PFLAP.cp5, "helpSTEP");
+//		help.addListener(new ControlListener() {
+//			@Override
+//			public void controlEvent(ControlEvent onClick) {
+//				JOptionPane.showMessageDialog(p.frame, Consts.helpStep, "Help: Step Mode", JOptionPane.INFORMATION_MESSAGE);
+//			}
+//		})
+//		.setSize(30, 18)
+//		.setLabel(" ?")
+//		.setPosition(p.width - stepGUIPadding - 60 - 1, stepGUIPadding + 2)
+//		.setColorBackground(color(0, 0, 80))
+//		.setColorForeground(color(0, 0, 200))
+//		.setColorActive(color(0, 0, 255))
+//		.hide()
+//		;
 		//@formatter:on
 	}
 
-	protected static void beginStep(String input) {
+	public static void beginStep(String input) {
 		if (live) {
 			throw new IllegalStateException("End the live stepping sequence before starting another.");
 		}
-		closeStep.show();
-		help.show();
+//		closeStep.show();
+//		help.show();
 		live = true;
 		liveState = Model.initialState;
 		initialInput = input;
@@ -102,8 +102,8 @@ public class Step {
 		initialInput = null;
 		liveState = null;
 		PFLAP.allowGUIInterraction = true;
-		closeStep.hide();
-		help.hide();
+//		closeStep.hide();
+//		help.hide();
 	}
 
 	public static void setMachineOutcome(boolean accepted) {
@@ -218,8 +218,8 @@ public class Step {
 	 */
 	protected static void stageResized() {
 		drawStaticGui();
-		closeStep.setPosition(p.width - stepGUIPadding - 30 - 1, stepGUIPadding + 2);
-		help.setPosition(p.width - stepGUIPadding - 60 - 1, stepGUIPadding + 2);
+//		closeStep.setPosition(p.width - stepGUIPadding - 30 - 1, stepGUIPadding + 2);
+//		help.setPosition(p.width - stepGUIPadding - 60 - 1, stepGUIPadding + 2);
 	}
 
 }

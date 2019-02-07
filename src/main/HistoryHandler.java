@@ -47,7 +47,7 @@ public final class HistoryHandler {
 
 	protected static void executeBufferedCommands() {
 		if (!(pendingExecute.isEmpty())) {
-			InitUI.undo.setEnabled(true);
+//			InitUI.undo.setEnabled(true); todo
 			if (historyStateIndex != history.size() - 1) {
 				// if index not at end clear history from then
 				for (int i = history.size() - 1; i > historyStateIndex; i--) {
@@ -69,9 +69,9 @@ public final class HistoryHandler {
 			// can undo first command
 			history.get(historyStateIndex).undo();
 			historyStateIndex -= 1;
-			InitUI.redo.setEnabled(true);
+//			InitUI.redo.setEnabled(true); todo
 		} else {
-			InitUI.undo.setEnabled(false);
+//			InitUI.undo.setEnabled(false); todo
 		}
 	}
 
@@ -80,9 +80,9 @@ public final class HistoryHandler {
 			// if not at end of history
 			historyStateIndex += 1;
 			history.get(historyStateIndex).execute();
-			InitUI.undo.setEnabled(true);
+//			InitUI.undo.setEnabled(true); todo
 		} else {
-			InitUI.redo.setEnabled(false);
+//			InitUI.redo.setEnabled(false); todo
 		}
 	}
 
@@ -112,7 +112,7 @@ public final class HistoryHandler {
 		return history;
 	}
 
-	protected static void saveHistory(String path) {
+	public static void saveHistory(String path) {
 		try {
 			ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream(path));
 			ArrayList<Command> liveHistory = new ArrayList<>(
@@ -126,7 +126,7 @@ public final class HistoryHandler {
 	}
 
 	@SuppressWarnings("unchecked")
-	protected static void loadHistory(String path) {
+	public static void loadHistory(String path) {
 		try {
 			resetAll();
 			// PFLAP.reset();
