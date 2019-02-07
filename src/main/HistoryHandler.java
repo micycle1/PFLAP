@@ -16,7 +16,7 @@ import java.util.Queue;
 import commands.Command;
 
 import main.PFLAP.PApplet;
-
+import model.Model;
 import p5.Notification;
 
 public final class HistoryHandler {
@@ -138,6 +138,7 @@ public final class HistoryHandler {
 			history.forEach(c -> c.execute());
 			historyStateIndex = history.size() - 1;
 			HistoryList.update();
+			Model.setnextStateID(Model.nStates());
 			in.close();
 		} catch (InvalidClassException e) {
 			Notification.addNotification("Loading Failed",

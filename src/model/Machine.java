@@ -23,5 +23,5 @@ public interface Machine {
 	 * @param s Previous State
 	 * @param input Previous input (one character longer)
 	 */
-	void stepBackward(Integer s, String input);
+	void stepBackward(Integer s);
 }

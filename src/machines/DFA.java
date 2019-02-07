@@ -1,19 +1,9 @@
 package machines;
 
-import static main.Consts.notificationData.machineAccepted;
-import static main.Consts.notificationData.machineRejected;
-
-import com.google.common.collect.HashBasedTable;
-import com.google.common.collect.Table;
-
-import main.Consts;
 import main.Step;
 import model.LogicalTransition;
 import model.Machine;
 import model.Model;
-import p5.AbstractArrow;
-import p5.Notification;
-import p5.State;
 
 /**
  * <p><b>Deterministic Finite Automaton</b></p>
@@ -23,20 +13,21 @@ public class DFA implements Machine {
 
 	private int stepState;
 	private String stepInput;
+	private int stepIndex; // index to slice stepinput
 
 	public DFA() {
 	}
 
 	@Override
 	public status run(String input) { // todo lambda
-		
+
 		int s = Model.initialState;
 		char symbol;
 
 		while (!(input.isEmpty())) {
 			symbol = input.charAt(0);
 			boolean ok = false;
-			for (LogicalTransition t : Model.transitionGraph.incidentEdges(s)) {
+			for (LogicalTransition t : Model.transitionGraph.outEdges(s)) {
 				if (t.getSymbol() == symbol) {
 					input = input.substring(1);
 					s = t.head;
@@ -58,37 +49,41 @@ public class DFA implements Machine {
 	public void beginStep(String input) {
 		stepState = Model.initialState;
 		stepInput = input;
+		stepIndex = 0;
 	}
 
 	@Override
 	public Integer stepForward() {
 		Integer prevState = stepState;
-		if (!stepInput.isEmpty()) {
-			char symbol = stepInput.charAt(0);
-			stepInput = stepInput.substring(1);
 
-			if (transitionTable.row(prevState).containsKey(symbol)) {
-				stepState = transitionTable.get(stepState, symbol);
-			} else {
-				if (transitionTable.row(prevState).containsKey(Consts.lambda)) {
-					stepState = transitionTable.get(prevState, Consts.lambda);
-					return stepState;
-				} else {
-					Step.setMachineOutcome(false);
+		if (stepIndex < stepInput.length()) {
+			char symbol = stepInput.charAt(stepIndex);
+
+			boolean ok = false;
+			for (LogicalTransition t : Model.transitionGraph.outEdges(prevState)) {
+				if (t.getSymbol() == symbol) {
+					stepState = t.head;
+					ok = true;
+					break;
 				}
+			}
+			if (!ok) {
+				Step.setMachineOutcome(false);
+			} else {
+				stepIndex++;
 			}
 			return stepState;
 
 		} else {
-			Step.setMachineOutcome(stepState.isAccepting());
+			Step.setMachineOutcome(Model.isAccepting(stepState));
 			stepState = prevState;
 			return prevState;
 		}
 	}
 
 	@Override
-	public void stepBackward(Integer s, String input) {
+	public void stepBackward(Integer s) {
 		stepState = s;
-		stepInput = input;
+		stepIndex--;
 	}
 }

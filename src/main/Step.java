@@ -3,8 +3,8 @@ package main;
 import static main.Consts.stepGUIPadding;
 import static main.Consts.notificationData.machineAccepted;
 import static main.Consts.notificationData.machineRejected;
+
 import static main.Functions.color;
-import static main.PFLAP.machine;
 import static main.PFLAP.p;
 
 import java.util.ArrayList;
@@ -14,25 +14,24 @@ import javax.swing.JOptionPane;
 import controlP5.Button;
 import controlP5.ControlEvent;
 import controlP5.ControlListener;
+import main.PFLAP.PApplet;
 import model.Model;
+
 import p5.Notification;
-import p5.State;
+
 import processing.core.PConstants;
 import processing.core.PGraphics;
 
-
 /**
  * Call beginstep() when user clicks step-by-state.
- * <p>
- * Class is non-initialisable.
- * <p/>
+ * <p>Class is non-initialisable.<p/>
  */
 public class Step {
 
 	private static boolean live = false, completed = false, accepted;
 	private static String initialInput, remainingInput, stack;
 	private static Integer liveState;
-	private static ArrayList<State> visited;
+	private static ArrayList<Integer> visited;
 	private static int visitedIndex;
 	private static final Button closeStep, help;
 	private static PGraphics staticGUI;
@@ -88,7 +87,8 @@ public class Step {
 		liveState = Model.initialState;
 		initialInput = input;
 		remainingInput = initialInput;
-		PFLAP.machine.beginStep(input);
+//		PFLAP.machine.beginStep(input);
+		Model.beginStep(input);
 		PFLAP.allowGUIInterraction = false;
 
 		visited = new ArrayList<>();
@@ -128,7 +128,10 @@ public class Step {
 
 	protected static void stepForward() {
 		if (live) {
-			liveState = machine.stepForward();
+			if (!(completed && visitedIndex == visited.size() - 1)) {
+				liveState = Model.stepForward();
+			}
+
 			if (visitedIndex == visited.size() - 1) {
 				if (completed) {
 					return;
@@ -147,10 +150,10 @@ public class Step {
 	protected static void stepBackward() {
 		if (live) {
 			if (visitedIndex > 0) {
-				visitedIndex -= 1;
+				visitedIndex--;
 				remainingInput = initialInput.substring(visitedIndex);
 				liveState = visited.get(visitedIndex);
-				machine.stepBackward(visited.get(visitedIndex), remainingInput);
+				Model.stepBackward(liveState);
 			}
 		}
 	}
@@ -161,7 +164,6 @@ public class Step {
 			p.textSize(20);
 			p.fill(0, 0, 0);
 			p.textAlign(PConstants.LEFT, PConstants.BOTTOM);
-//			p.text("Current State: " + liveState.getLabel(), stepGUIPadding * 2, p.height - 70);
 			p.text("Input: [" + remainingInput + "]", stepGUIPadding * 2, p.height - 50);
 			switch (PFLAP.mode) {
 				case DFA :
@@ -176,14 +178,15 @@ public class Step {
 //					p.text("Ouput: [" + ((machines.Moore)machine).getOutput() + "]", stepGUIPadding * 2, p.height - 30);
 					break;
 			}
-//			liveState.highLight(color(255, 0, 255)); // specify color
-//			if (completed && visitedIndex == visited.size() - 1) {
-//				if (accepted) {
-//					liveState.highLight(color(0, 255, 0));
-//				} else {
-//					liveState.highLight(color(255, 0, 0));
-//				}
-//			}
+			
+			PApplet.view.highlightState(liveState, color(255, 0, 255));// specify color
+			if (completed && visitedIndex == visited.size() - 1) {
+				if (accepted) {
+					PApplet.view.highlightState(liveState, color(0, 255, 0));
+				} else {
+					PApplet.view.highlightState(liveState, color(255, 0, 0));
+				}
+			}
 		}
 	}
 
@@ -194,7 +197,6 @@ public class Step {
 		int w = p.width;
 		int h = p.height;
 		staticGUI = p.createGraphics(w, h);
-
 		staticGUI.beginDraw();
 		staticGUI.stroke(0);
 		staticGUI.strokeWeight(3);

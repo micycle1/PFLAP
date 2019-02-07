@@ -2,6 +2,7 @@ package model;
 
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.Set;
 
 import com.google.common.graph.MutableNetwork;
 import com.google.common.graph.NetworkBuilder;
@@ -29,7 +30,7 @@ public final class Model {
 				.expectedEdgeCount(200).allowsSelfLoops(true).build();
 		acceptingStates = new HashSet<>();
 	}
-	
+
 	public static void reset(Machine m) {
 		Model.m = m;
 		transitionGraph = NetworkBuilder.directed().allowsParallelEdges(true).expectedNodeCount(50)
@@ -38,7 +39,7 @@ public final class Model {
 		initialState = -1;
 		nextStateID = 0;
 	}
-	
+
 	public static void runMachine(String input) {
 		switch (m.run(input)) {
 			case SUCCESS :
@@ -51,6 +52,18 @@ public final class Model {
 				Notification.addNotification(main.Consts.notificationData.machineFailed);
 				break;
 		}
+	}
+
+	public static void beginStep(String input) {
+		m.beginStep(input);
+	}
+
+	public static int stepForward() {
+		return m.stepForward();
+	}
+
+	public static void stepBackward(Integer s) {
+		m.stepBackward(s);
 	}
 
 	public static boolean assureUniqueTransition(LogicalTransition t) { // does this work for all?
@@ -96,9 +109,16 @@ public final class Model {
 		transitionGraph.removeNode(n);
 		PFLAP.PApplet.view.deleteState(n);
 	}
-	
+
 	public static ArrayList<LogicalTransition> getConnectingTransitions(Integer s) {
 		return new ArrayList<>(transitionGraph.incidentEdges(s));
+	}
+	
+	/**
+	 * After load, set nextStateID to next free int.
+	 */
+	public static void setnextStateID(int n) {
+		nextStateID = n;
 	}
 
 	public static void setInitialState(int n) {
@@ -112,6 +132,14 @@ public final class Model {
 
 	public static int getLastID() {
 		return nextStateID - 1;
+	}
+	
+	public static Set<Integer> getStates() {
+		return transitionGraph.nodes();
+	}
+	
+	public static boolean isAccepting(Integer i) {
+		return acceptingStates.contains(i);
 	}
 
 	public static int nTransitions() {

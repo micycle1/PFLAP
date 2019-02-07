@@ -40,7 +40,7 @@ import processing.core.PVector;
 public final class View {
 
 	private final ArrayList<AbstractArrow> liveTransitions; // rendered transitions (type of transition) or hashmap of tail state to transition
-	private final BiMap<Integer, State> liveStates;
+	private final BiMap<Integer, State> liveStates; // record of cp5 state objects
 	private final BiMap<Integer, State> disposedStates; // non-live (after undo, etc)
 	
 	private PApplet p;
@@ -126,6 +126,10 @@ public final class View {
 		p.textAlign(CENTER, CENTER);
 		liveStates.values().forEach(s -> s.draw());
 	}
+	
+	public void highlightState(Integer state, Integer color) {
+		liveStates.get(state).highLight(color);
+	}
 
 	public void selectAllStates() {
 		for (State state : liveStates.values()) {
@@ -151,7 +155,7 @@ public final class View {
 			}
 		}
 	}
-
+	
 	public HashSet<Integer> getSelectedStates() {
 		HashSet<Integer> selected = new HashSet<>();		
 		for (Integer n : liveStates.keySet()) {
@@ -217,10 +221,6 @@ public final class View {
 		rebuild();
 	}
 	
-	public void reskin() {
-		// call when states are changed looks
-	}
-
 	public void reset() {
 		liveTransitions.forEach(t -> t.disposeUI());
 		liveTransitions.clear();

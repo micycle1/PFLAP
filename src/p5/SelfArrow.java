@@ -12,7 +12,6 @@ import static processing.core.PApplet.sin;
 import java.util.ArrayList;
 
 import model.LogicalTransition;
-import model.Model;
 import processing.core.PConstants;
 import processing.core.PVector;
 

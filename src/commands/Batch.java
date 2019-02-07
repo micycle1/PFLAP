@@ -3,6 +3,7 @@ package commands;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
+import java.util.Set;
 
 import main.PFLAP;
 import p5.AbstractArrow;
@@ -58,6 +59,14 @@ public final class Batch implements Command {
 	 * @return ArrayList of {@link deleteState} Commands.
 	 */
 	public static ArrayList<Command> createDeleteBatch(HashSet<Integer> states) {
+		ArrayList<Command> tempCommands = new ArrayList<Command>();
+		for (Integer s : states) {
+			tempCommands.add(new deleteState(s));
+		}
+		return tempCommands;
+	}
+	
+	public static ArrayList<Command> createDeleteBatch(Set<Integer> states) {
 		ArrayList<Command> tempCommands = new ArrayList<Command>();
 		for (Integer s : states) {
 			tempCommands.add(new deleteState(s));

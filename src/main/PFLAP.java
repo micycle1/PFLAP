@@ -38,7 +38,7 @@ import transitionView.View;
 
 /**
  * @author micycle1
- * @version 1.x
+ * @version 1.1
  */
 public final class PFLAP {
 
@@ -162,7 +162,6 @@ public final class PFLAP {
 			reset();
 		}
 
-		@SuppressWarnings("unused")
 		@Override
 		public void draw() {
 			background(bgColour.getRGB());

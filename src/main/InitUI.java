@@ -17,8 +17,6 @@ import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
-import java.lang.reflect.Field;
-import java.util.ArrayList;
 
 import javax.swing.JColorChooser;
 import javax.swing.JOptionPane;
@@ -26,12 +24,12 @@ import javax.swing.JOptionPane;
 import commands.Batch;
 import commands.changeMode;
 import commands.setBackgroundColor;
+
+import java.lang.reflect.Field;
 import controlP5.ControlP5;
-import machines.DPA;
 import main.PFLAP.PApplet;
 import model.Model;
 import p5.Notification;
-import p5.State;
 import processing.awt.PSurfaceAWT;
 import processing.core.PFont;
 
@@ -219,7 +217,7 @@ final class InitUI {
 						PApplet.view.selectAllStates();
 						break;
 					case "Delete All States" :
-//						HistoryHandler.buffer(new Batch(Batch.createDeleteBatch(PFLAP.nodes))); todo
+						HistoryHandler.buffer(new Batch(Batch.createDeleteBatch(Model.getStates())));
 						break;
 					case "Invert Selection" :
 						PApplet.view.invertSelectedStates();
