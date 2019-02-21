@@ -1,10 +1,15 @@
 package javafx;
 
 import javafx.application.Application;
+import javafx.event.EventHandler;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.image.Image;
+import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyCodeCombination;
+import javafx.scene.input.KeyCombination;
+import javafx.scene.input.KeyEvent;
 import javafx.stage.Stage;
 import main.Consts;
 import processing.javafx.PSurfaceFX;
@@ -19,6 +24,16 @@ public class App extends Application {
         Parent root = loader.load();
         Controller.stage = primaryStage;
         Scene scene = new Scene(root, Consts.WIDTH, Consts.HEIGHT);
+        
+//        scene.addEventFilter(KeyEvent.KEY_PRESSED, new EventHandler<KeyEvent>() {
+//            final KeyCombination keyComb = new KeyCodeCombination(KeyCode.SHIFT, KeyCombination.CONTROL_DOWN);
+//            public void handle(KeyEvent ke) {
+//                if (keyComb.match(ke)) {
+//                    System.out.println("Key Pressed: " + keyComb);
+//                    ke.consume(); // <-- stops passing the event to next node
+//                }
+//            }
+//        });
 
         primaryStage.setTitle(Consts.title);
         primaryStage.getIcons().add(new Image("data/icon_small.png"));

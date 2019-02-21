@@ -1,7 +1,7 @@
 package commands;
 
-import java.awt.Color;
 
+import javafx.scene.paint.Color;
 import main.PFLAP;
 
 //import main.appletVariables;

@@ -73,11 +73,11 @@ public final class Consts {
 			"CTRL-Y: Redo.\r\n" +
 			"F-11: Toggle Fullscreen.";
 	
-	protected static final String helpStep = "Step backward and forward with the left and right arrow keys respectively.\r\n" +
+	public static final String helpStep = "Step backward and forward with the left and right arrow keys respectively.\r\n" +
 	"Once the machine terminates, the terminating state will turn green to indicate acceptance or red to indicate the contrary.\r\n" +
 	"A pink-colored state indicates the progress of the current step procedure; this is the state the machine is currently at.\r\n" +
 	"\r\n" +
-	"Note: Step mode will not automatically terminate upon the machine terminating, \r\n allowing you to step backwards. " +
+	"Note: Step mode will not automatically terminate upon the machine terminating, allowing you to step backwards. " +
 	"Use the cross button to exit step mode.";
 	// @formatter:on
 

@@ -8,19 +8,19 @@ PFLAP
 
 ---
 
-**PFLAP** is an interactive graphical tool for constructing and simulating automata machines (representations of formal languages), and is my attempt to create a [JFLAP](http://www.jflap.org/) alternative using the [Processing](https://processing.org/) library as the graphics backend. I do not intend to implement anywhere near the full functionality present in JFLAP.
+**PFLAP** is an interactive graphical tool for constructing and simulating finite automata (machine representations of formal languages), and is my attempt to create a [JFLAP](http://www.jflap.org/) alternative with a more intuitive control scheme and a more pleasant aesthetic using the [Processing](https://processing.org/) library as the graphics backend. I do not intend to implement anywhere near the full functionality present in JFLAP (features such as recursively enumerable languages, transforming context-free languages, etc.).
 
 ## Latest Release
 
 :inbox_tray: [PFLAP v.1.0](https://github.com/micycle1/PFLAP/releases)
 
 ## Features
-* Simulate Deterministic Finite Automata (DFA)
-* Simulate Pushdown Automata (DPA)
-* Stepping simulation mode
-* Export to .png
+* Create and run finite automatons (DFA, DPA, Mealy and Moore machines)
+* _Instantaneous_ and _stepping_ simulation modes
+* Export machine to .png
 * ' ' (space) substitution for λ
 * Undo/Redo
+* Save/Load
 * Colour-customisation of all graphics
 
 ## Design Decisions

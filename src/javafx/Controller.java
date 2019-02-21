@@ -1,16 +1,15 @@
 package javafx;
 
+import static main.Consts.notificationData.noInitialState;
 import static main.PFLAP.p;
 
-import java.awt.FileDialog;
 import java.io.File;
-import java.io.IOException;
 import java.net.URL;
 import java.util.Optional;
 import java.util.ResourceBundle;
 
-import commands.Batch;
-
+import javafx.application.Platform;
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 
@@ -18,6 +17,7 @@ import javafx.scene.canvas.Canvas;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.ButtonType;
+import javafx.scene.control.ColorPicker;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.TextInputDialog;
 import javafx.scene.image.ImageView;
@@ -26,12 +26,14 @@ import javafx.scene.layout.StackPane;
 import javafx.stage.FileChooser;
 import javafx.stage.FileChooser.ExtensionFilter;
 import javafx.stage.Stage;
-import javafx.stage.StageStyle;
 import main.Consts;
 import main.HistoryHandler;
+import main.HistoryList;
 import main.PFLAP;
 import main.PFLAP.PApplet;
 import main.Step;
+
+import commands.Batch;
 import model.Model;
 import p5.Notification;
 import processing.javafx.PSurfaceFX;
@@ -40,10 +42,11 @@ public class Controller implements Initializable {
 
 	public static PSurfaceFX surface;
 	protected static Stage stage;
-	private static ExtensionFilter f;
+	private static final ExtensionFilter dat, png;
 
 	static {
-		f = new FileChooser.ExtensionFilter("TXT files (*.txt)", "*.dat"); // todo
+		dat = new FileChooser.ExtensionFilter("Machine files (*.dat)", "*.dat");
+		png = new FileChooser.ExtensionFilter("Image File", "*.png");
 	}
 
 	@FXML
@@ -52,9 +55,12 @@ public class Controller implements Initializable {
 	MenuItem undo, redo;
 	@FXML
 	MenuItem machine_DFA, machine_DPA, machine_mealy, machine_moore;
+	@FXML
+	ColorPicker colourPicker_state, colourPicker_stateSelected, colourPicker_transition, colourPicker_background;
 
 	@Override
 	public void initialize(URL location, ResourceBundle resources) {
+		PApplet.controller = this;
 		Canvas canvas = (Canvas) surface.getNative();
 		surface.fx.context = canvas.getGraphicsContext2D();
 		pflap.getChildren().add(canvas);
@@ -64,33 +70,91 @@ public class Controller implements Initializable {
 		undo.setDisable(true);
 		redo.setDisable(true);
 		machine_DFA.setDisable(true);
+		
+//		colourPicker_state = new ColorPicker(PFLAP.stateColour);
+		
+		
+//		colourPicker_state.setOnAction((ActionEvent e) -> {
+//			PFLAP.stateColour = colourPicker_state.getValue();
+//		});
+//		colourPicker_state.setValue(PFLAP.stateColour);
+
+//		colourPicker_stateSelected.setValue(PFLAP.stateSelectedColour);
+//		colourPicker_transition.setValue(PFLAP.transitionColour);
+//		colourPicker_background.setValue(PFLAP.bgColour);
 	}
+
+	public void setUndoEnable(boolean b) {
+		undo.setDisable(!b);
+	}
+
+	public void setRedoEnable(boolean b) {
+		redo.setDisable(!b);
+	}
+
+	public void stepModeHelp() {
+		Platform.runLater(new Runnable() {
+			@Override
+			public void run() {
+				Alert alert = new Alert(AlertType.INFORMATION, Consts.helpStep, ButtonType.OK);
+				alert.initOwner(stage);
+				alert.setTitle("Help: Step Mode");
+				alert.setHeaderText("Help: Step Mode");
+				alert.showAndWait();
+			}
+		});
+	}
+
+	/*
+	 * File Menu
+	 */
 
 	@FXML
 	private void open() {
 		FileChooser fileChooser = new FileChooser();
 		fileChooser.setTitle("Open Machine File");
-		fileChooser.showOpenDialog(stage);
-		fileChooser.getExtensionFilters().add(f);
+		fileChooser.getExtensionFilters().add(dat);
 		fileChooser.setInitialDirectory(new File(System.getProperty("user.dir")));
-		// HistoryHandler.loadHistory(path); todo
+		File f = fileChooser.showOpenDialog(stage);
+		if (f != null) {
+			HistoryHandler.loadHistory(f.getAbsolutePath());
+		}
 	}
 
 	@FXML
 	private void save() {
-		// HistoryHandler.save
 		FileChooser fileChooser = new FileChooser();
-		fileChooser.getExtensionFilters().add(f);
-		fileChooser.setTitle("Save Image");
-		File file = fileChooser.showSaveDialog(stage);
-		if (file != null) {
+		fileChooser.setTitle("Save Machine File");
+		fileChooser.getExtensionFilters().add(dat);
+		fileChooser.setInitialDirectory(new File(System.getProperty("user.dir")));
+		File f = fileChooser.showSaveDialog(stage);
+		if (f != null) {
+			HistoryHandler.saveHistory(f.getAbsolutePath());
 		}
-		// HistoryHandler.saveHistory(path); todo
 	}
 
 	@FXML
 	private void close() {
 		p.exit();
+	}
+
+	/*
+	 * Edit Menu
+	 */
+
+	@FXML
+	private void undo() {
+		HistoryHandler.undo();
+		redo.setDisable(false);
+		if (HistoryHandler.getHistoryStateIndex() < -1) {
+			undo.setDisable(true);
+		}
+	}
+
+	@FXML
+	private void redo() {
+		HistoryHandler.redo();
+		undo.setDisable(false);
 	}
 
 	@FXML
@@ -113,43 +177,124 @@ public class Controller implements Initializable {
 		PApplet.view.invertSelectedStates();
 	}
 
+	/*
+	 * View Menu
+	 */
+
 	@FXML
 	private void resetZoom() {
 		PFLAP.PApplet.setZoom(1);
 	}
-	
+
 	@FXML
 	private void saveAsImage() {
-//		FileDialog saveImage = new FileDialog(f, "Save", FileDialog.SAVE);
-//		saveImage.setDirectory(Consts.directory);
-//		saveImage.setTitle("Save Frame");
-//		saveImage.setFile("*.png");
-//		saveImage.setVisible(true);
-//		if (saveImage.getFile() != null) {
-//			String directory = saveImage.getDirectory() + saveImage.getFile();
-//			if (!directory.toLowerCase().endsWith(".png")) {
-//				directory += ".png";
-//			}
-//			p.saveFrame(directory);
-//			Notification.addNotification("Screenshot", "Image saved to " + directory);
-//		}
-		
 		FileChooser fileChooser = new FileChooser();
-		fileChooser.setTitle("Save Image");
+		fileChooser.setTitle("Save Stage as Image");
+		fileChooser.getExtensionFilters().add(png);
 		File file = fileChooser.showSaveDialog(stage);
 		if (file != null) {
 			String directory = file.getAbsoluteFile().toString();
-			if (!directory.toLowerCase().endsWith(".png")) {
-				directory += ".png";
-			}
 			p.saveFrame(directory);
 			Notification.addNotification("Screenshot", "Image saved to " + directory);
 		}
 	}
-	
+
+	@FXML
+	private void machineInformation() {
+		String info = "Transitions: " + Model.nTransitions() + "\r\n" + "States: " + Model.nStates() + "\r\n" + "Type: "
+				+ PFLAP.mode;
+		Alert alert = new Alert(AlertType.INFORMATION, info, ButtonType.OK);
+		alert.initOwner(stage);
+		alert.setTitle("Machine Information");
+		alert.setHeaderText(null);
+		alert.showAndWait();
+	}
+
+	@FXML
+	/**
+	 * Toggle history-viewer.
+	 */
+	private void history() {
+		HistoryList.toggleVisible();
+	}
+
+	/*
+	 * Machine Menu
+	 */
+
+	// todo
+
+	/*
+	 * Input Menu
+	 */
+
+	@FXML
+	private void step() { // todo
+		if (Model.initialState != -1) {
+			TextInputDialog dialog = new TextInputDialog("");
+			dialog.setTitle("Step By State Input");
+			dialog.setHeaderText(null);
+			dialog.setContentText("Machine Input:");
+			dialog.initOwner(stage);
+
+			Optional<String> result = dialog.showAndWait();
+			if (result.isPresent()) {
+				switch (PFLAP.mode) {
+					case DPA :
+						break;
+					case DFA :
+					case MEALY :
+					case MOORE :
+						Step.beginStep(result.get());
+					default :
+						break;
+				}
+			}
+		} else {
+			Notification.addNotification(noInitialState);
+		}
+	}
+
+	@FXML
+	private void fastRun() { // todo
+		if (Model.initialState != -1) {
+			TextInputDialog dialog = new TextInputDialog("");
+			dialog.setTitle("Fast-Run Input");
+			dialog.setHeaderText(null);
+			dialog.setContentText("Machine Input:");
+			dialog.initOwner(stage);
+
+			Optional<String> result = dialog.showAndWait();
+			if (result.isPresent()) {
+				if (result.get().contains(" ")) {
+					Notification.addNotification("Invalid Input", "Input cannot contain ' ' characters.");
+				}
+				switch (PFLAP.mode) {
+					case DFA :
+						Model.runMachine(result.get());
+						break;
+					case DPA :
+						break;
+					case MEALY :
+						break;
+					case MOORE :
+						break;
+					default :
+						break;
+
+				}
+			}
+		} else {
+			Notification.addNotification(noInitialState);
+		}
+	}
+
+	/*
+	 * Help Menu
+	 */
+
 	@FXML
 	private void help() {
-		p.print("asdas");
 		Alert alert = new Alert(AlertType.INFORMATION, Consts.helpPFLAP, ButtonType.OK);
 		alert.initOwner(stage);
 		alert.setTitle("Help");
@@ -167,47 +312,4 @@ public class Controller implements Initializable {
 		alert.setGraphic(new ImageView("data/icon.png"));
 		alert.showAndWait();
 	}
-
-	@FXML
-	private void step() { // todo
-		TextInputDialog dialog = new TextInputDialog("");
-		dialog.setTitle("Step By State Input");
-		dialog.setHeaderText("Look, a Text Input Dialog");
-		dialog.setContentText("Machine Input: ");
-		dialog.initStyle(StageStyle.UTILITY);
-
-		Optional<String> result = dialog.showAndWait();
-		if (result.isPresent()) {
-			switch (PFLAP.mode) {
-				case DPA :
-					break;
-				case DFA :
-				case MEALY :
-				case MOORE :
-					Step.beginStep(result.get());
-				default :
-					break;
-			}
-		}
-
-	}
-
-	@FXML
-	private void fastRun() { // todo
-		switch (PFLAP.mode) {
-			case DFA :
-				Model.runMachine("");
-				break;
-			case DPA :
-				break;
-			case MEALY :
-				break;
-			case MOORE :
-				break;
-			default :
-				break;
-
-		}
-	}
-
 }

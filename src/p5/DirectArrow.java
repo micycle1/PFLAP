@@ -59,7 +59,7 @@ public class DirectArrow extends AbstractArrow {
 		p.translate(directTail.x, directTail.y);
 		p.rotate(labelRotationOffset);
 		p.textSize(textSize);
-		p.textLeading(textSize/1.5f);
+		p.textLeading(textSize/1.2f); // line spacing
 		p.textAlign(PConstants.CENTER, PConstants.BOTTOM);
 		drawTransitionLabel(new PVector(
 				labelRotationModifier * dist(directTail.x, directTail.y, directHead.x, directHead.y) / 2, 10));

@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import javafx.scene.control.ColorPicker?>
 <?import javafx.scene.control.Menu?>
 <?import javafx.scene.control.MenuBar?>
 <?import javafx.scene.control.MenuItem?>
@@ -22,8 +23,8 @@
         </Menu>
         <Menu fx:id="editMenu" mnemonicParsing="false" text="Edit">
           <items>
-            <MenuItem fx:id="undo" mnemonicParsing="false" text="Undo" />
-            <MenuItem fx:id="redo" mnemonicParsing="false" text="Redo" />
+            <MenuItem fx:id="undo" mnemonicParsing="false" onAction="#undo" text="Undo" />
+            <MenuItem fx:id="redo" mnemonicParsing="false" onAction="#redo" text="Redo" />
             <SeparatorMenuItem mnemonicParsing="false" />
             <MenuItem fx:id="reset" mnemonicParsing="false" onAction="#reset" text="Reset PFLAP" />
             <SeparatorMenuItem mnemonicParsing="false" />
@@ -36,12 +37,26 @@
           <items>
             <MenuItem fx:id="resetZoom" mnemonicParsing="false" text="Reset Zoom" />
                   <MenuItem fx:id="saveAsImage" mnemonicParsing="false" onAction="#saveAsImage" text="Save Stage as Image..." />
-                  <MenuItem mnemonicParsing="false" text="Machine Information" />
-                  <MenuItem mnemonicParsing="false" text="Action Tracer" />
-                  <MenuItem mnemonicParsing="false" text="History" />
-                  <Menu mnemonicParsing="false" text="Unspecified Menu">
+                  <MenuItem fx:id="machineInformation" mnemonicParsing="false" onAction="#machineInformation" text="Machine Information..." />
+                  <MenuItem fx:id="history" mnemonicParsing="false" onAction="#history" text="History" />
+                  <Menu fx:id="colourMenu" mnemonicParsing="false" text="Redefine Colours">
                     <items>
-                      <MenuItem mnemonicParsing="false" text="Action 1" />
+                      <MenuItem fx:id="colour_state" mnemonicParsing="false" text="State Colour...">
+                           <graphic>
+                              <ColorPicker fx:id="colourPicker_State" promptText="State Colour" />
+                           </graphic></MenuItem>
+                        <MenuItem fx:id="colour_stateSelected" mnemonicParsing="false" text="State Selected Colour...">
+                           <graphic>
+                              <ColorPicker fx:id="colourPicker_stateSelected" promptText="State Selected Colour" />
+                           </graphic></MenuItem>
+                        <MenuItem fx:id="colour_transition" mnemonicParsing="false" text="Transition Arrow Colour...">
+                           <graphic>
+                              <ColorPicker fx:id="colourPicker_transition" promptText="Transition Colour" />
+                           </graphic></MenuItem>
+                        <MenuItem fx:id="colour_background" mnemonicParsing="false" text="Background Colour...">
+                           <graphic>
+                              <ColorPicker fx:id="colourPicker_background" promptText="Background Colour" />
+                           </graphic></MenuItem>
                     </items>
                   </Menu>
           </items>
@@ -56,8 +71,8 @@
             </Menu>
             <Menu fx:id="inputMenu" mnemonicParsing="false" text="Input">
               <items>
-                <MenuItem fx:id="step" mnemonicParsing="false" onAction="#step" text="Step By State" />
-                  <MenuItem fx:id="fastRun" mnemonicParsing="false" onAction="#fastRun" text="Fast Run" />
+                <MenuItem fx:id="step" mnemonicParsing="false" onAction="#step" text="Step By State..." />
+                  <MenuItem fx:id="fastRun" mnemonicParsing="false" onAction="#fastRun" text="Fast Run..." />
               </items>
             </Menu>
             <Menu fx:id="helpMenu" mnemonicParsing="false" text="Help">

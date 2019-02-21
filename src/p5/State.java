@@ -153,11 +153,11 @@ public class State implements Serializable {
 		stateOptions.addItems(new String[]{"Add Self-Transition", "Set As Inititial", "Toggle Accepting", "Relabel", "Resize", "Delete"})
 			.setWidth(140)
 			.setBarHeight(35)
-			.setColorLabel(Functions.invertColor(PFLAP.stateColour))
+			.setColorLabel(Functions.colorToRGB(PFLAP.stateColour.invert()))
 			.setItemHeight(25)
-			.setColorValue(Functions.invertColor(PFLAP.stateColour))
-			.setColorBackground(PFLAP.stateColour.getRGB())
-			.setColorActive(PFLAP.stateColour.getRGB())
+			.setColorValue(Functions.colorToRGB(PFLAP.stateColour.invert()))
+			.setColorBackground(Functions.colorToRGB(PFLAP.stateColour))
+			.setColorActive(Functions.colorToRGB(PFLAP.stateColour))
 			.setColorForeground(Functions.darkenColor(PFLAP.stateColour, 0.33f)) // Mouseover
 			.addListener(listener)
 			.hide();
@@ -205,12 +205,13 @@ public class State implements Serializable {
 			if (highlighted) {
 				p.fill(highlightColor);
 			} else {
-				p.fill(stateColour.getRGB());
+				p.fill(Functions.colorToRGB(stateColour));
 			}
 			p.ellipse(position.x, position.y, radius, radius);
 			p.fill(0);
 		} else {
-			p.fill(stateSelectedColour.getRGB(), 200);
+			
+			p.fill(Functions.colorToRGB(stateSelectedColour));
 			p.ellipse(position.x, position.y, radius, radius);
 			p.fill(255);
 		}

@@ -120,6 +120,7 @@ public final class Functions {
 	 * @param B Blue Value [0-255].
 	 * @return Color int.
 	 * @see {@link #color(int, int, int, float) fdssdsd}
+	 * @deprecated
 	 */
 	public static int color(int R, int G, int B) {
 		return new Color(R, G, B).getRGB();
@@ -133,15 +134,26 @@ public final class Functions {
 	 * @param B Blue Value [0-255].
 	 * @param A Alpha (transparency) [0.0-1.0].
 	 * @return Color int.
+	 * @deprecated
 	 */
 	public static int color(int R, int G, int B, float A) {
 		return new Color(((float) R) / 255, ((float) G) / 255, ((float) B) / 255, A / 255).getRGB();
 	}
 
 	/**
+	 * Converts a JavaFX color object to its RGB integer representation
+	 * @param c JavaFX Color object
+	 * @return
+	 */
+	public static int colorToRGB(javafx.scene.paint.Color c) {
+		return (int) (c.getRed() * 65536 + c.getGreen() * 256 + c.getBlue()) * 255 - 16777216;
+	}
+
+	/**
 	 * Returns inverted color of parameter.
 	 * @param c AWT Colour Object
 	 * @return Color inverse of <b>c</b> (integer representation).
+	 * @deprecated
 	 */
 	public static int invertColor(Color c) {
 		return new Color(255 - c.getRed(), 255 - c.getGreen(), 255 - c.getBlue()).getRGB();
@@ -163,7 +175,24 @@ public final class Functions {
 		int b = c.getBlue() - (int) (c.getBlue() * percentage);
 		return new Color(r, g, b).getRGB();
 	}
-	
+
+	/**
+	 * todo broken
+	 * @param c
+	 * @param percentage
+	 * @return
+	 */
+	public static int darkenColor(javafx.scene.paint.Color c, float percentage) {
+		if (!numberBetween(percentage, 0, 1)) {
+			throw new IllegalArgumentException("Percentage must be between 0 and 1 (inclusive).");
+		}
+		double r = c.getRed() * (1 - percentage);
+		double g = c.getGreen() * (1 - percentage);
+		double b = c.getBlue() * (1 - percentage);
+		
+		return colorToRGB(javafx.scene.paint.Color.rgb((int)(r*255), (int)(g*255), (int)(b*255)));
+	}
+
 	private Functions() {
 		throw new AssertionError();
 	}

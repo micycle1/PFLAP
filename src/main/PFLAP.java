@@ -1,7 +1,8 @@
 package main;
 
 import static main.Functions.angleBetween;
-import java.awt.Color;
+import static main.PFLAP.p;
+
 import java.util.ArrayList;
 import java.util.HashSet;
 
@@ -20,7 +21,7 @@ import controlP5.Textarea;
 import javafx.App;
 import javafx.Controller;
 import javafx.application.Application;
-
+import javafx.scene.paint.Color;
 import machines.DFA;
 import machines.DPA;
 import machines.Mealy;
@@ -45,6 +46,14 @@ import transitionView.View;
  * @author micycle1
  * @version 1.1
  * zoompan broken (hotkey)
+ * fix guiallowinteraction after non-deter transitoon attempted
+ * history list bnorken
+ * all caps?
+ * add new right click options to state (use model mutablenetwork methods)
+ * hide self-transition arrowhead before symbol entry
+ * fix dpa, mealy, moore
+ * add transition option in transition menu
+ * fix lambda/space functionality
  */
 public final class PFLAP {
 
@@ -61,8 +70,8 @@ public final class PFLAP {
 
 	public static modes mode;
 
-	public static Color stateColour = new Color(255, 220, 0), stateSelectedColour = new Color(0, 35, 255),
-			transitionColour = new Color(0, 0, 0), bgColour = new Color(255, 255, 255);
+	public static Color stateColour = Color.rgb(255, 220, 0), stateSelectedColour = Color.rgb(0, 35, 255),
+			transitionColour = Color.rgb(0, 0, 0), bgColour = Color.rgb(255, 255, 255);
 
 	public static float zoom;
 
@@ -93,6 +102,8 @@ public final class PFLAP {
 
 		public static View view;
 
+		public static Controller controller;
+
 		private static void init() {
 			main(PApplet.class);
 		}
@@ -120,28 +131,8 @@ public final class PFLAP {
 
 		@Override
 		public void settings() {
-			// size(Consts.WIDTH, Consts.HEIGHT);
 			size(0, 0, FX2D);
 			smooth(4);
-		}
-
-		protected void initCp5() {
-			PFont traceFont = p.createFont("Comfortaa Regular", 12, true);
-			cp5 = new ControlP5(p);
-			cp5.setFont(PFLAP.cp5Font);
-		// @formatter:off
-		PApplet.trace = cp5.addTextarea("Trace")
-			.setVisible(false)
-			.setPosition(10, 670)
-			.setSize(200, 100)
-			.setFont(traceFont)
-			.setLineHeight(14)
-			.setColor(Functions.color(255, 255, 255))
-			.setColorBackground(Functions.color(200, 200, 200))
-			.setMoveable(false)
-			;
-			// @formatter:on
-			// PFLAP.cp5.addConsole(PFLAP.PApplet.trace);
 		}
 
 		@SuppressWarnings("unused")
@@ -192,15 +183,16 @@ public final class PFLAP {
 			}
 
 			cursor(ARROW);
-			initCp5();
+			cp5 = new ControlP5(p);
+			cp5.setFont(PFLAP.cp5Font);
 			mode = modes.DFA;
 			view = new View(this);
-			reset();
+//			reset();
 		}
 
 		@Override
 		public void draw() {
-			background(bgColour.getRGB());
+			background(Functions.colorToRGB(bgColour));
 			zoomPan.transform();
 			zoom = (float) zoomPan.getZoomScale();
 			mouseCoords = new PVector(constrain(zoomPan.getMouseCoord().x, 0, width),
@@ -209,7 +201,8 @@ public final class PFLAP {
 			if (drawingArrow) {
 				float angle = angleBetween(mouseClickXY, new PVector(mouseCoords.x, mouseCoords.y)) + PI % TWO_PI;
 				noFill();
-				stroke(transitionColour.getRed(), transitionColour.getGreen(), transitionColour.getBlue(), 80);
+				stroke((float) transitionColour.getRed(), (float) transitionColour.getGreen(),
+						(float) transitionColour.getBlue(), 80);
 				pushMatrix();
 				translate(mouseCoords.x, mouseCoords.y);
 				rotate(angle);
@@ -279,7 +272,6 @@ public final class PFLAP {
 
 		@Override
 		public void keyPressed(KeyEvent e) {
-			print(e.getKeyCode());
 			keysDown.add(e.getKeyCode());
 			switch (e.getKey()) {
 				default :
@@ -299,6 +291,7 @@ public final class PFLAP {
 
 		@Override
 		public void keyReleased(KeyEvent key) {
+			println(this.key);
 			if (this.key == 26) { // CTRL-Z
 				HistoryHandler.undo();
 			}

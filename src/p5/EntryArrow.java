@@ -59,8 +59,8 @@ public final class EntryArrow {
 
 	public void draw() {
 		p.noFill();
-		p.stroke(PFLAP.transitionColour.getRed(), PFLAP.transitionColour.getGreen(), PFLAP.transitionColour.getBlue(),
-				80); // 80
+		p.stroke((float) PFLAP.transitionColour.getRed(), (float) PFLAP.transitionColour.getGreen(),
+				(float) PFLAP.transitionColour.getBlue(), 80); // 80
 		p.pushMatrix();
 		p.translate(directHead.x, directHead.y);
 		p.rotate(angle);

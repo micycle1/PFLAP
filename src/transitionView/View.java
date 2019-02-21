@@ -16,6 +16,7 @@ import com.google.common.collect.HashBiMap;
 import commands.addState;
 
 import main.Consts;
+import main.Functions;
 import main.HistoryHandler;
 import main.PFLAP;
 
@@ -79,7 +80,7 @@ public final class View {
 	 */
 	public void deleteState(int n) {
 		disposedStates.put(n, liveStates.get(n));
-//		disposedStates.get(n).hideUI(); todo?
+		disposedStates.get(n).deselect();
 		liveStates.remove(n);
 		rebuild();
 	}
@@ -108,7 +109,7 @@ public final class View {
 	public void draw() {
 		p.textAlign(CENTER, CENTER);
 		p.strokeWeight(2);
-		p.stroke(PFLAP.transitionColour.getRGB());
+		p.stroke(Functions.colorToRGB(PFLAP.transitionColour));
 		p.textSize(18);
 		p.noFill();
 		liveTransitions.forEach(t -> t.draw());

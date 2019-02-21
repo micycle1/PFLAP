@@ -77,7 +77,7 @@ public abstract class AbstractArrow {
 		cp5 = new ControlP5(p);
 		cp5.setFont(cp5Font);
 		cp5.hide();
-		// @formatter:off
+		// @formatter:off todo
 //		transitionSymbolEntry = cp5.addTextfield("Symbol Entry")
 //				.setColorLabel(0)
 //				.setLabel("")
@@ -105,7 +105,7 @@ public abstract class AbstractArrow {
 			@Override
 			public void controlEvent(ControlEvent optionSelected) {
 				switch ((int) optionSelected.getValue()) {
-					case -1 : // Modify [Deprecated]
+					case -1 : // Modify [Deprecated] todo
 						entryType = entryTypes.SYMBOL;
 						stateOptions.hide();
 						transitionSymbolEntry.show();
@@ -129,11 +129,11 @@ public abstract class AbstractArrow {
 			.hide()
 			.setWidth(140)
 			.setBarHeight(35)
-			.setColorLabel(Functions.invertColor(PFLAP.stateColour))
+			.setColorLabel(Functions.colorToRGB(PFLAP.stateColour.invert()))
 			.setItemHeight(25)
-			.setColorValue(Functions.invertColor(PFLAP.stateColour))
-			.setColorBackground(PFLAP.stateColour.getRGB())
-			.setColorActive(PFLAP.stateColour.getRGB())
+			.setColorValue(Functions.colorToRGB(PFLAP.stateColour.invert()))
+			.setColorBackground(Functions.colorToRGB(PFLAP.stateColour))
+			.setColorActive(Functions.colorToRGB(PFLAP.stateColour))
 			.setColorForeground(Functions.darkenColor(PFLAP.stateColour, 0.33f)) // Mouseover
 			.addListener(menuListener);
 		// @formatter:on

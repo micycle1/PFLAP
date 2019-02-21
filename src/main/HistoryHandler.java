@@ -47,7 +47,7 @@ public final class HistoryHandler {
 
 	protected static void executeBufferedCommands() {
 		if (!(pendingExecute.isEmpty())) {
-//			InitUI.undo.setEnabled(true); todo
+			PApplet.controller.setUndoEnable(true);
 			if (historyStateIndex != history.size() - 1) {
 				// if index not at end clear history from then
 				for (int i = history.size() - 1; i > historyStateIndex; i--) {
@@ -64,25 +64,23 @@ public final class HistoryHandler {
 		}
 	}
 
-	protected static void undo() {
-		if (historyStateIndex > -1) {
-			// can undo first command
+	public static void undo() {
+		if (historyStateIndex > -1) { // can undo first command
 			history.get(historyStateIndex).undo();
 			historyStateIndex -= 1;
-//			InitUI.redo.setEnabled(true); todo
+			PApplet.controller.setRedoEnable(true);
 		} else {
-//			InitUI.undo.setEnabled(false); todo
+			PApplet.controller.setUndoEnable(false);
 		}
 	}
 
-	protected static void redo() {
-		if (historyStateIndex <= history.size() - 2) {
-			// if not at end of history
+	public static void redo() {
+		if (historyStateIndex <= history.size() - 2) { // if not at end of history
 			historyStateIndex += 1;
 			history.get(historyStateIndex).execute();
-//			InitUI.undo.setEnabled(true); todo
+			PApplet.controller.setUndoEnable(true);
 		} else {
-//			InitUI.redo.setEnabled(false); todo
+			PApplet.controller.setRedoEnable(false);
 		}
 	}
 
@@ -104,7 +102,7 @@ public final class HistoryHandler {
 		}
 	}
 
-	protected static int getHistoryStateIndex() {
+	public static int getHistoryStateIndex() {
 		return historyStateIndex;
 	}
 

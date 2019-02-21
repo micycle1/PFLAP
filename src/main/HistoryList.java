@@ -20,25 +20,28 @@ public final class HistoryList {
 	private static final DropdownList history;
 
 	static {
+		p.println(p.frameCount);
 		cP5 = new ControlP5(p);
 		cP5.hide();
 
 		// @formatter:off
 		history = cP5.addDropdownList("History")
 				.setWidth(160)
-				.setColorBackground(new Color(50, 50, 50).getRGB())
-				.setColorForeground(new Color(150, 150, 150).getRGB())
+//				.setColorBackground(new Color(50, 50, 50).getRGB())
+//				.setColorForeground(new Color(150, 150, 150).getRGB())
 				.setBarHeight(30)
 				.setItemHeight(20)
 				.setHeight(200)
-				.addCallback(new CallbackListener() {
-					@Override
-					public void controlEvent(CallbackEvent theEvent) {
-						if (theEvent.getAction() == 100) { // clicked
-							HistoryHandler.movetoIndex((int) history.getValue() - 1);
-						}
-					}
-				});
+//				.addCallback(new CallbackListener() {
+//					@Override
+//					public void controlEvent(CallbackEvent theEvent) {
+//						if (theEvent.getAction() == 100) { // clicked
+//							p.println("INIT");
+//							HistoryHandler.movetoIndex((int) history.getValue() - 1);
+//						}
+//					}
+//				})
+				;
 		// @formatter:on
 	}
 
@@ -59,9 +62,9 @@ public final class HistoryList {
 		return cP5.isMouseOver();
 	}
 
-	protected static void toggleVisible() {
-		cP5.setVisible(!cP5.isVisible());
-		history.open();
+	public static void toggleVisible() {
+//		cP5.setVisible(!cP5.isVisible());
+//		history.open();
 	}
 
 }
