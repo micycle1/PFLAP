@@ -1,7 +1,6 @@
 package main;
 
 import static main.Functions.angleBetween;
-import static main.PFLAP.p;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -44,10 +43,9 @@ import transitionView.View;
 
 /**
  * @author micycle1
- * @version 1.1
- * zoompan broken (hotkey)
- * fix guiallowinteraction after non-deter transitoon attempted
- * history list bnorken
+ * @version 1.3
+ * fix guiallowinteraction after non-deter transition attempted
+ * history list broken
  * all caps?
  * add new right click options to state (use model mutablenetwork methods)
  * hide self-transition arrowhead before symbol entry
@@ -86,7 +84,6 @@ public final class PFLAP {
 	/**
 	 * PFLAP runs here.
 	 * This is where Processing's draw(), etc. are located.
-	 * @author micycle1
 	 */
 	public final static class PApplet extends processing.core.PApplet {
 
@@ -99,6 +96,7 @@ public final class PFLAP {
 		protected static Textarea trace;
 		private static ZoomPan zoomPan;
 		private static ArrayList<Command> multiMoveCache;
+		public static HistoryList historyList;
 
 		public static View view;
 
@@ -142,7 +140,7 @@ public final class PFLAP {
 
 			zoom = 1;
 			zoomPan = new ZoomPan(this);
-			zoomPan.setMouseMask(SHIFT);
+			zoomPan.setMouseMask(CONTROL);
 			zoomPan.setMaxZoomScale(3);
 			zoomPan.setMinZoomScale(0.5);
 			zoomPan.addZoomPanListener(new ZoomPanListener() {
@@ -187,6 +185,7 @@ public final class PFLAP {
 			cp5.setFont(PFLAP.cp5Font);
 			mode = modes.DFA;
 			view = new View(this);
+			historyList = new HistoryList(this);
 //			reset();
 		}
 
@@ -235,7 +234,6 @@ public final class PFLAP {
 		}
 
 		private static void reset() {
-			HistoryHandler.resetAll();
 			view.reset();
 			Notification.clear();
 			Step.endStep();
@@ -291,16 +289,24 @@ public final class PFLAP {
 
 		@Override
 		public void keyReleased(KeyEvent key) {
-			println(this.key);
-			if (this.key == 26) { // CTRL-Z
-				HistoryHandler.undo();
-			}
-			if (this.key == 25) { // CTRL-Y
-				HistoryHandler.redo();
+			if (keysDown.contains(CONTROL)) {
+				switch (key.getKey()) {
+					case 'Z' :
+						HistoryHandler.undo();
+						break;
+					case 'Y' :
+						HistoryHandler.redo();
+						break;
+					case 'H' :
+						historyList.toggleVisible();
+						break;
+					default :
+						break;
+				}
 			}
 			switch (key.getKeyCode()) {
 				case 127 : // 127 == delete key
-					if (!view.getSelectedStates().isEmpty()) { // todo
+					if (!view.getSelectedStates().isEmpty()) {
 						if (view.getSelectedStates().size() == 1) {
 							HistoryHandler.buffer(new deleteState(view.getSelectedStates().iterator().next()));
 						} else {
@@ -318,11 +324,6 @@ public final class PFLAP {
 					}
 					fullScreen = !fullScreen;
 					break;
-				case 72 : // CTRL-H
-					if (keysDown.contains(CONTROL)) {
-						HistoryList.toggleVisible(); // not synced with gui
-					}
-					break;
 				default :
 					break;
 			}
@@ -331,7 +332,7 @@ public final class PFLAP {
 
 		@Override
 		public void mousePressed(MouseEvent m) {
-			if (cp5.isMouseOver() || !allowGUIInterraction || HistoryList.isMouseOver() || keysDown.contains(SHIFT)) {
+			if (cp5.isMouseOver() || !allowGUIInterraction || historyList.isMouseOver() || keysDown.contains(SHIFT)) {
 				return;
 			}
 			mouseClickXY = mouseCoords.copy();
@@ -432,7 +433,6 @@ public final class PFLAP {
 						}
 					}
 					break;
-
 				case CENTER :
 					if (!multiMoveCache.isEmpty() && !mouseClickXY.equals(mouseReleasedXY)) {
 						multiMoveCache.forEach(c -> ((moveState) c).updatePos());
@@ -454,7 +454,7 @@ public final class PFLAP {
 					break;
 				case RIGHT :
 					if (selectionBox == null) {
-						if (drawingArrow == false && allowGUIInterraction && !HistoryList.isMouseOver()) {
+						if (drawingArrow == false && allowGUIInterraction && !historyList.isMouseOver()) {
 							selectionBox = new SelectionBox(mouseCoords);
 						}
 					} else {

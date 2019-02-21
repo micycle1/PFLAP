@@ -38,7 +38,7 @@ public final class HistoryHandler {
 			pendingExecute.clear();
 		}
 		historyStateIndex = -1;
-		HistoryList.update();
+		PApplet.historyList.update();
 	}
 
 	public static void buffer(Command c) {
@@ -60,7 +60,7 @@ public final class HistoryHandler {
 				history.add(pendingExecute.poll());
 				historyStateIndex += 1;
 			}
-			HistoryList.update();
+			PApplet.historyList.update();
 		}
 	}
 
@@ -135,7 +135,7 @@ public final class HistoryHandler {
 			history.addAll((ArrayList<Command>) data[0]);
 			history.forEach(c -> c.execute());
 			historyStateIndex = history.size() - 1;
-			HistoryList.update();
+			PApplet.historyList.update();
 			Model.setnextStateID(Model.nStates());
 			in.close();
 		} catch (InvalidClassException e) {

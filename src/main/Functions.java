@@ -146,7 +146,11 @@ public final class Functions {
 	 * @return
 	 */
 	public static int colorToRGB(javafx.scene.paint.Color c) {
-		return (int) (c.getRed() * 65536 + c.getGreen() * 256 + c.getBlue()) * 255 - 16777216;
+		int out = 255 << 24;
+		out += ((int) (c.getRed() * 255)) << 16;
+		out += ((int) (c.getGreen() * 255)) << 8;
+		out += (int) (c.getBlue() * 255);
+		return out;
 	}
 
 	/**
@@ -189,8 +193,8 @@ public final class Functions {
 		double r = c.getRed() * (1 - percentage);
 		double g = c.getGreen() * (1 - percentage);
 		double b = c.getBlue() * (1 - percentage);
-		
-		return colorToRGB(javafx.scene.paint.Color.rgb((int)(r*255), (int)(g*255), (int)(b*255)));
+
+		return colorToRGB(javafx.scene.paint.Color.rgb((int) (r * 255), (int) (g * 255), (int) (b * 255)));
 	}
 
 	private Functions() {

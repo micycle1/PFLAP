@@ -14,7 +14,7 @@ public class changeMode implements Command {
 
 	@Override
 	public void execute() {
-		PFLAP.mode = mode;
+		PFLAP.mode = this.mode;
 		PFLAP.reset();
 		Notification.addNotification("Mode Changed", mode + " mode selected.");
 	}

@@ -18,6 +18,7 @@ import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.ColorPicker;
+import javafx.scene.control.Menu;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.TextInputDialog;
 import javafx.scene.image.ImageView;
@@ -26,6 +27,7 @@ import javafx.scene.layout.StackPane;
 import javafx.stage.FileChooser;
 import javafx.stage.FileChooser.ExtensionFilter;
 import javafx.stage.Stage;
+
 import main.Consts;
 import main.HistoryHandler;
 import main.HistoryList;
@@ -34,6 +36,7 @@ import main.PFLAP.PApplet;
 import main.Step;
 
 import commands.Batch;
+import commands.changeMode;
 import model.Model;
 import p5.Notification;
 import processing.javafx.PSurfaceFX;
@@ -57,6 +60,8 @@ public class Controller implements Initializable {
 	MenuItem machine_DFA, machine_DPA, machine_mealy, machine_moore;
 	@FXML
 	ColorPicker colourPicker_state, colourPicker_stateSelected, colourPicker_transition, colourPicker_background;
+	@FXML
+	Menu machineMenu;
 
 	@Override
 	public void initialize(URL location, ResourceBundle resources) {
@@ -70,18 +75,26 @@ public class Controller implements Initializable {
 		undo.setDisable(true);
 		redo.setDisable(true);
 		machine_DFA.setDisable(true);
-		
-//		colourPicker_state = new ColorPicker(PFLAP.stateColour);
-		
-		
-//		colourPicker_state.setOnAction((ActionEvent e) -> {
-//			PFLAP.stateColour = colourPicker_state.getValue();
-//		});
-//		colourPicker_state.setValue(PFLAP.stateColour);
 
-//		colourPicker_stateSelected.setValue(PFLAP.stateSelectedColour);
-//		colourPicker_transition.setValue(PFLAP.transitionColour);
-//		colourPicker_background.setValue(PFLAP.bgColour);
+		colourPicker_state.setValue(PFLAP.stateColour);
+		colourPicker_stateSelected.setValue(PFLAP.stateSelectedColour);
+		colourPicker_transition.setValue(PFLAP.transitionColour);
+		colourPicker_background.setValue(PFLAP.bgColour);
+
+		colourPicker_state.setOnAction((ActionEvent e) -> {
+			PFLAP.stateColour = colourPicker_state.getValue();
+		});
+		colourPicker_stateSelected.setOnAction((ActionEvent e) -> {
+			PFLAP.stateSelectedColour = colourPicker_stateSelected.getValue();
+		});
+		colourPicker_transition.setOnAction((ActionEvent e) -> {
+			PFLAP.transitionColour = colourPicker_transition.getValue();
+		});
+		colourPicker_background.setOnAction((ActionEvent e) -> {
+			PFLAP.bgColour = colourPicker_background.getValue();
+		});
+
+		machineMenu.getItems().forEach(m -> m.setOnAction(event -> changeMachine(m)));
 	}
 
 	public void setUndoEnable(boolean b) {
@@ -215,21 +228,40 @@ public class Controller implements Initializable {
 	 * Toggle history-viewer.
 	 */
 	private void history() {
-		HistoryList.toggleVisible();
+		PApplet.historyList.toggleVisible();
 	}
 
 	/*
 	 * Machine Menu
 	 */
 
-	// todo
+	private void changeMachine(MenuItem i) {
+		machineMenu.getItems().forEach(m -> m.setDisable(false));
+		i.setDisable(true);
+		switch (i.getId()) {
+			case "machine_DFA" :
+				HistoryHandler.buffer(new changeMode(PFLAP.modes.DFA));
+				break;
+			case "machine_DPA" :
+				HistoryHandler.buffer(new changeMode(PFLAP.modes.DPA));
+				break;
+			case "machine_mealy" :
+				HistoryHandler.buffer(new changeMode(PFLAP.modes.MEALY));
+				break;
+			case "machine_moore" :
+				HistoryHandler.buffer(new changeMode(PFLAP.modes.MOORE));
+				break;
+			default :
+				break;
+		}
+	}
 
 	/*
 	 * Input Menu
 	 */
 
 	@FXML
-	private void step() { // todo
+	private void step() {
 		if (Model.initialState != -1) {
 			TextInputDialog dialog = new TextInputDialog("");
 			dialog.setTitle("Step By State Input");
@@ -237,18 +269,45 @@ public class Controller implements Initializable {
 			dialog.setContentText("Machine Input:");
 			dialog.initOwner(stage);
 
-			Optional<String> result = dialog.showAndWait();
-			if (result.isPresent()) {
-				switch (PFLAP.mode) {
-					case DPA :
-						break;
-					case DFA :
-					case MEALY :
-					case MOORE :
-						Step.beginStep(result.get());
-					default :
-						break;
+			Optional<String> result;
+			do {
+				dialog.getEditor().clear();
+				result = dialog.showAndWait();
+				if (!result.isPresent()) {
+					return;
 				}
+				if (result.get().contains(" ")) {
+					Notification.addNotification("Invalid Input", "Input cannot contain ' ' characters.");
+				}
+			} while (result.get().contains(" "));
+
+			switch (PFLAP.mode) {
+				case DPA :
+					dialog.setTitle("Initial Stack Symbol Input");
+					dialog.setContentText("Stack Symbol Input");
+					Optional<String> stackSymbol;
+					do {
+						dialog.getEditor().clear();
+						stackSymbol = dialog.showAndWait();
+						if (!result.isPresent()) {
+							return;
+						}
+						if (stackSymbol.get().length() == 1) {
+							// ((DPA) PFLAP.machine).setInitialStackSymbol(
+							// Functions.testForLambda(stackSymbol.charAt(0))); todo set DPA machine stack symbol
+							Step.beginStep(result.get());
+						} else {
+							Notification.addNotification("Invalid Stack Symbol",
+									"Initial Stack Symbol must be single character.");
+						}
+					} while (stackSymbol.get().length() != 1); // or set max length (=1)
+					break;
+				case DFA :
+				case MEALY :
+				case MOORE :
+					Step.beginStep(result.get());
+				default :
+					break;
 			}
 		} else {
 			Notification.addNotification(noInitialState);
@@ -256,7 +315,7 @@ public class Controller implements Initializable {
 	}
 
 	@FXML
-	private void fastRun() { // todo
+	private void fastRun() {
 		if (Model.initialState != -1) {
 			TextInputDialog dialog = new TextInputDialog("");
 			dialog.setTitle("Fast-Run Input");
@@ -264,25 +323,59 @@ public class Controller implements Initializable {
 			dialog.setContentText("Machine Input:");
 			dialog.initOwner(stage);
 
-			Optional<String> result = dialog.showAndWait();
-			if (result.isPresent()) {
+			Optional<String> result;
+			do {
+				dialog.getEditor().clear();
+				result = dialog.showAndWait();
+				if (!result.isPresent()) {
+					return;
+				}
 				if (result.get().contains(" ")) {
 					Notification.addNotification("Invalid Input", "Input cannot contain ' ' characters.");
 				}
-				switch (PFLAP.mode) {
-					case DFA :
-						Model.runMachine(result.get());
-						break;
-					case DPA :
-						break;
-					case MEALY :
-						break;
-					case MOORE :
-						break;
-					default :
-						break;
+			} while (result.get().contains(" "));
 
-				}
+			switch (PFLAP.mode) {
+				case DFA :
+					Model.runMachine(result.get());
+					break;
+				case DPA :
+					// todo
+					dialog.setTitle("Initial Stack Symbol Input");
+					dialog.setContentText("Stack Symbol Input");
+					Optional<String> stackSymbol;
+					do {
+						dialog.getEditor().clear();
+						stackSymbol = dialog.showAndWait();
+						if (!result.isPresent()) {
+							return;
+						}
+						if (stackSymbol.get().length() == 1) {
+							// ((DPA) PFLAP.machine).setInitialStackSymbol(
+							// Functions.testForLambda(stackSymbol.charAt(0))); todo set DPA machine stack symbol
+							Model.runMachine(result.get());
+						} else {
+							Notification.addNotification("Invalid Stack Symbol",
+									"Initial Stack Symbol must be single character.");
+						}
+					} while (stackSymbol.get().length() != 1); // or set max length (=1)
+					break;
+				case MEALY :
+					Model.runMachine(result.get());
+					// Notification.addNotification("Machine Terminated",
+					// "The machine terminated with output: "
+					// + ((machines.Mealy) PFLAP.machine).getOutput()); todo
+					break;
+				case MOORE :
+					// todo check every state has symbol
+					Model.runMachine(result.get());
+					// Notification.addNotification("Machine Terminated",
+					// "The machine terminated with output: "
+					// + ((machines.Moore) PFLAP.machine).getOutput()); todo
+					break;
+				default :
+					break;
+
 			}
 		} else {
 			Notification.addNotification(noInitialState);

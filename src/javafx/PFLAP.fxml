@@ -43,7 +43,7 @@
                     <items>
                       <MenuItem fx:id="colour_state" mnemonicParsing="false" text="State Colour...">
                            <graphic>
-                              <ColorPicker fx:id="colourPicker_State" promptText="State Colour" />
+                              <ColorPicker fx:id="colourPicker_state" promptText="State Colour" />
                            </graphic></MenuItem>
                         <MenuItem fx:id="colour_stateSelected" mnemonicParsing="false" text="State Selected Colour...">
                            <graphic>

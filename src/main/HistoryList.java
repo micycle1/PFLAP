@@ -1,14 +1,12 @@
 package main;
 
-import static main.PFLAP.p;
+import static main.Functions.color;
 
-import java.awt.Color;
-
-import commands.Command;
 import controlP5.CallbackEvent;
 import controlP5.CallbackListener;
 import controlP5.ControlP5;
-import controlP5.DropdownList;
+import controlP5.ListBox;
+import main.PFLAP.PApplet;
 
 /**
  * Manages the controlP5 representation of the user's action history.
@@ -16,32 +14,32 @@ import controlP5.DropdownList;
  */
 public final class HistoryList {
 
-	private static final ControlP5 cP5;
-	private static final DropdownList history;
+	// private static final ControlP5 cP5;
+	// private static final DropdownList history;
 
-	static {
-		p.println(p.frameCount);
-		cP5 = new ControlP5(p);
-		cP5.hide();
+	private PApplet p;
+	private ControlP5 cp5;
+	private ListBox history;
 
+	public HistoryList(PApplet p) {
+		cp5 = new ControlP5(p);
+		cp5.hide();
 		// @formatter:off
-		history = cP5.addDropdownList("History")
+		history = cp5.addListBox("HistoryList")
 				.setWidth(160)
-//				.setColorBackground(new Color(50, 50, 50).getRGB())
-//				.setColorForeground(new Color(150, 150, 150).getRGB())
+				.setColorBackground(color(50, 50, 50))
+				.setColorForeground(color(50, 50, 50))
 				.setBarHeight(30)
 				.setItemHeight(20)
 				.setHeight(200)
-//				.addCallback(new CallbackListener() {
-//					@Override
-//					public void controlEvent(CallbackEvent theEvent) {
-//						if (theEvent.getAction() == 100) { // clicked
-//							p.println("INIT");
-//							HistoryHandler.movetoIndex((int) history.getValue() - 1);
-//						}
-//					}
-//				})
-				;
+				.addCallback(new CallbackListener() {
+					@Override
+					public void controlEvent(CallbackEvent theEvent) {
+						if (theEvent.getAction() == 100) { // clicked
+							HistoryHandler.movetoIndex((int) history.getValue() - 1);
+						}
+					}
+				});
 		// @formatter:on
 	}
 
@@ -49,22 +47,23 @@ public final class HistoryList {
 	 * Call when {@link HistoryHandler} executes a command, 
 	 * or changes current history state.
 	 */
-	protected static void update() {
+	protected void update() {
 		history.clear();
 		history.open();
-		history.addItem("{Init}", null);
-		for (Command c : HistoryHandler.export()) {
-			history.addItem(c.description(), c);
-		}
+		// history.addItem("{Init}", null);
+		// for (Command c : HistoryHandler.export()) {
+		// history.addItem(c.description(), c);
+		// }
+		history.addItem("asds", null);
 	}
 
-	protected static boolean isMouseOver() {
-		return cP5.isMouseOver();
+	protected boolean isMouseOver() {
+		return cp5.isMouseOver();
 	}
 
-	public static void toggleVisible() {
-//		cP5.setVisible(!cP5.isVisible());
-//		history.open();
+	public void toggleVisible() {
+		cp5.setVisible(!cp5.isVisible());
+		history.open();
 	}
 
 }

@@ -210,7 +210,6 @@ public class State implements Serializable {
 			p.ellipse(position.x, position.y, radius, radius);
 			p.fill(0);
 		} else {
-			
 			p.fill(Functions.colorToRGB(stateSelectedColour));
 			p.ellipse(position.x, position.y, radius, radius);
 			p.fill(255);
