@@ -46,7 +46,7 @@ public class BezierArrow extends AbstractArrow {
 		p.curve(bezierCPoint.x, bezierCPoint.y, tail.getPosition().x, tail.getPosition().y, head.getPosition().x,
 				head.getPosition().y, bezierCPoint.x, bezierCPoint.y);
 		drawArrowTip(arrowTip, arrowTipAngle);
-		p.textAlign(PConstants.CENTER, PConstants.CENTER);
+		p.textAlign(PConstants.CENTER, PConstants.TOP);
 		p.textSize(textSize);
 		drawTransitionLabel(bezierApex);
 	}

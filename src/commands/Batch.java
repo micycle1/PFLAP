@@ -8,7 +8,6 @@ import java.util.Set;
 import main.PFLAP;
 import p5.AbstractArrow;
 import p5.State;
-import transitionView.View;
 
 /**
  * Container object for multiple Commands, such as when multiple states are

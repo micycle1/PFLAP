@@ -1,124 +1,99 @@
 package machines;
 
-import com.google.common.collect.HashBasedTable;
-import com.google.common.collect.Table;
-
 import main.Step;
+import main.PFLAP.PApplet;
+import model.LogicalTransition;
 import model.Machine;
-import p5.AbstractArrow;
-import p5.State;
+import model.Model;
 
 /**
  * <b>Moore Machine</b>
  * <p>Each transition specifies only a symbol to consume.
  * Unlike other machines, states must specify an output symbol.
- * Transitioning to/from? a state appends its output symbol to the machine output.
+ * Transitioning from a state appends its output symbol to the machine output.
  */
 
 public final class Moore implements Machine {
 
-	private final Table<State, Character, State> transitionTable;
-	private State initial, stepState;
+	private Integer stepIndex, stepState;
 	private String output, stepInput;
 
 	public Moore() {
-		transitionTable = HashBasedTable.create();
 	}
 
 	@Override
-	public void addNode(State s) {
-	}
+	public status run(String input) {
 
-	@Override
-	public void deleteNode(State s) {
-	}
-
-	@Override
-	public int totalTransitions() {
-		return transitionTable.cellSet().size();
-	}
-
-	@Override
-	public void setInitialState(State s) {
-		initial = s;
-	}
-
-	@Override
-	public State getInitialState() {
-		return initial;
-	}
-
-	@Override
-	public void addTransition(AbstractArrow a) {
-		transitionTable.put(a.getTail(), a.getSymbol(), a.getHead());
-	}
-
-	@Override
-	public void removeTransition(AbstractArrow a) {
-		transitionTable.remove(a.getTail(), a.getSymbol());
-
-	}
-
-	@Override
-	public boolean run(String input) {
-		State s = initial;
+		int s = Model.getInitialState();
+		char symbol;
 		output = "";
-		while (!input.isEmpty()) {
-			char symbol = input.charAt(0);
-			input = input.substring(1);
-			if (transitionTable.contains(s, symbol)) {
-				output += s.getMoorePush();
-				s = transitionTable.get(s, symbol);
-			} else {
-				return true;
+
+		while (!(input.isEmpty())) {
+			symbol = input.charAt(0);
+			boolean ok = false;
+			for (LogicalTransition t : Model.transitionGraph.outEdges(s)) {
+				if (t.getSymbol() == symbol) {
+					input = input.substring(1);
+					s = t.head;
+					output += PApplet.view.getStateByID(s).getMoorePush();
+					ok = true;
+					break;
+				}
+			}
+			if (!ok) {
+				break;
 			}
 		}
-		return true;
+		return status.COMPLETE;
 	}
 
 	@Override
 	public void beginStep(String input) {
-		stepState = initial;
+		stepState = Model.getInitialState();
 		stepInput = input;
 		output = "";
+		stepIndex = 0;
 	}
 
 	@Override
-	public State stepForward() {
-		State prevState = stepState;
-		if (!stepInput.isEmpty()) {
-			char symbol = stepInput.charAt(0);
-			stepInput = stepInput.substring(1);
-			if (transitionTable.contains(stepState, symbol)) {
-				output += stepState.getMoorePush();
-				stepState = transitionTable.get(stepState, symbol);
-				return stepState;
-			} else {
-				Step.setMachineOutcome(true);
-				stepState = prevState;
-				return stepState;
+	public Integer stepForward() {
+		Integer prevState = stepState;
+
+		if (stepIndex < stepInput.length()) {
+			char symbol = stepInput.charAt(stepIndex);
+
+			boolean ok = false;
+			for (LogicalTransition t : Model.transitionGraph.outEdges(prevState)) {
+				if (t.getSymbol() == symbol) {
+					stepState = t.head;
+					output += PApplet.view.getStateByID(prevState).getMoorePush();
+					ok = true;
+					break;
+				}
 			}
+			if (!ok) {
+				Step.setMachineOutcome(false);
+			} else {
+				stepIndex++;
+			}
+			return stepState;
+
 		} else {
 			Step.setMachineOutcome(true);
 			stepState = prevState;
-			return stepState;
+			return prevState;
 		}
 	}
 
 	@Override
-	public void stepBackward(State s, String input) {
-		output = output.substring(0, (output.length() - 1) - (stepState.getMoorePush().length() - 1));
+	public void stepBackward(Integer s) {
+		stepIndex--;
+		output = output.substring(0, output.length() - PApplet.view.getStateByID(s).getMoorePush().length());
 		stepState = s;
-		stepInput = input;
 	}
 
 	public String getOutput() {
 		return output;
 	}
-
-	@Override
-	public boolean testUniqueTransition(AbstractArrow transition, char symbol, char stackPop, String stackPush) {
-		return !transitionTable.contains(transition.getTail(), symbol);
-	}
-
+	
 }

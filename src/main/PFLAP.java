@@ -14,11 +14,12 @@ import commands.moveState;
 
 import controlP5.ControlFont;
 import controlP5.ControlP5;
-import controlP5.Textarea;
 
 import javafx.App;
 import javafx.Controller;
 import javafx.application.Application;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.scene.paint.Color;
 
 import machines.DFA;
@@ -44,17 +45,9 @@ import transitionView.View;
 /**
  * @author micycle1
  * @version 1.3
- * fix guiallowinteraction after non-deter transition attempted
  * history list broken
- * all caps?
- * add new right click options to state (use model mutablenetwork methods)
- * hide self-transition arrowhead before symbol entry
- * fix dpa, mealy, moore
- * add transition option in transition menu
  * fix lambda/space functionality
- * add "State Information" to state menu
- * ctrl+s save / ctrl-o open
- * untoggle accepting broken
+ * self-arrows broken w/ big size states
  */
 public final class PFLAP {
 
@@ -99,7 +92,6 @@ public final class PFLAP {
 		private static SelectionBox selectionBox;
 		private static boolean fullScreen = false, newState = false, drawingArrow = false, reset = false;
 		private static PVector mouseClickXY, mouseReleasedXY, mouseCoords, zoomPanOffsetp;
-		protected static Textarea trace;
 		private static ZoomPan zoomPan;
 		private static ArrayList<Command> multiMoveCache;
 		public static HistoryList historyList;
@@ -186,6 +178,21 @@ public final class PFLAP {
 
 			zoomPanScalep = zoomPan.getZoomScale();
 			zoomPanOffsetp = zoomPan.getPanOffset();
+			
+			Controller.stage.widthProperty().addListener(new ChangeListener<Number>() {
+				@Override
+				public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue) {
+					width = newValue.intValue() - 16;
+					main.Step.stageResized();
+				}
+			});
+			Controller.stage.heightProperty().addListener(new ChangeListener<Number>() {
+				@Override
+				public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue) {
+					height = newValue.intValue() - 68;
+					main.Step.stageResized();
+				}
+			});
 		}
 
 		@Override

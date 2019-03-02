@@ -12,7 +12,6 @@ import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
-
 import javafx.scene.canvas.Canvas;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
@@ -47,7 +46,7 @@ import processing.javafx.PSurfaceFX;
 public class Controller implements Initializable {
 
 	public static PSurfaceFX surface;
-	protected static Stage stage;
+	public static Stage stage;
 	private static final ExtensionFilter dat, png;
 
 	static {
@@ -56,15 +55,15 @@ public class Controller implements Initializable {
 	}
 
 	@FXML
-	StackPane pflap;
+	private StackPane pflap;
 	@FXML
-	MenuItem open, save, undo, redo, close, deleteSelection, selectAllStates, history;
+	private MenuItem open, save, undo, redo, close, deleteSelection, selectAllStates, history;
 	@FXML
-	MenuItem machine_DFA, machine_DPA, machine_mealy, machine_moore;
+	private MenuItem machine_DFA, machine_DPA, machine_mealy, machine_moore;
 	@FXML
 	public ColorPicker colourPicker_state, colourPicker_stateSelected, colourPicker_transition, colourPicker_background;
 	@FXML
-	Menu machineMenu;
+	private Menu machineMenu;
 
 	@Override
 	public void initialize(URL location, ResourceBundle resources) {
@@ -185,7 +184,7 @@ public class Controller implements Initializable {
 
 	@FXML
 	private void reset() {
-		PFLAP.reset(PFLAP.mode);
+		PFLAP.reset();
 	}
 
 	@FXML
@@ -288,7 +287,7 @@ public class Controller implements Initializable {
 
 	@FXML
 	private void step() {
-		if (Model.initialState != -1) {
+		if (Model.getInitialState() != -1) {
 			TextInputDialog dialog = new TextInputDialog("");
 			dialog.setTitle("Step By State Input");
 			dialog.setHeaderText(null);
@@ -341,7 +340,7 @@ public class Controller implements Initializable {
 
 	@FXML
 	private void fastRun() {
-		if (Model.initialState != -1) {
+		if (Model.getInitialState() != -1) {
 			TextInputDialog dialog = new TextInputDialog("");
 			dialog.setTitle("Fast-Run Input");
 			dialog.setHeaderText(null);

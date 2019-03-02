@@ -108,6 +108,7 @@ public class State implements Serializable {
 			@Override
 			public void controlEvent(ControlEvent radiusChange) {
 				radius = (int) sizeSlider.getValue();
+				main.PFLAP.PApplet.view.rebuild();
 			}
 		};
 		sizeSlider.addListener(sizeSliderListener);
@@ -141,17 +142,20 @@ public class State implements Serializable {
 					case 5 : // Delete
 						HistoryHandler.buffer(new commands.deleteState(abstractID));
 						break;
-					case 6 : // Moore Input
-//						moorePushInput.setFocus(true).show();
-//						PFLAP.allowGUIInterraction = false;
-						PApplet.println(model.Model.getConnectingTransitions(abstractID).size());
+					case 6 : // Info
+						Notification.addStateInfoNotification(State.this);
+						break;
+					case 7 : // Moore Input
+						moorePushInput.setFocus(true).show();
+						PFLAP.allowGUIInterraction = false;
 						break;
 				}
 			}
 		};
 		stateOptions = cp5.addListBox("           Options");
 		// @formatter:off
-		stateOptions.addItems(new String[]{"Add Self-Transition", "Set As Inititial", "Toggle Accepting", "Relabel", "Resize", "Delete", "State Info"})
+		stateOptions.addItems(new String[]{"Add Self-Transition", "Set As Inititial",
+				"Toggle Accepting", "Relabel", "Resize", "Delete", "State Info"})
 			.setWidth(140)
 			.setBarHeight(35)
 			.setColorLabel(Functions.colorToRGB(PFLAP.stateColour.invert()))
@@ -199,7 +203,7 @@ public class State implements Serializable {
 
 	public void draw() {
 
-		if (Model.initialState == abstractID) {
+		if (Model.getInitialState() == abstractID) {
 			p.image(initialIndicator, position.x - radius / 2 - 14, position.y - initialNodeIndicatorSize);
 		}
 		if (!selected) {

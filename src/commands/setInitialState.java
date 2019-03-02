@@ -7,18 +7,18 @@ public class setInitialState implements Command {
 	private final int previousInitial, newInitial;
 
 	public setInitialState(int s) {
-		previousInitial = Model.initialState;
+		previousInitial = Model.getInitialState();
 		newInitial = s;
 	}
 
 	@Override
 	public void execute() {
-		Model.initialState = newInitial;
+		Model.setInitialState(newInitial);
 	}
 
 	@Override
 	public void undo() {
-		Model.initialState = previousInitial;
+		Model.setInitialState(previousInitial);
 	}
 
 	@Override

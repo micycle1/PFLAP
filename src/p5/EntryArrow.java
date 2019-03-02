@@ -58,20 +58,22 @@ public final class EntryArrow {
 	}
 
 	public void draw() {
-		p.noFill();
-		p.stroke((float) PFLAP.transitionColour.getRed(), (float) PFLAP.transitionColour.getGreen(),
-				(float) PFLAP.transitionColour.getBlue(), 80); // 80
-		p.pushMatrix();
-		p.translate(directHead.x, directHead.y);
-		p.rotate(angle);
-		p.beginShape();
-		p.vertex(-10, -7);
-		p.vertex(0, 0);
-		p.vertex(-10, 7);
-		p.endShape();
-		p.popMatrix();
-		p.strokeWeight(2);
-		p.line(tail.getPosition().x, tail.getPosition().y, head.getPosition().x, head.getPosition().y);
+		if (!head.equals(tail)) {
+			p.noFill();
+			p.stroke((float) PFLAP.transitionColour.getRed(), (float) PFLAP.transitionColour.getGreen(),
+					(float) PFLAP.transitionColour.getBlue(), 80); // 80
+			p.pushMatrix();
+			p.translate(directHead.x, directHead.y);
+			p.rotate(angle);
+			p.beginShape();
+			p.vertex(-10, -7);
+			p.vertex(0, 0);
+			p.vertex(-10, 7);
+			p.endShape();
+			p.popMatrix();
+			p.strokeWeight(2);
+			p.line(tail.getPosition().x, tail.getPosition().y, head.getPosition().x, head.getPosition().y);
+		}
 	}
 
 	private void kill() {
@@ -100,7 +102,12 @@ public final class EntryArrow {
 						}
 					}
 				});
-		transitionSymbolEntry.setPosition(midPoint.x - transitionSymbolEntry.getWidth() / 2, midPoint.y + 10);
+		if (!head.equals(tail)) {
+			transitionSymbolEntry.setPosition(midPoint.x - transitionSymbolEntry.getWidth() / 2, midPoint.y + 10);
+		} else {
+			transitionSymbolEntry.setPosition(head.getPosition().x - transitionSymbolEntry.getWidth() / 2,
+					head.getPosition().y + head.getRadius() / 4 + transitionSymbolEntry.getHeight() * 2);
+		}
 	}
 
 	private void entry(entryTypes entryType) {
@@ -132,12 +139,12 @@ public final class EntryArrow {
 
 		if (Model.assureUniqueTransition(t)) {
 			HistoryHandler.buffer(new addTransition(t));
-			PFLAP.allowGUIInterraction = true;
 			transitionSymbolEntry.hide();
 		} else {
 			Notification.addNotification(transitionInvalid);
 			entryType = entryTypes.SYMBOL;
 		}
+		PFLAP.allowGUIInterraction = true;
 		kill();
 	}
 }

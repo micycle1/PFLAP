@@ -21,7 +21,7 @@ public class DFA implements Machine {
 	@Override
 	public status run(String input) { // todo lambda
 
-		int s = Model.initialState;
+		int s = Model.getInitialState();
 		char symbol;
 
 		while (!(input.isEmpty())) {
@@ -47,7 +47,7 @@ public class DFA implements Machine {
 	}
 
 	public void beginStep(String input) {
-		stepState = Model.initialState;
+		stepState = Model.getInitialState();
 		stepInput = input;
 		stepIndex = 0;
 	}

@@ -9,7 +9,7 @@ import processing.core.PVector;
 public final class SelectionBox {
 
 	private DashedLines d;
-	int dist = 0;
+	private int dist = 0;
 	public final PVector startPosition;
 	private PVector endPosition;
 

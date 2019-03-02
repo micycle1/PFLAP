@@ -98,7 +98,7 @@ public class DPA implements Machine {
 	public void beginStep(String input) {
 		stack.clear();
 		stack.add(initialStackSymbol);
-		stepState = Model.initialState;
+		stepState = Model.getInitialState();
 		stepInput = input;
 		stepIndex = 0;
 		previousStack = new LinkedList<>();
@@ -154,7 +154,7 @@ public class DPA implements Machine {
 	@Override
 	public status run(String input) {
 
-		int s = Model.initialState;
+		int s = Model.getInitialState();
 		char symbol;
 
 		while (!(input.isEmpty())) {

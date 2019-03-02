@@ -11,6 +11,7 @@ import main.PFLAP.PApplet;
 /**
  * Manages the controlP5 representation of the user's action history.
  * @author micycle1
+ * @deprecated
  */
 public final class HistoryList {
 

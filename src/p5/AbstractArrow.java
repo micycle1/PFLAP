@@ -11,12 +11,11 @@ import controlP5.ControlEvent;
 import controlP5.ControlListener;
 import controlP5.ControlP5;
 import controlP5.ListBox;
-import controlP5.Textfield;
 
 import main.Functions;
 import main.HistoryHandler;
 import main.PFLAP;
-
+import main.PFLAP.PApplet;
 import model.LogicalTransition;
 
 import processing.core.PVector;
@@ -27,24 +26,10 @@ public abstract class AbstractArrow {
 	protected ControlP5 cp5;
 	protected ListBox stateOptions;
 	private ControlListener menuListener;
-	private Textfield transitionSymbolEntry;
 	private String transitionInfo = "";
 	protected final int ID;
 	public ArrayList<LogicalTransition> transitions; // Transitions this arrow represents
-
-	private static enum entryTypes {
-		SYMBOL, POP, PUSH;
-	}
-	private entryTypes entryType = entryTypes.SYMBOL;
 	
-//	public AbstractArrow(State head, State tail) {
-//		ID = this.hashCode();
-//		this.head = head;
-//		this.tail = tail;
-//		initCP5();
-//		update();
-//	}
-
 	public AbstractArrow(State head, State tail, ArrayList<LogicalTransition> transitions) {
 		ID = this.hashCode();
 		this.head = head;
@@ -73,46 +58,21 @@ public abstract class AbstractArrow {
 		update();
 	}
 
-	public final void initCP5() {
+	private final void initCP5() {
 		cp5 = new ControlP5(p);
 		cp5.setFont(cp5Font);
 		cp5.hide();
-		// @formatter:off todo
-//		transitionSymbolEntry = cp5.addTextfield("Symbol Entry")
-//				.setColorLabel(0)
-//				.setLabel("")
-//				.setSize(30, 15)
-//				.addCallback(new CallbackListener() {
-//		// @formatter:on
-		// @Override
-		// public void controlEvent(CallbackEvent input) {
-		// if (input.getAction() == 100) {
-		// String tempSymbol = transitionSymbolEntry.getStringValue();
-		// if (tempSymbol.length() == 1 && entryType != entryTypes.PUSH) {
-		// entry(entryType);
-		// } else {
-		// if (entryType == entryTypes.PUSH && tempSymbol.length() > 0) {
-		// entry(entryType);
-		// } else {
-		// Notification.addNotification(symbolInvalid);
-		// }
-		// }
-		// }
-		// }
-		// });
-
+		
 		menuListener = new ControlListener() {
 			@Override
 			public void controlEvent(ControlEvent optionSelected) {
 				switch ((int) optionSelected.getValue()) {
-					case -1 : // Modify [Deprecated] todo
-						entryType = entryTypes.SYMBOL;
-						stateOptions.hide();
-						transitionSymbolEntry.show();
-						transitionSymbolEntry.setFocus(true);
+					case 0 :
 						PFLAP.allowGUIInterraction = false;
+						PApplet.view.entryArrow(head, tail);
+						stateOptions.hide();
 						break;
-					case 0 : // Delete
+					case 1 : // Delete
 						HistoryHandler.buffer(new deleteTransition(AbstractArrow.this));
 						stateOptions.hide();
 						break;
@@ -120,11 +80,10 @@ public abstract class AbstractArrow {
 						break;
 				}
 			}
-
 		};
 		stateOptions = cp5.addListBox("          Options");
 		// @formatter:off
-		stateOptions.addItems(new String[]{"Delete Transition"})
+		stateOptions.addItems(new String[]{"Extend Transition", "Delete Transition"})
 			.open()
 			.hide()
 			.setWidth(140)
@@ -176,14 +135,6 @@ public abstract class AbstractArrow {
 
 	public final void disposeUI() {
 		cp5.dispose();
-	}
-
-	public final State getHead() {
-		return head;
-	}
-
-	public final State getTail() {
-		return tail;
 	}
 	
 	@Override

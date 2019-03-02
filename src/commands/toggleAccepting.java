@@ -12,12 +12,22 @@ public class toggleAccepting implements Command {
 
 	@Override
 	public void execute() {
-		Model.acceptingStates.add(s);
+		if (Model.acceptingStates.contains(s)) {
+			Model.acceptingStates.remove(s);
+		}
+		else {
+			Model.acceptingStates.add(s);
+		}
 	}
 
 	@Override
 	public void undo() {
-		Model.acceptingStates.remove(s);
+		if (Model.acceptingStates.contains(s)) {
+			Model.acceptingStates.remove(s);
+		}
+		else {
+			Model.acceptingStates.add(s);
+		}
 	}
 
 	@Override

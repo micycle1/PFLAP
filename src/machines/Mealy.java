@@ -21,7 +21,7 @@ public final class Mealy implements Machine {
 	@Override
 	public status run(String input) {
 
-		int s = Model.initialState;
+		int s = Model.getInitialState();
 		char symbol;
 		output = "";
 
@@ -46,7 +46,7 @@ public final class Mealy implements Machine {
 
 	@Override
 	public void beginStep(String input) {
-		stepState = Model.initialState;
+		stepState = Model.getInitialState();
 		stepInput = input;
 		output = "";
 		stepIndex = 0;
@@ -87,13 +87,11 @@ public final class Mealy implements Machine {
 		stepIndex--;
 		for (LogicalTransition t : Model.transitionGraph.edgesConnecting(s, stepState)) {
 			if (t.getSymbol() == stepInput.charAt(stepIndex) && t.getTail().equals(s)) {
-				System.out.print("remove " + t.getStackPush());
 				output = output.substring(0, output.length() - t.getStackPush().length());
 				break;
 			}
 		}
 		stepState = s;
-
 	}
 
 	public String getOutput() {

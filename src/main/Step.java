@@ -83,7 +83,7 @@ public class Step {
 		closeStep.show();
 		help.show();
 		live = true;
-		liveState = Model.initialState;
+		liveState = Model.getInitialState();
 		initialInput = input;
 		remainingInput = initialInput;
 		Model.beginStep(input);
@@ -212,7 +212,7 @@ public class Step {
 	/**
 	 * To be called when the app is resized by user to update button locations.
 	 */
-	protected static void stageResized() {
+	public static void stageResized() {
 		drawStaticGui();
 		closeStep.setPosition(p.width - stepGUIPadding - 30 - 1, stepGUIPadding + 2);
 		help.setPosition(p.width - stepGUIPadding - 60 - 1, stepGUIPadding + 2);

@@ -8,6 +8,9 @@ import static main.Consts.notificationTextPadding;
 import static main.Consts.notificationWidth;
 import static main.PFLAP.p;
 
+import com.google.common.graph.*;
+
+import java.util.HashSet;
 import java.util.LinkedList;
 
 import main.Consts;
@@ -24,7 +27,7 @@ public class Notification {
 	private static final LinkedList<Notification> notifications = new LinkedList<>();
 	private static final PImage background;
 	private static PVector positionTarget;
-	
+
 	private final PVector position = new PVector(p.width - notificationWidth, p.height);
 	private final String title, message;
 	private int lifetime, startTime, alpha = 255;
@@ -56,8 +59,22 @@ public class Notification {
 	public static void addNotification(Consts.notificationData data) {
 		notifications.add(new Notification(data.title(), data.message()));
 	}
+	
 	public static void addNotification(String title, String message) {
 		notifications.add(new Notification(title, message));
+	}
+	
+	public static void addStateInfoNotification(State s) {
+		int state = main.PFLAP.PApplet.view.getIDByState(s);
+		int degree = model.Model.transitionGraph.degree(state);
+		int inDegree = model.Model.transitionGraph.inDegree(state);
+		int outDegree = model.Model.transitionGraph.outDegree(state);
+		HashSet<Integer> reachable = new HashSet<Integer>(
+				Graphs.reachableNodes(model.Model.transitionGraph.asGraph(), state));
+		reachable.remove(state);
+		notifications.add(new Notification("State Information",
+				"State ID: " + s.getID() + "\n" + "Degree: " + degree + "\n" + "In-Degree: " + inDegree + "\n"
+						+ "Out-Degree: " + outDegree + "\n" + "Reachable Nodes: " + reachable.size()));
 	}
 
 	/**

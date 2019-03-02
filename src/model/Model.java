@@ -23,7 +23,7 @@ public final class Model {
 	private static Machine m = new DFA(); // runs on model data
 	public static MutableNetwork<Integer, LogicalTransition> transitionGraph; // logical transitions
 
-	public static int initialState = -1; // -1 = none
+	private static int initialState = -1; // -1 = none
 	public static final HashSet<Integer> acceptingStates;
 
 	private static int nextStateID = 0;
@@ -150,6 +150,10 @@ public final class Model {
 	 */
 	public static void setnextStateID(int n) {
 		nextStateID = n;
+	}
+	
+	public static int getInitialState() {
+		return initialState;
 	}
 
 	public static void setInitialState(int n) {
