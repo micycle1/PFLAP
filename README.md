@@ -18,7 +18,6 @@ PFLAP
 * Create and run finite automatons (DFA, DPA, Mealy and Moore machines)
 * _Instantaneous_ and _stepping_ simulation modes
 * Export machine to .png
-* ' ' (space) substitution for λ
 * Undo/Redo
 * Save/Load
 * Colour-customisation of all graphics
@@ -29,12 +28,9 @@ PFLAP
 </h1>
 
 ## Tasks
-- [x] Implement Save/Load of machine configuration.
-- [ ] Visualise DPA-machine stack (in stepping mode).
-- [x] Collapse multiple transitions between the same pair of states into a single transition.
 - [ ] Batch input for fast-run mode.
-- [x] Implement Moore and Mealy machines.
-- [x] Replace Java AWT GUI elements with JavaFX.
+- [ ] State position snapping
+- [ ] Implement Turning Machines
 
 ## Libraries
 - `processing` [github](https://github.com/processing/processing)
