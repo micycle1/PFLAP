@@ -170,10 +170,8 @@ public class Step {
 					p.text("Stack: [" + stack + "]", stepGUIPadding * 2, p.height - 30);
 					break;
 				case MEALY :
-//					p.text("Ouput: [" + ((machines.Mealy)machine).getOutput() + "]", stepGUIPadding * 2, p.height - 30);
-					break;
 				case MOORE :
-//					p.text("Ouput: [" + ((machines.Moore)machine).getOutput() + "]", stepGUIPadding * 2, p.height - 30);
+					p.text("Output: [" + model.Model.getOutput() + "]", stepGUIPadding * 2, p.height - 30);
 					break;
 			}
 			

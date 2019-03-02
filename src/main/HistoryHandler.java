@@ -14,6 +14,10 @@ import java.util.LinkedList;
 import java.util.Queue;
 
 import commands.Command;
+import commands.setColorBackground;
+import commands.setColorState;
+import commands.setColorStateSelected;
+import commands.setColorTransition;
 import main.PFLAP.PApplet;
 import main.PFLAP.modes;
 import model.Model;
@@ -108,13 +112,21 @@ public final class HistoryHandler {
 	public static void saveHistory(String path) {
 		try {
 			ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream(path));
-			ArrayList<Command> liveHistory = new ArrayList<>(
-					history.subList(history.size() - historyStateIndex - 1, history.size()));
+			ArrayList<Command> liveHistory = new ArrayList<>();
+			for (int i = history.size() - historyStateIndex - 1; i < history.size(); i++) {
+				if (!(history.get(i) instanceof setColorBackground
+						|| history.get(i) instanceof setColorState
+						|| history.get(i) instanceof setColorStateSelected
+						|| history.get(i) instanceof setColorTransition)) {
+					liveHistory.add(history.get(i)); // don't save color changes
+				}
+			}
 			Object[] objects = new Object[]{liveHistory, PApplet.view.save(), PFLAP.mode};
 			out.writeObject(objects);
 			out.close();
 		} catch (IOException e) {
 			Notification.addNotification("Saving Failed", "Could not save the machine file.");
+			System.err.println(e.getMessage());
 		}
 	}
 

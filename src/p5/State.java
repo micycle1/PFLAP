@@ -44,10 +44,10 @@ public class State implements Serializable {
 	private transient Textfield moorePushInput;
 	private transient boolean selected = false, highlighted = false;
 	private PVector position, selectedPosition;
-	
+
 	private int radius = stateRadius, highlightColor;
 	private final int abstractID;
-	
+
 	private static State renameState;
 	private static final Textfield rename;
 	private static final PGraphics initialIndicator;
@@ -142,15 +142,16 @@ public class State implements Serializable {
 						HistoryHandler.buffer(new commands.deleteState(abstractID));
 						break;
 					case 6 : // Moore Input
-						moorePushInput.setFocus(true).show();
-						PFLAP.allowGUIInterraction = false;
+//						moorePushInput.setFocus(true).show();
+//						PFLAP.allowGUIInterraction = false;
+						PApplet.println(model.Model.getConnectingTransitions(abstractID).size());
 						break;
 				}
 			}
 		};
-		stateOptions = cp5.addListBox("          Options");
+		stateOptions = cp5.addListBox("           Options");
 		// @formatter:off
-		stateOptions.addItems(new String[]{"Add Self-Transition", "Set As Inititial", "Toggle Accepting", "Relabel", "Resize", "Delete"})
+		stateOptions.addItems(new String[]{"Add Self-Transition", "Set As Inititial", "Toggle Accepting", "Relabel", "Resize", "Delete", "State Info"})
 			.setWidth(140)
 			.setBarHeight(35)
 			.setColorLabel(Functions.colorToRGB(PFLAP.stateColour.invert()))
@@ -191,7 +192,7 @@ public class State implements Serializable {
 		cp5.setPosition((int) this.position.x + 10, (int) this.position.y + 10);
 		resizeGUI.setPosition((int) (position.x) - 50, (int) (position.y));
 	}
-	
+
 	public final void disposeUI() {
 		cp5.dispose();
 	}
@@ -250,7 +251,7 @@ public class State implements Serializable {
 		selected = false;
 		selectedPosition = null;
 	}
-		
+
 	public void highLight(int highlightColor) {
 		this.highlightColor = highlightColor;
 		highlighted = true;
@@ -264,7 +265,7 @@ public class State implements Serializable {
 	public String getMoorePush() {
 		return moorePush;
 	}
-	
+
 	public PVector getSelectedPosition() {
 		return selectedPosition;
 	}
@@ -288,11 +289,11 @@ public class State implements Serializable {
 	public void showUI() {
 		stateOptions.show();
 	}
-	
+
 	public boolean isMouseOver() {
 		return (cp5.isMouseOver() && cp5.isVisible()) || (resizeGUI.isMouseOver() && sizeSlider.isVisible());
 	}
-	
+
 	public boolean isSelected() {
 		return selected;
 	}

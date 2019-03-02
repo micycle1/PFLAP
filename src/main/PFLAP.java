@@ -6,7 +6,6 @@ import java.util.ArrayList;
 import java.util.HashSet;
 
 import org.gicentre.utils.move.ZoomPan;
-import org.gicentre.utils.move.ZoomPanListener;
 
 import commands.Batch;
 import commands.Command;
@@ -55,6 +54,7 @@ import transitionView.View;
  * fix lambda/space functionality
  * add "State Information" to state menu
  * ctrl+s save / ctrl-o open
+ * untoggle accepting broken
  */
 public final class PFLAP {
 
@@ -74,15 +74,17 @@ public final class PFLAP {
 	public static Color stateColour = Color.rgb(255, 220, 0), stateSelectedColour = Color.rgb(0, 35, 255),
 			transitionColour = Color.rgb(0, 0, 0), bgColour = Color.rgb(255, 255, 255);
 
-	public static float zoom;
-
 	public static void main(String[] args) {
 		PApplet.init();
 	}
 
-	public static void reset(modes m) {
-		PApplet.reset = true;
+	public static void reset(modes m) { // mode change
 		mode = m;
+		PApplet.reset = true;
+	}
+	
+	public static void reset() { // same mode
+		PApplet.reset = true;
 	}
 
 	/**
@@ -96,11 +98,13 @@ public final class PFLAP {
 		private static State mouseOverState, arrowTailState, arrowHeadState, dragState;
 		private static SelectionBox selectionBox;
 		private static boolean fullScreen = false, newState = false, drawingArrow = false, reset = false;
-		private static PVector mouseClickXY, mouseReleasedXY, mouseCoords;
+		private static PVector mouseClickXY, mouseReleasedXY, mouseCoords, zoomPanOffsetp;
 		protected static Textarea trace;
 		private static ZoomPan zoomPan;
 		private static ArrayList<Command> multiMoveCache;
 		public static HistoryList historyList;
+		private static int zoomPanLastTime = -128;
+		private double zoomPanScalep;
 
 		public static View view;
 
@@ -142,21 +146,10 @@ public final class PFLAP {
 		public void setup() {
 			p = this;
 
-			zoom = 1;
 			zoomPan = new ZoomPan(this);
 			zoomPan.setMouseMask(CONTROL);
 			zoomPan.setMaxZoomScale(3);
 			zoomPan.setMinZoomScale(0.5);
-			zoomPan.addZoomPanListener(new ZoomPanListener() {
-				@Override
-				public void zoomEnded() {
-					// TODO show new zoom GUI
-				}
-				@Override
-				public void panEnded() {
-					// TODO show new zoom GUI
-				}
-			});
 
 			FontTextParameters : {
 				comfortaaRegular = createFont("Comfortaa.ttf", 24, true);
@@ -190,14 +183,32 @@ public final class PFLAP {
 			mode = modes.DFA;
 			view = new View(this);
 			historyList = new HistoryList(this);
-//			reset();
+
+			zoomPanScalep = zoomPan.getZoomScale();
+			zoomPanOffsetp = zoomPan.getPanOffset();
 		}
 
 		@Override
 		public void draw() {
 			background(Functions.colorToRGB(bgColour));
+
+			HistoryHandler.executeBufferedCommands();
+			Step.draw();
+			Notification.run();
+
+			if (zoomPan.getZoomScale() != zoomPanScalep || !zoomPan.getPanOffset().equals(zoomPanOffsetp)) {
+				zoomPanLastTime = frameCount;
+			}
+			if (frameCount - zoomPanLastTime < 128) {
+				fill(0, 255 - (frameCount - zoomPanLastTime) * 2);
+				textSize(12);
+				textAlign(LEFT, TOP);
+				text("Zoom: " + String.format("%.3g%n", zoomPan.getZoomScale()) + "X-pos: "
+						+ String.format("%.3g%n", zoomPan.getPanOffset().x) + "Y-pos: "
+						+ String.format("%.3g%n", zoomPan.getPanOffset().y), width - 80, 10);
+			}
+
 			zoomPan.transform();
-			zoom = (float) zoomPan.getZoomScale();
 			mouseCoords = new PVector(constrain(zoomPan.getMouseCoord().x, 0, width),
 					constrain(zoomPan.getMouseCoord().y, 0, height));
 
@@ -227,17 +238,17 @@ public final class PFLAP {
 				view.dragging(dragState, mouseCoords);
 			}
 
-			HistoryHandler.executeBufferedCommands();
-			Step.draw();
 			view.draw();
-			Notification.run();
 
 			if (reset) {
 				reset();
 			}
+
+			zoomPanScalep = zoomPan.getZoomScale();
+			zoomPanOffsetp = zoomPan.getPanOffset();
 		}
 
-		public static void reset() { // todo priavet
+		public static void reset() {
 			view.reset();
 			Step.endStep();
 			HistoryHandler.reset();
@@ -264,7 +275,6 @@ public final class PFLAP {
 				default :
 					break;
 			}
-			println("RESET");
 			reset = false;
 		}
 
@@ -272,7 +282,7 @@ public final class PFLAP {
 			zoomPan.reset();
 			zoomPan.setZoomScale(zoom);
 		}
-		
+
 		public void deleteSelection() {
 			if (!view.getSelectedStates().isEmpty()) {
 				if (view.getSelectedStates().size() == 1) {
@@ -295,7 +305,7 @@ public final class PFLAP {
 						case RIGHT :
 							Step.stepForward();
 							break;
-						case CONTROL:
+						case CONTROL :
 							allowGUIInterraction = false;
 						default :
 							break;
@@ -329,7 +339,7 @@ public final class PFLAP {
 					}
 					fullScreen = !fullScreen;
 					break;
-				case CONTROL:
+				case CONTROL :
 					allowGUIInterraction = true;
 				default :
 					break;

@@ -24,7 +24,7 @@ import javafx.scene.control.TextInputDialog;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyCombination;
 import javafx.scene.layout.StackPane;
-
+import javafx.scene.paint.Color;
 import javafx.stage.FileChooser;
 import javafx.stage.FileChooser.ExtensionFilter;
 import javafx.stage.Stage;
@@ -36,6 +36,10 @@ import main.PFLAP.PApplet;
 import main.Step;
 
 import commands.Batch;
+import commands.setColorBackground;
+import commands.setColorState;
+import commands.setColorStateSelected;
+import commands.setColorTransition;
 import model.Model;
 import p5.Notification;
 import processing.javafx.PSurfaceFX;
@@ -54,11 +58,11 @@ public class Controller implements Initializable {
 	@FXML
 	StackPane pflap;
 	@FXML
-	MenuItem open, save, undo, redo, close, deleteSelection, selectAllStates;
+	MenuItem open, save, undo, redo, close, deleteSelection, selectAllStates, history;
 	@FXML
 	MenuItem machine_DFA, machine_DPA, machine_mealy, machine_moore;
 	@FXML
-	ColorPicker colourPicker_state, colourPicker_stateSelected, colourPicker_transition, colourPicker_background;
+	public ColorPicker colourPicker_state, colourPicker_stateSelected, colourPicker_transition, colourPicker_background;
 	@FXML
 	Menu machineMenu;
 
@@ -75,6 +79,8 @@ public class Controller implements Initializable {
 		redo.setDisable(true);
 		machine_DFA.setDisable(true);
 
+		history.setDisable(true); // todo
+
 		open.setAccelerator(KeyCombination.keyCombination("SHORTCUT+O"));
 		save.setAccelerator(KeyCombination.keyCombination("SHORTCUT+S"));
 		undo.setAccelerator(KeyCombination.keyCombination("SHORTCUT+Z"));
@@ -89,16 +95,16 @@ public class Controller implements Initializable {
 		colourPicker_background.setValue(PFLAP.bgColour);
 
 		colourPicker_state.setOnAction((ActionEvent e) -> {
-			PFLAP.stateColour = colourPicker_state.getValue();
+			HistoryHandler.buffer(new setColorState(colourPicker_state.getValue()));
 		});
 		colourPicker_stateSelected.setOnAction((ActionEvent e) -> {
-			PFLAP.stateSelectedColour = colourPicker_stateSelected.getValue();
+			HistoryHandler.buffer(new setColorStateSelected(colourPicker_stateSelected.getValue()));
 		});
 		colourPicker_transition.setOnAction((ActionEvent e) -> {
-			PFLAP.transitionColour = colourPicker_transition.getValue();
+			HistoryHandler.buffer(new setColorTransition(colourPicker_transition.getValue()));
 		});
 		colourPicker_background.setOnAction((ActionEvent e) -> {
-			PFLAP.bgColour = colourPicker_background.getValue();
+			HistoryHandler.buffer(new setColorBackground(colourPicker_background.getValue()));
 		});
 
 		machineMenu.getItems().forEach(m -> m.setOnAction(event -> changeMachine(m)));
@@ -181,7 +187,7 @@ public class Controller implements Initializable {
 	private void reset() {
 		PFLAP.reset(PFLAP.mode);
 	}
-	
+
 	@FXML
 	private void deleteSelection() {
 		p.deleteSelection();
@@ -209,6 +215,14 @@ public class Controller implements Initializable {
 	@FXML
 	private void resetZoom() {
 		PFLAP.PApplet.setZoom(1);
+	}
+
+	@FXML
+	private void resetColors() {
+		PFLAP.stateColour = Color.rgb(255, 220, 0);
+		PFLAP.stateSelectedColour = Color.rgb(0, 35, 255);
+		PFLAP.transitionColour = Color.rgb(0, 0, 0);
+		PFLAP.bgColour = Color.rgb(255, 255, 255);
 	}
 
 	@FXML
@@ -372,16 +386,9 @@ public class Controller implements Initializable {
 					break;
 				case MEALY :
 					Model.runMachine(result.get());
-					// Notification.addNotification("Machine Terminated",
-					// "The machine terminated with output: "
-					// + ((machines.Mealy) PFLAP.machine).getOutput()); todo
 					break;
 				case MOORE :
-					// todo check every state has symbol
-					Model.runMachine(result.get());
-					// Notification.addNotification("Machine Terminated",
-					// "The machine terminated with output: "
-					// + ((machines.Moore) PFLAP.machine).getOutput()); todo
+					Model.runMachine(result.get()); // todo check every state has symbol
 					break;
 				default :
 					break;

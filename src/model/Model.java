@@ -9,6 +9,8 @@ import com.google.common.graph.NetworkBuilder;
 
 import machines.DFA;
 import machines.DPA;
+import machines.Mealy;
+import machines.Moore;
 import main.PFLAP;
 import p5.Notification;
 
@@ -51,6 +53,18 @@ public final class Model {
 				break;
 			case FAIL :
 				Notification.addNotification(main.Consts.notificationData.machineFailed);
+				break;
+			case COMPLETE :
+				if (m instanceof Mealy) {
+					Notification.addNotification("Machine Terminated",
+							"The machine terminated with output: " + ((machines.Mealy) m).getOutput());
+				}
+				if (m instanceof Moore) {
+					Notification.addNotification("Machine Terminated",
+							"The machine terminated with output: " + ((machines.Moore) m).getOutput());
+				}
+				break;
+			default :
 				break;
 		}
 	}
@@ -110,6 +124,16 @@ public final class Model {
 		transitionGraph.removeNode(n);
 		PFLAP.PApplet.view.deleteState(n);
 	}
+	
+	public static String getOutput() {
+		if (m instanceof Mealy) {
+			return ((machines.Mealy) m).getOutput();
+		}
+		if (m instanceof Moore) {
+			return ((machines.Moore) m).getOutput();
+		}
+		return "";
+	}
 
 	public static ArrayList<LogicalTransition> getConnectingTransitions(Integer s) {
 		return new ArrayList<>(transitionGraph.incidentEdges(s));
@@ -120,7 +144,7 @@ public final class Model {
 			((DPA) m).setInitialStackSymbol(c);
 		}
 	}
-	
+
 	/**
 	 * After load, set nextStateID to next free int.
 	 */
@@ -140,11 +164,11 @@ public final class Model {
 	public static int getLastID() {
 		return nextStateID - 1;
 	}
-	
+
 	public static Set<Integer> getStates() {
 		return transitionGraph.nodes();
 	}
-	
+
 	public static boolean isAccepting(Integer i) {
 		return acceptingStates.contains(i);
 	}

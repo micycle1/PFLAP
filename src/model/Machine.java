@@ -14,7 +14,12 @@ public interface Machine {
 		/**
 		 * Machine did not consume input fully (invalid transition)
 		 */
-		FAIL}
+		FAIL,
+		/**
+		 * Machine completed (for Mealy/Moore machines, where there is no accept/reject)
+		 */
+		COMPLETE
+		}
 
 	/**
 	 * Run machine on input

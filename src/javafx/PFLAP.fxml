@@ -29,7 +29,7 @@
 						<SeparatorMenuItem mnemonicParsing="false" />
 						<MenuItem fx:id="reset" mnemonicParsing="false" onAction="#reset" text="Reset PFLAP" />
 						<SeparatorMenuItem mnemonicParsing="false" />
-                  <MenuItem fx:id="deleteSelection" mnemonicParsing="false" onAction="#deleteSelection" text="Delete Selected States" />
+						<MenuItem fx:id="deleteSelection" mnemonicParsing="false" onAction="#deleteSelection" text="Delete Selected States" />
 						<MenuItem fx:id="selectAllStates" mnemonicParsing="false" onAction="#selectAllStates" text="Select All States" />
 						<MenuItem fx:id="deleteAllStates" mnemonicParsing="false" onAction="#deleteAllStates" text="Delete All States" />
 						<MenuItem fx:id="invertSelection" mnemonicParsing="false" onAction="#invertSelection" text="Invert Selection" />
@@ -37,7 +37,8 @@
 				</Menu>
 				<Menu fx:id="viewMenu" mnemonicParsing="false" text="View">
 					<items>
-						<MenuItem fx:id="resetZoom" mnemonicParsing="false" text="Reset Zoom" />
+						<MenuItem fx:id="resetZoom" mnemonicParsing="false" onAction="#resetZoom" text="Reset Zoom" />
+						<MenuItem fx:id="resetColors" mnemonicParsing="false" onAction="#resetColors" text="Reset Colours" />
 						<MenuItem fx:id="saveAsImage" mnemonicParsing="false" onAction="#saveAsImage" text="Save Stage as Image..." />
 						<MenuItem fx:id="machineInformation" mnemonicParsing="false" onAction="#machineInformation" text="Machine Information..." />
 						<MenuItem fx:id="history" mnemonicParsing="false" onAction="#history" text="History" />

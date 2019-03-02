@@ -1,12 +1,9 @@
 package machines;
 
-import com.google.common.graph.MutableNetwork;
-import com.google.common.graph.NetworkBuilder;
-
 import main.Step;
+import model.LogicalTransition;
 import model.Machine;
-import p5.AbstractArrow;
-import p5.State;
+import model.Model;
 
 /**
  * <b>Mealy Machine</b>
@@ -16,115 +13,91 @@ import p5.State;
 public final class Mealy implements Machine {
 
 	private String output = "", stepInput;
-	private State initial, stepState;
-	private MutableNetwork<State, AbstractArrow> transitionGraph;
+	private Integer stepState, stepIndex;
 
 	public Mealy() {
-		transitionGraph = NetworkBuilder.directed().allowsParallelEdges(true).expectedNodeCount(100)
-				.expectedEdgeCount(200).allowsSelfLoops(true).build();
 	}
 
 	@Override
-	public void addNode(State s) {
-		transitionGraph.addNode(s);
-	}
+	public status run(String input) {
 
-	@Override
-	public void deleteNode(State s) {
-		transitionGraph.removeNode(s);
-	}
-
-	@Override
-	public int totalTransitions() {
-		return transitionGraph.edges().size();
-	}
-
-	@Override
-	public void setInitialState(State s) {
-		initial = s;
-	}
-
-	@Override
-	public State getInitialState() {
-		return initial;
-	}
-
-	@Override
-	public void addTransition(AbstractArrow a) {
-		transitionGraph.addEdge(a.getTail(), a.getHead(), a);
-	}
-
-	@Override
-	public void removeTransition(AbstractArrow a) {
-		transitionGraph.removeEdge(a);
-	}
-
-	@Override
-	public boolean run(String input) {
-		State s = initial;
+		int s = Model.initialState;
+		char symbol;
 		output = "";
-		while (!input.isEmpty()) {
-			char symbol = input.charAt(0);
-			input = input.substring(1);
-			for (AbstractArrow a : transitionGraph.outEdges(s)) {
-				if (a.getSymbol() == symbol) {
-					output += a.getStackPush();
-					s = a.getHead();
-				} else {
-					return true;
+
+		while (!(input.isEmpty())) {
+			symbol = input.charAt(0);
+			boolean ok = false;
+			for (LogicalTransition t : Model.transitionGraph.outEdges(s)) {
+				if (t.getSymbol() == symbol) {
+					output += t.getStackPush();
+					input = input.substring(1);
+					s = t.head;
+					ok = true;
+					break;
 				}
 			}
+			if (!ok) {
+				return status.COMPLETE;
+			}
 		}
-		return true;
+		return status.COMPLETE;
 	}
 
 	@Override
 	public void beginStep(String input) {
+		stepState = Model.initialState;
 		stepInput = input;
-		stepState = initial;
 		output = "";
+		stepIndex = 0;
 	}
 
 	@Override
-	public State stepForward() {
-		State prevState = stepState;
-		if (!stepInput.isEmpty()) {
-			char symbol = stepInput.charAt(0);
-			stepInput = stepInput.substring(1);
-			for (AbstractArrow a : transitionGraph.outEdges(stepState)) {
-				if (a.getSymbol() == symbol) {
-					output += a.getStackPush();
-					stepState = a.getHead();
-					return stepState;
-				} else {
-					return prevState;
+	public Integer stepForward() {
+		Integer prevState = stepState;
+
+		if (stepIndex < stepInput.length()) {
+			char symbol = stepInput.charAt(stepIndex);
+
+			boolean ok = false;
+			for (LogicalTransition t : Model.transitionGraph.outEdges(prevState)) {
+				if (t.getSymbol() == symbol) {
+					output += t.getStackPush();
+					stepState = t.head;
+					ok = true;
+					break;
 				}
 			}
+			if (!ok) {
+				Step.setMachineOutcome(false);
+			} else {
+				stepIndex++;
+			}
+			return stepState;
+
+		} else {
+			Step.setMachineOutcome(true);
+			stepState = prevState;
+			return prevState;
 		}
-		Step.setMachineOutcome(true);
-		stepState = prevState;
-		return stepState;
 	}
 
 	@Override
-	public void stepBackward(State s, String input) {
-		output = output.substring(0, (output.length() - 1) - (stepState.getMoorePush().length() - 1));
+	public void stepBackward(Integer s) {
+		stepIndex--;
+		for (LogicalTransition t : Model.transitionGraph.edgesConnecting(s, stepState)) {
+			if (t.getSymbol() == stepInput.charAt(stepIndex) && t.getTail().equals(s)) {
+				System.out.print("remove " + t.getStackPush());
+				output = output.substring(0, output.length() - t.getStackPush().length());
+				break;
+			}
+		}
 		stepState = s;
-		stepInput = input;
+
 	}
 
 	public String getOutput() {
 		return output;
 	}
-
-	@Override
-	public boolean testUniqueTransition(AbstractArrow transition, char symbol, char stackPop, String stackPush) {
-		for (AbstractArrow a : transitionGraph.outEdges(transition.getTail())) {
-			if (a.getSymbol() == symbol && a.getStackPush().equals(stackPush)) {
-				return false;
-			}
-		}
-		return true;
-	}
-
+	
 }
