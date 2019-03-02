@@ -1,0 +1,44 @@
+// Padding: TOP, RIGHT, BOTTOM, LEFT.
+
+@font-face {
+    font-family: Comfortaa;
+    src: url('../data/Comfortaa-Bold.ttf');
+}
+
+.root {
+	-fx-font-family: 'Comfortaa';
+	-fx-selection-bar: #555555; // menu hovered colour
+	}
+
+.menu-item {
+	-fx-padding: 6 5 6 5;
+	}
+
+.menu {
+	-fx-padding: 5 10 5 10;
+	}
+
+.menu-item >.label {
+	-fx-font-size:12;
+	-fx-text-fill: #0023ff;
+}
+
+.menu-item:focused {
+   -fx-background-color: #ccb000;
+}
+
+.menu >.label {
+	-fx-font-size:13;
+}
+
+.menu-bar {
+  -fx-background-color: #ffdc00;
+}
+
+.menu:hover {
+    -fx-background-color: #ccb000; // 20% darker
+}
+
+.menu-item:hover {
+	-fx-background-color: #e5c600; // 10% darker
+}

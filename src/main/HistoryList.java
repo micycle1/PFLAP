@@ -1,6 +1,6 @@
 package main;
 
-import static main.Functions.color;
+import static main.Functions.colorToRGB;
 
 import controlP5.CallbackEvent;
 import controlP5.CallbackListener;
@@ -27,8 +27,8 @@ public final class HistoryList {
 		// @formatter:off
 		history = cp5.addListBox("HistoryList")
 				.setWidth(160)
-				.setColorBackground(color(50, 50, 50))
-				.setColorForeground(color(50, 50, 50))
+				.setColorBackground(colorToRGB(50, 50, 50))
+				.setColorForeground(colorToRGB(50, 50, 50))
 				.setBarHeight(30)
 				.setItemHeight(20)
 				.setHeight(200)

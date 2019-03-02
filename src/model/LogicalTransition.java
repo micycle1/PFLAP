@@ -11,7 +11,14 @@ import p5.State;
 public class LogicalTransition implements Serializable {
 
 	public Integer head, tail;
-	protected char transitionSymbol, stackPop;
+	protected char transitionSymbol;
+	/**
+	 * The single stack character that is consumed (popped off) by this transition. 
+	 */
+	protected char stackPop;
+	/**
+	 * The stack characters (represented by a string) that are pushed onto the stack by this transition.
+	 */
 	protected String stackPush = "";
 
 	public LogicalTransition(Integer head, Integer tail, char transitionSymbol, char stackPop, String stackPush) {

@@ -34,7 +34,7 @@ public class Notification {
 		background = p.createImage(notificationWidth, notificationHeight, PApplet.ARGB);
 		for (int i = 0; i < background.pixels.length; i++) {
 			float a = PApplet.map(i, 0, background.pixels.length, 255, 0);
-			background.pixels[i] = Functions.color(10, 100, 100, a);
+			background.pixels[i] = Functions.colorToRGB(10, 100, 100, a);
 		}
 	}
 

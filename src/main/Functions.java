@@ -80,7 +80,6 @@ public final class Functions {
 
 		double L2 = 0.2126 * pow(b.getRed() / 255f, 2.2f) + 0.7152 * pow(b.getGreen() / 255f, 2.2f)
 				+ 0.0722 * pow(b.getBlue() / 255f, 2.2f);
-
 		if (L1 > L2) {
 			return (L1 + 0.05) / (L2 + 0.05);
 		} else {
@@ -119,11 +118,14 @@ public final class Functions {
 	 * @param G Green Value [0-255].
 	 * @param B Blue Value [0-255].
 	 * @return Color int.
-	 * @see {@link #color(int, int, int, float) fdssdsd}
-	 * @deprecated
+	 * @see {@link #colorToRGB(int, int, int, float) colorToRGB(int R, int G, int B, float A)}
 	 */
-	public static int color(int R, int G, int B) {
-		return new Color(R, G, B).getRGB();
+	public static int colorToRGB(int R, int G, int B) {
+		int out = 255 << 24; // full transparency
+		out += R << 16;
+		out += G << 8;
+		out += B;
+		return out;
 	}
 
 	/**
@@ -134,9 +136,8 @@ public final class Functions {
 	 * @param B Blue Value [0-255].
 	 * @param A Alpha (transparency) [0.0-1.0].
 	 * @return Color int.
-	 * @deprecated
 	 */
-	public static int color(int R, int G, int B, float A) {
+	public static int colorToRGB(int R, int G, int B, float A) {
 		return new Color(((float) R) / 255, ((float) G) / 255, ((float) B) / 255, A / 255).getRGB();
 	}
 
@@ -146,7 +147,7 @@ public final class Functions {
 	 * @return
 	 */
 	public static int colorToRGB(javafx.scene.paint.Color c) {
-		int out = 255 << 24;
+		int out = 255 << 24; // full transparency
 		out += ((int) (c.getRed() * 255)) << 16;
 		out += ((int) (c.getGreen() * 255)) << 8;
 		out += (int) (c.getBlue() * 255);
@@ -169,6 +170,7 @@ public final class Functions {
 	 * @param percentage Percentage amount to darken the color by, where:
 	 * <p>0.0 = no change; 0.5 = half brightness; 1.0 = black.
 	 * @return Darker version of <b>c</b> (integer representation).
+	 * @deprecated
 	 */
 	public static int darkenColor(Color c, float percentage) {
 		if (!numberBetween(percentage, 0, 1)) {

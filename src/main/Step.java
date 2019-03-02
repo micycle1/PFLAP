@@ -4,7 +4,7 @@ import static main.Consts.stepGUIPadding;
 import static main.Consts.notificationData.machineAccepted;
 import static main.Consts.notificationData.machineRejected;
 
-import static main.Functions.color;
+import static main.Functions.colorToRGB;
 import static main.PFLAP.p;
 
 import java.util.ArrayList;
@@ -53,9 +53,9 @@ public class Step {
 		.setSize(30, 18)
 		.setLabel(" X")
 		.setPosition(p.width - stepGUIPadding - 30 - 1, stepGUIPadding + 2)
-		.setColorBackground(color(80, 0, 0))
-		.setColorForeground(color(200, 0, 0))
-		.setColorActive(color(255, 0, 0))
+		.setColorBackground(colorToRGB(80, 0, 0))
+		.setColorForeground(colorToRGB(200, 0, 0))
+		.setColorActive(colorToRGB(255, 0, 0))
 		.hide()
 		;
 		help = new Button(PFLAP.cp5, "helpSTEP");
@@ -68,9 +68,9 @@ public class Step {
 		.setSize(30, 18)
 		.setLabel(" ?")
 		.setPosition(p.width - stepGUIPadding - 60 - 1, stepGUIPadding + 2)
-		.setColorBackground(color(0, 0, 80))
-		.setColorForeground(color(0, 0, 200))
-		.setColorActive(color(0, 0, 255))
+		.setColorBackground(colorToRGB(0, 0, 80))
+		.setColorForeground(colorToRGB(0, 0, 200))
+		.setColorActive(colorToRGB(0, 0, 255))
 		.hide()
 		;
 		//@formatter:on
@@ -177,12 +177,12 @@ public class Step {
 					break;
 			}
 			
-			PApplet.view.highlightState(liveState, color(255, 0, 255));// specify color
+			PApplet.view.highlightState(liveState, colorToRGB(255, 0, 255));// specify color
 			if (completed && visitedIndex == visited.size() - 1) {
 				if (accepted) {
-					PApplet.view.highlightState(liveState, color(0, 255, 0));
+					PApplet.view.highlightState(liveState, colorToRGB(0, 255, 0));
 				} else {
-					PApplet.view.highlightState(liveState, color(255, 0, 0));
+					PApplet.view.highlightState(liveState, colorToRGB(255, 0, 0));
 				}
 			}
 		}

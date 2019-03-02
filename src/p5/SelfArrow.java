@@ -56,6 +56,7 @@ public class SelfArrow extends AbstractArrow {
 				selfBezierCP2.y, head.getPosition().x, head.getPosition().y);
 		drawArrowTip(selfBezierTranslate, selfBezierAngle);
 		p.textAlign(PConstants.LEFT, PConstants.CENTER);
+		p.textSize(textSize);
 		drawTransitionLabel(selfBezierTextLoc);
 	}
 

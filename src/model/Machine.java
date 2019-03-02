@@ -2,7 +2,19 @@ package model;
 
 public interface Machine {
 	
-	enum status {SUCCESS, NOTACCEPTING, FAIL} // NOTACCEPTING = consumed, but didn't finish on final state
+	enum status {
+		/**
+		 * Machine consumed input and final state is accepting
+		 */
+		SUCCESS
+		/**
+		 * Machine consumed input and final state is not accepting
+		 */
+		, NOTACCEPTING,
+		/**
+		 * Machine did not consume input fully (invalid transition)
+		 */
+		FAIL}
 
 	/**
 	 * Run machine on input

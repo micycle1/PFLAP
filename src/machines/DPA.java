@@ -5,9 +5,8 @@ import static main.Consts.lambda;
 import java.util.LinkedList;
 import java.util.Queue;
 
-import com.google.common.graph.MutableNetwork;
-import com.google.common.graph.NetworkBuilder;
-
+import controlP5.CallbackEvent;
+import controlP5.CallbackListener;
 import controlP5.Toggle;
 
 import main.Functions;
@@ -15,8 +14,7 @@ import main.PFLAP;
 import main.Step;
 import model.LogicalTransition;
 import model.Machine;
-import p5.Notification;
-import p5.State;
+import model.Model;
 
 /**
  * <p><b> Deterministic Pushdown Automaton</b>
@@ -25,10 +23,10 @@ import p5.State;
 public class DPA implements Machine {
 
 	private Queue<Character> stack, previousStack;
-	private State initial, stepState;
-	private final MutableNetwork<State, LogicalTransition> transitionGraph;
 	private Character initialStackSymbol;
 	private String stepInput;
+	private int stepState, stepIndex; // index to slice stepinput
+
 	private static final Toggle toggleAcceptByStackEmpty, toggleAcceptByAcceptState;
 
 	static {
@@ -39,9 +37,16 @@ public class DPA implements Machine {
 				.setColorLabel(0)
 				.setPosition(5, 5)
 				.setWidth(80)
-				.setColorActive(Functions.color(0, 200, 0))
-				.setColorBackground(Functions.color(200, 0, 0))
-				.setColorForeground(Functions.color(0, 50, 0))
+				.setColorActive(Functions.colorToRGB(0, 200, 0))
+				.setColorBackground(Functions.colorToRGB(200, 0, 0))
+				.setColorForeground(Functions.colorToRGB(0, 50, 0))
+				.addCallback(new CallbackListener() {
+					@Override
+					public void controlEvent(CallbackEvent event) {
+				        if (event.getAction() == 100 && !toggleAcceptByAcceptState.getBooleanValue() 
+				        		&& !toggleAcceptByStackEmpty.getBooleanValue()) {
+				        	toggleAcceptByAcceptState.toggle();
+				        }}})
 				;
 		toggleAcceptByAcceptState = 
 				PFLAP.cp5.addToggle("Accept by\nAccepting State")
@@ -49,9 +54,16 @@ public class DPA implements Machine {
 				.setColorLabel(0)
 				.setPosition(5, 55)
 				.setWidth(80)
-				.setColorActive(Functions.color(0, 200, 0))
-				.setColorBackground(Functions.color(200, 0, 0))
-				.setColorForeground(Functions.color(0, 50, 0))
+				.setColorActive(Functions.colorToRGB(0, 200, 0))
+				.setColorBackground(Functions.colorToRGB(200, 0, 0))
+				.setColorForeground(Functions.colorToRGB(0, 50, 0))
+				.addCallback(new CallbackListener() {
+					@Override
+					public void controlEvent(CallbackEvent event) {
+				        if (event.getAction() == 100 && !toggleAcceptByAcceptState.getBooleanValue() 
+				        		&& !toggleAcceptByStackEmpty.getBooleanValue()) {
+				        	toggleAcceptByStackEmpty.toggle();
+				        }}})
 				;
 		// @formatter:on
 	}
@@ -68,32 +80,10 @@ public class DPA implements Machine {
 
 	public DPA() {
 		stack = new LinkedList<Character>();
-		transitionGraph = NetworkBuilder.directed().allowsParallelEdges(true).expectedNodeCount(100)
-				.expectedEdgeCount(200).allowsSelfLoops(true).build();
 	}
 
-	@Override
-	public void setInitialState(State s) {
-		initial = s;
-	}
-
-	@Override
-	public State getInitialState() {
-		return initial;
-	}
-
-	public void setInitialStackSymbol(char ss) {
-		initialStackSymbol = ss;
-	}
-
-	@Override
-	public void addNode(State s) {
-		transitionGraph.addNode(s);
-	}
-
-	@Override
-	public void deleteNode(State s) {
-		transitionGraph.removeNode(s);
+	public void setInitialStackSymbol(Character c) {
+		initialStackSymbol = c;
 	}
 
 	private void setStepStack() {
@@ -105,120 +95,93 @@ public class DPA implements Machine {
 	}
 
 	@Override
-	public void addTransition(LogicalTransition a) {
-		transitionGraph.addEdge(a.getTail(), a.getHead(), a);
-	}
-
-	@Override
-	public void removeTransition(LogicalTransition a) {
-		transitionGraph.removeEdge(a);
-	}
-
-	@Override
 	public void beginStep(String input) {
 		stack.clear();
 		stack.add(initialStackSymbol);
-		stepState = initial;
+		stepState = Model.initialState;
 		stepInput = input;
+		stepIndex = 0;
 		previousStack = new LinkedList<>();
 		setStepStack();
 	}
-
+	
 	@Override
-	public State stepForward() {
-		State prevState = stepState;
-		if (!stepInput.isEmpty()) {
+	public Integer stepForward() {
+		Integer prevState = stepState;
+
+		if (stepIndex < stepInput.length()) {
 			previousStack = new LinkedList<>(stack);
-			char symbol = stepInput.charAt(0);
-			stepInput = stepInput.substring(1);
-			checkOneState : {
-				for (LogicalTransition a : transitionGraph.outEdges(stepState)) {
-					if ((a.getSymbol() == symbol) && (a.getStackPop() == stack.peek() || a.getStackPop() == lambda)) {
-						stack.poll();
-						for (Character c : a.getStackPush().toCharArray()) {
-							if (c != lambda) {
-								stack.add(c);
-							}
+			char symbol = stepInput.charAt(stepIndex);
+
+			boolean ok = false;
+			for (LogicalTransition t : Model.transitionGraph.outEdges(prevState)) {
+				if (t.getSymbol() == symbol && (t.getStackPop() == stack.peek() || t.getStackPop() == lambda)) {
+					stack.poll();
+					stepState = t.head;
+					t.getStackPush().chars().forEach(c -> {
+						if (c != lambda) {
+							stack.add((char) c);
 						}
-						stepState = a.getHead();
-						break checkOneState;
-					}
+					});
+					ok = true;
+					break;
 				}
-				stack = new LinkedList<>(previousStack);
-				Step.setMachineOutcome(false);
-				stepState = prevState;
 			}
 			setStepStack();
+			if (!ok) {
+				Step.setMachineOutcome(false);
+			} else {
+				stepIndex++;
+			}
 			return stepState;
 
 		} else {
-			Step.setMachineOutcome((stepState.isAccepting() && toggleAcceptByAcceptState.getBooleanValue())
+			Step.setMachineOutcome((Model.isAccepting(stepState) && toggleAcceptByAcceptState.getBooleanValue())
 					|| (stack.isEmpty() && toggleAcceptByStackEmpty.getBooleanValue()));
 			stepState = prevState;
-			setStepStack();
 			return prevState;
 		}
 	}
 
 	@Override
-	public void stepBackward(State s, String input) {
+	public void stepBackward(Integer s) {
 		stepState = s;
-		stepInput = input;
+		stepIndex--;
 		stack = new LinkedList<>(previousStack);
 		setStepStack();
 	}
 
 	@Override
-	public boolean run(String input) {
-		stack.clear();
-		stack.add(initialStackSymbol);
-		State s = initial;
+	public status run(String input) {
 
-		while (!input.isEmpty()) {
-			char symbol = input.charAt(0);
-			input = input.substring(1);
+		int s = Model.initialState;
+		char symbol;
 
-			checkOneState : {
-				for (LogicalTransition a : transitionGraph.outEdges(s)) {
-					if ((a.getSymbol() == symbol) && (a.getStackPop() == stack.peek() || a.getStackPop() == lambda)) {
-						stack.poll();
-						for (Character c : a.getStackPush().toCharArray()) {
-							if (c != lambda) {
-								stack.add(c);
-							}
+		while (!(input.isEmpty())) {
+			symbol = input.charAt(0);
+			boolean ok = false;
+			for (LogicalTransition t : Model.transitionGraph.outEdges(s)) {
+				if (t.getSymbol() == symbol && (t.getStackPop() == stack.peek() || t.getStackPop() == lambda)) {
+					stack.poll();
+					t.getStackPush().chars().forEach(c -> {
+						if (c != lambda) {
+							stack.add((char) c);
 						}
-						s = a.getHead();
-						break checkOneState;
-					}
+					});
+					input = input.substring(1);
+					s = t.head;
+					ok = true;
+					break;
 				}
-				Notification.addNotification(main.Consts.notificationData.machineRejected);
-				return false;
+			}
+			if (!ok) {
+				return status.FAIL;
 			}
 		}
-		if ((s.isAccepting() && toggleAcceptByAcceptState.getBooleanValue())
-				|| (stack.isEmpty() && toggleAcceptByStackEmpty.getBooleanValue())) {
-			Notification.addNotification(main.Consts.notificationData.machineAccepted);
+		if (toggleAcceptByAcceptState.getBooleanValue() && (Model.acceptingStates.contains(s) || stack.isEmpty())) {
+			return status.SUCCESS;
 		} else {
-			Notification.addNotification(main.Consts.notificationData.machineRejected);
+			return status.NOTACCEPTING;
 		}
-		return (s.isAccepting() && toggleAcceptByAcceptState.getBooleanValue())
-				|| (stack.isEmpty() && toggleAcceptByStackEmpty.getBooleanValue());
 	}
-
-	@Override
-	public int totalTransitions() {
-		return transitionGraph.edges().size();
-	}
-
-	@Override
-	public boolean assureUniqueTransition(LogicalTransition t) {
-		for (LogicalTransition a : transitionGraph.outEdges(t.getTail())) {
-			if (a.getSymbol() == t.getSymbol() && a.getStackPop() == t.getStackPop() && a.getStackPush().equals(t.getStackPush())) {
-				return false;
-			}
-		}
-		return true;
-	}
-	
-	
 }

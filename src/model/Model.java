@@ -8,6 +8,7 @@ import com.google.common.graph.MutableNetwork;
 import com.google.common.graph.NetworkBuilder;
 
 import machines.DFA;
+import machines.DPA;
 import main.PFLAP;
 import p5.Notification;
 
@@ -112,6 +113,12 @@ public final class Model {
 
 	public static ArrayList<LogicalTransition> getConnectingTransitions(Integer s) {
 		return new ArrayList<>(transitionGraph.incidentEdges(s));
+	}
+	
+	public static void setInitialStackSymbol(Character c) {
+		if (m instanceof DPA) {
+			((DPA) m).setInitialStackSymbol(c);
+		}
 	}
 	
 	/**

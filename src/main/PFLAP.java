@@ -21,6 +21,7 @@ import javafx.App;
 import javafx.Controller;
 import javafx.application.Application;
 import javafx.scene.paint.Color;
+
 import machines.DFA;
 import machines.DPA;
 import machines.Mealy;
@@ -52,6 +53,8 @@ import transitionView.View;
  * fix dpa, mealy, moore
  * add transition option in transition menu
  * fix lambda/space functionality
+ * add "State Information" to state menu
+ * ctrl+s save / ctrl-o open
  */
 public final class PFLAP {
 
@@ -77,8 +80,9 @@ public final class PFLAP {
 		PApplet.init();
 	}
 
-	public static void reset() {
+	public static void reset(modes m) {
 		PApplet.reset = true;
+		mode = m;
 	}
 
 	/**
@@ -224,19 +228,19 @@ public final class PFLAP {
 			}
 
 			HistoryHandler.executeBufferedCommands();
-			Notification.run();
 			Step.draw();
 			view.draw();
+			Notification.run();
 
 			if (reset) {
 				reset();
 			}
 		}
 
-		private static void reset() {
+		public static void reset() { // todo priavet
 			view.reset();
-			Notification.clear();
 			Step.endStep();
+			HistoryHandler.reset();
 			mouseOverState = null;
 			arrowTailState = null;
 			arrowHeadState = null;
@@ -260,12 +264,23 @@ public final class PFLAP {
 				default :
 					break;
 			}
+			println("RESET");
 			reset = false;
 		}
 
 		public static void setZoom(float zoom) {
 			zoomPan.reset();
 			zoomPan.setZoomScale(zoom);
+		}
+		
+		public void deleteSelection() {
+			if (!view.getSelectedStates().isEmpty()) {
+				if (view.getSelectedStates().size() == 1) {
+					HistoryHandler.buffer(new deleteState(view.getSelectedStates().iterator().next()));
+				} else {
+					HistoryHandler.buffer(new Batch(Batch.createDeleteBatch(view.getSelectedStates())));
+				}
+			}
 		}
 
 		@Override
@@ -280,6 +295,8 @@ public final class PFLAP {
 						case RIGHT :
 							Step.stepForward();
 							break;
+						case CONTROL:
+							allowGUIInterraction = false;
 						default :
 							break;
 					}
@@ -291,12 +308,6 @@ public final class PFLAP {
 		public void keyReleased(KeyEvent key) {
 			if (keysDown.contains(CONTROL)) {
 				switch (key.getKey()) {
-					case 'Z' :
-						HistoryHandler.undo();
-						break;
-					case 'Y' :
-						HistoryHandler.redo();
-						break;
 					case 'H' :
 						historyList.toggleVisible();
 						break;
@@ -306,13 +317,7 @@ public final class PFLAP {
 			}
 			switch (key.getKeyCode()) {
 				case 127 : // 127 == delete key
-					if (!view.getSelectedStates().isEmpty()) {
-						if (view.getSelectedStates().size() == 1) {
-							HistoryHandler.buffer(new deleteState(view.getSelectedStates().iterator().next()));
-						} else {
-							HistoryHandler.buffer(new Batch(Batch.createDeleteBatch(view.getSelectedStates())));
-						}
-					}
+					deleteSelection();
 					break;
 				case 122 : // F11
 					if (fullScreen) {
@@ -324,6 +329,8 @@ public final class PFLAP {
 					}
 					fullScreen = !fullScreen;
 					break;
+				case CONTROL:
+					allowGUIInterraction = true;
 				default :
 					break;
 			}

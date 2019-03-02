@@ -14,8 +14,8 @@ import java.util.LinkedList;
 import java.util.Queue;
 
 import commands.Command;
-
 import main.PFLAP.PApplet;
+import main.PFLAP.modes;
 import model.Model;
 import p5.Notification;
 
@@ -29,16 +29,11 @@ public final class HistoryHandler {
 		throw new AssertionError();
 	}
 
-	protected static void resetAll() {
-		if (history != null) {
-			for (int i = history.size() - 1; i > -1; i--) {
-				history.get(i).undo();
-			}
-			history.clear();
-			pendingExecute.clear();
-		}
+	public static void reset() {
+		history.clear();
+		pendingExecute.clear();
 		historyStateIndex = -1;
-		PApplet.historyList.update();
+		// PApplet.historyList.update(); todo
 	}
 
 	public static void buffer(Command c) {
@@ -115,7 +110,7 @@ public final class HistoryHandler {
 			ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream(path));
 			ArrayList<Command> liveHistory = new ArrayList<>(
 					history.subList(history.size() - historyStateIndex - 1, history.size()));
-			Object[] objects = new Object[]{liveHistory, PApplet.view.save()};
+			Object[] objects = new Object[]{liveHistory, PApplet.view.save(), PFLAP.mode};
 			out.writeObject(objects);
 			out.close();
 		} catch (IOException e) {
@@ -126,16 +121,16 @@ public final class HistoryHandler {
 	@SuppressWarnings("unchecked")
 	public static void loadHistory(String path) {
 		try {
-			resetAll();
-			// PFLAP.reset();
 			p.noLoop();
 			ObjectInputStream in = new ObjectInputStream(new FileInputStream(path));
 			Object[] data = (Object[]) in.readObject();
-			PApplet.view.load(data[1]);
+			PFLAP.mode = (modes) data[2];
+			PApplet.reset();
+			PApplet.view.load(data[1]); // p5 states
 			history.addAll((ArrayList<Command>) data[0]);
 			history.forEach(c -> c.execute());
 			historyStateIndex = history.size() - 1;
-			PApplet.historyList.update();
+			// PApplet.historyList.update(); todo
 			Model.setnextStateID(Model.nStates());
 			in.close();
 		} catch (InvalidClassException e) {

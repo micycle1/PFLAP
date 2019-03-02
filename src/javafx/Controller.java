@@ -22,6 +22,7 @@ import javafx.scene.control.Menu;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.TextInputDialog;
 import javafx.scene.image.ImageView;
+import javafx.scene.input.KeyCombination;
 import javafx.scene.layout.StackPane;
 
 import javafx.stage.FileChooser;
@@ -30,13 +31,11 @@ import javafx.stage.Stage;
 
 import main.Consts;
 import main.HistoryHandler;
-import main.HistoryList;
 import main.PFLAP;
 import main.PFLAP.PApplet;
 import main.Step;
 
 import commands.Batch;
-import commands.changeMode;
 import model.Model;
 import p5.Notification;
 import processing.javafx.PSurfaceFX;
@@ -55,7 +54,7 @@ public class Controller implements Initializable {
 	@FXML
 	StackPane pflap;
 	@FXML
-	MenuItem undo, redo;
+	MenuItem open, save, undo, redo, close, deleteSelection, selectAllStates;
 	@FXML
 	MenuItem machine_DFA, machine_DPA, machine_mealy, machine_moore;
 	@FXML
@@ -75,6 +74,14 @@ public class Controller implements Initializable {
 		undo.setDisable(true);
 		redo.setDisable(true);
 		machine_DFA.setDisable(true);
+
+		open.setAccelerator(KeyCombination.keyCombination("SHORTCUT+O"));
+		save.setAccelerator(KeyCombination.keyCombination("SHORTCUT+S"));
+		undo.setAccelerator(KeyCombination.keyCombination("SHORTCUT+Z"));
+		redo.setAccelerator(KeyCombination.keyCombination("SHORTCUT+Y"));
+		close.setAccelerator(KeyCombination.keyCombination("Esc"));
+		deleteSelection.setAccelerator(KeyCombination.keyCombination("Del"));
+		selectAllStates.setAccelerator(KeyCombination.keyCombination("SHORTCUT+A"));
 
 		colourPicker_state.setValue(PFLAP.stateColour);
 		colourPicker_stateSelected.setValue(PFLAP.stateSelectedColour);
@@ -172,7 +179,12 @@ public class Controller implements Initializable {
 
 	@FXML
 	private void reset() {
-		PFLAP.reset();
+		PFLAP.reset(PFLAP.mode);
+	}
+	
+	@FXML
+	private void deleteSelection() {
+		p.deleteSelection();
 	}
 
 	@FXML
@@ -240,16 +252,16 @@ public class Controller implements Initializable {
 		i.setDisable(true);
 		switch (i.getId()) {
 			case "machine_DFA" :
-				HistoryHandler.buffer(new changeMode(PFLAP.modes.DFA));
+				PFLAP.reset(PFLAP.modes.DFA);
 				break;
 			case "machine_DPA" :
-				HistoryHandler.buffer(new changeMode(PFLAP.modes.DPA));
+				PFLAP.reset(PFLAP.modes.DPA);
 				break;
 			case "machine_mealy" :
-				HistoryHandler.buffer(new changeMode(PFLAP.modes.MEALY));
+				PFLAP.reset(PFLAP.modes.MEALY);
 				break;
 			case "machine_moore" :
-				HistoryHandler.buffer(new changeMode(PFLAP.modes.MOORE));
+				PFLAP.reset(PFLAP.modes.MOORE);
 				break;
 			default :
 				break;
@@ -293,8 +305,7 @@ public class Controller implements Initializable {
 							return;
 						}
 						if (stackSymbol.get().length() == 1) {
-							// ((DPA) PFLAP.machine).setInitialStackSymbol(
-							// Functions.testForLambda(stackSymbol.charAt(0))); todo set DPA machine stack symbol
+							model.Model.setInitialStackSymbol(stackSymbol.get().charAt(0)); // todo test for lambda
 							Step.beginStep(result.get());
 						} else {
 							Notification.addNotification("Invalid Stack Symbol",
@@ -351,14 +362,13 @@ public class Controller implements Initializable {
 							return;
 						}
 						if (stackSymbol.get().length() == 1) {
-							// ((DPA) PFLAP.machine).setInitialStackSymbol(
-							// Functions.testForLambda(stackSymbol.charAt(0))); todo set DPA machine stack symbol
+							model.Model.setInitialStackSymbol(stackSymbol.get().charAt(0)); // todo test for lambda
 							Model.runMachine(result.get());
 						} else {
 							Notification.addNotification("Invalid Stack Symbol",
 									"Initial Stack Symbol must be single character.");
 						}
-					} while (stackSymbol.get().length() != 1); // or set max length (=1)
+					} while (stackSymbol.get().length() != 1); // or set max length to 1?
 					break;
 				case MEALY :
 					Model.runMachine(result.get());

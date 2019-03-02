@@ -49,9 +49,10 @@ public final class Consts {
 		}
 	}
 
-	// @formatter:off
-	public static final String about = "A JFLAP alternative using the Processing library as the graphics backend.";
+	public static final String about = "An interactive graphical tool for constructing and simulating finite automata "
+			+ "(machine representations of formal languages) using the Processing library as the graphics backend.";
 
+	// @formatter:off
 	public static final String helpPFLAP = "In PFLAP, spaces (' ') are read as lambda (blank) transitions.\r\n\n" +
 			"Mouse:\r\n" + 
 			"\r\n" + 
@@ -71,7 +72,13 @@ public final class Consts {
 			"CTRL-H: Toggle History List.\r\n" +
 			"CTRL-Z: Undo.\r\n" +
 			"CTRL-Y: Redo.\r\n" +
-			"F-11: Toggle Fullscreen.";
+			"F-11: Toggle Fullscreen.\r\n" +
+			"\r\n" + 
+			"View:\r\n" + 
+			"\r\n" +
+			"CTRL + MouseWheel: Zoom In/Out\r\n" +
+			"CTRL + Right-Click (Drag): Pan"
+			;
 	
 	public static final String helpStep = "Step backward and forward with the left and right arrow keys respectively.\r\n" +
 	"Once the machine terminates, the terminating state will turn green to indicate acceptance or red to indicate the contrary.\r\n" +

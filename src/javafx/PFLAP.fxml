@@ -10,83 +10,89 @@
 <?import javafx.scene.layout.VBox?>
 
 <VBox prefHeight="400.0" prefWidth="640.0" xmlns="http://javafx.com/javafx/9.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="javafx.Controller">
-  <children>
-    <MenuBar VBox.vgrow="NEVER">
-      <menus>
-        <Menu fx:id="fileMenu" mnemonicParsing="false" text="File">
-          <items>
-            <MenuItem fx:id="open" mnemonicParsing="false" onAction="#open" text="Open…" />
-            <MenuItem fx:id="save" mnemonicParsing="false" onAction="#save" text="Save..." />
-            <SeparatorMenuItem mnemonicParsing="false" />
-            <MenuItem fx:id="close" mnemonicParsing="false" onAction="#close" text="Close" />
-          </items>
-        </Menu>
-        <Menu fx:id="editMenu" mnemonicParsing="false" text="Edit">
-          <items>
-            <MenuItem fx:id="undo" mnemonicParsing="false" onAction="#undo" text="Undo" />
-            <MenuItem fx:id="redo" mnemonicParsing="false" onAction="#redo" text="Redo" />
-            <SeparatorMenuItem mnemonicParsing="false" />
-            <MenuItem fx:id="reset" mnemonicParsing="false" onAction="#reset" text="Reset PFLAP" />
-            <SeparatorMenuItem mnemonicParsing="false" />
-            <MenuItem fx:id="selectAllStates" mnemonicParsing="false" onAction="#selectAllStates" text="Select All States" />
-            <MenuItem fx:id="deleteAllStates" mnemonicParsing="false" onAction="#deleteAllStates" text="Delete All States" />
-                  <MenuItem fx:id="invertSelection" mnemonicParsing="false" onAction="#invertSelection" text="Invert Selection" />
-          </items>
-        </Menu>
-        <Menu fx:id="viewMenu" mnemonicParsing="false" text="View">
-          <items>
-            <MenuItem fx:id="resetZoom" mnemonicParsing="false" text="Reset Zoom" />
-                  <MenuItem fx:id="saveAsImage" mnemonicParsing="false" onAction="#saveAsImage" text="Save Stage as Image..." />
-                  <MenuItem fx:id="machineInformation" mnemonicParsing="false" onAction="#machineInformation" text="Machine Information..." />
-                  <MenuItem fx:id="history" mnemonicParsing="false" onAction="#history" text="History" />
-                  <Menu fx:id="colourMenu" mnemonicParsing="false" text="Redefine Colours">
-                    <items>
-                      <MenuItem fx:id="colour_state" mnemonicParsing="false" text="State Colour...">
-                           <graphic>
-                              <ColorPicker fx:id="colourPicker_state" promptText="State Colour" />
-                           </graphic></MenuItem>
-                        <MenuItem fx:id="colour_stateSelected" mnemonicParsing="false" text="State Selected Colour...">
-                           <graphic>
-                              <ColorPicker fx:id="colourPicker_stateSelected" promptText="State Selected Colour" />
-                           </graphic></MenuItem>
-                        <MenuItem fx:id="colour_transition" mnemonicParsing="false" text="Transition Arrow Colour...">
-                           <graphic>
-                              <ColorPicker fx:id="colourPicker_transition" promptText="Transition Colour" />
-                           </graphic></MenuItem>
-                        <MenuItem fx:id="colour_background" mnemonicParsing="false" text="Background Colour...">
-                           <graphic>
-                              <ColorPicker fx:id="colourPicker_background" promptText="Background Colour" />
-                           </graphic></MenuItem>
-                    </items>
-                  </Menu>
-          </items>
-        </Menu>
-            <Menu fx:id="machineMenu" mnemonicParsing="false" text="Machine">
-              <items>
-                <MenuItem fx:id="machine_DFA" mnemonicParsing="false" text="DFA" />
-                  <MenuItem fx:id="machine_DPA" mnemonicParsing="false" text="DPA" />
-                  <MenuItem fx:id="machine_mealy" mnemonicParsing="false" text="Mealy" />
-                  <MenuItem fx:id="machine_moore" mnemonicParsing="false" text="Moore" />
-              </items>
-            </Menu>
-            <Menu fx:id="inputMenu" mnemonicParsing="false" text="Input">
-              <items>
-                <MenuItem fx:id="step" mnemonicParsing="false" onAction="#step" text="Step By State..." />
-                  <MenuItem fx:id="fastRun" mnemonicParsing="false" onAction="#fastRun" text="Fast Run..." />
-              </items>
-            </Menu>
-            <Menu fx:id="helpMenu" mnemonicParsing="false" text="Help">
-              <items>
-                <MenuItem fx:id="help" mnemonicParsing="false" onAction="#help" text="PFLAP Help" />
-                  <MenuItem fx:id="about" mnemonicParsing="false" onAction="#about" text="About PFLAP" />
-              </items>
-            </Menu>
-      </menus>
-    </MenuBar>
-    <AnchorPane maxHeight="-1.0" maxWidth="-1.0" prefHeight="-1.0" prefWidth="-1.0" VBox.vgrow="ALWAYS">
-         <children>
-            <StackPane fx:id="pflap" prefHeight="150.0" prefWidth="200.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" />
-         </children>
-    </AnchorPane>
-  </children>
+	<children>
+		<MenuBar fx:id="menuBar" VBox.vgrow="NEVER">
+			<menus>
+				<Menu fx:id="fileMenu" mnemonicParsing="false" text="File">
+					<items>
+						<MenuItem fx:id="open" mnemonicParsing="false" onAction="#open" text="Open…" />
+						<MenuItem fx:id="save" mnemonicParsing="false" onAction="#save" text="Save..." />
+						<SeparatorMenuItem mnemonicParsing="false" />
+						<MenuItem fx:id="close" mnemonicParsing="false" onAction="#close" text="Close" />
+					</items>
+				</Menu>
+				<Menu fx:id="editMenu" mnemonicParsing="false" text="Edit">
+					<items>
+						<MenuItem fx:id="undo" mnemonicParsing="false" onAction="#undo" text="Undo">
+						</MenuItem>
+						<MenuItem fx:id="redo" mnemonicParsing="false" onAction="#redo" text="Redo" />
+						<SeparatorMenuItem mnemonicParsing="false" />
+						<MenuItem fx:id="reset" mnemonicParsing="false" onAction="#reset" text="Reset PFLAP" />
+						<SeparatorMenuItem mnemonicParsing="false" />
+                  <MenuItem fx:id="deleteSelection" mnemonicParsing="false" onAction="#deleteSelection" text="Delete Selected States" />
+						<MenuItem fx:id="selectAllStates" mnemonicParsing="false" onAction="#selectAllStates" text="Select All States" />
+						<MenuItem fx:id="deleteAllStates" mnemonicParsing="false" onAction="#deleteAllStates" text="Delete All States" />
+						<MenuItem fx:id="invertSelection" mnemonicParsing="false" onAction="#invertSelection" text="Invert Selection" />
+					</items>
+				</Menu>
+				<Menu fx:id="viewMenu" mnemonicParsing="false" text="View">
+					<items>
+						<MenuItem fx:id="resetZoom" mnemonicParsing="false" text="Reset Zoom" />
+						<MenuItem fx:id="saveAsImage" mnemonicParsing="false" onAction="#saveAsImage" text="Save Stage as Image..." />
+						<MenuItem fx:id="machineInformation" mnemonicParsing="false" onAction="#machineInformation" text="Machine Information..." />
+						<MenuItem fx:id="history" mnemonicParsing="false" onAction="#history" text="History" />
+						<Menu fx:id="colourMenu" mnemonicParsing="false" text="Redefine Colours">
+							<items>
+								<MenuItem fx:id="colour_state" mnemonicParsing="false" text="State Colour...">
+									<graphic>
+										<ColorPicker fx:id="colourPicker_state" promptText="State Colour" />
+									</graphic>
+								</MenuItem>
+								<MenuItem fx:id="colour_stateSelected" mnemonicParsing="false" text="State Selected Colour...">
+									<graphic>
+										<ColorPicker fx:id="colourPicker_stateSelected" promptText="State Selected Colour" />
+									</graphic>
+								</MenuItem>
+								<MenuItem fx:id="colour_transition" mnemonicParsing="false" text="Transition Arrow Colour...">
+									<graphic>
+										<ColorPicker fx:id="colourPicker_transition" promptText="Transition Colour" />
+									</graphic>
+								</MenuItem>
+								<MenuItem fx:id="colour_background" mnemonicParsing="false" text="Background Colour...">
+									<graphic>
+										<ColorPicker fx:id="colourPicker_background" promptText="Background Colour" />
+									</graphic>
+								</MenuItem>
+							</items>
+						</Menu>
+					</items>
+				</Menu>
+				<Menu fx:id="machineMenu" mnemonicParsing="false" text="Machine">
+					<items>
+						<MenuItem fx:id="machine_DFA" mnemonicParsing="false" text="DFA" />
+						<MenuItem fx:id="machine_DPA" mnemonicParsing="false" text="DPA" />
+						<MenuItem fx:id="machine_mealy" mnemonicParsing="false" text="Mealy" />
+						<MenuItem fx:id="machine_moore" mnemonicParsing="false" text="Moore" />
+					</items>
+				</Menu>
+				<Menu fx:id="inputMenu" mnemonicParsing="false" text="Input">
+					<items>
+						<MenuItem fx:id="step" mnemonicParsing="false" onAction="#step" text="Step By State..." />
+						<MenuItem fx:id="fastRun" mnemonicParsing="false" onAction="#fastRun" text="Fast Run..." />
+					</items>
+				</Menu>
+				<Menu fx:id="helpMenu" mnemonicParsing="false" text="Help">
+					<items>
+						<MenuItem fx:id="help" mnemonicParsing="false" onAction="#help" text="PFLAP Help" />
+						<MenuItem fx:id="about" mnemonicParsing="false" onAction="#about" text="About PFLAP" />
+					</items>
+				</Menu>
+			</menus>
+		</MenuBar>
+		<AnchorPane maxHeight="-1.0" maxWidth="-1.0" prefHeight="-1.0" prefWidth="-1.0" VBox.vgrow="ALWAYS">
+			<children>
+				<StackPane fx:id="pflap" prefHeight="150.0" prefWidth="200.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" />
+			</children>
+		</AnchorPane>
+	</children>
 </VBox>
