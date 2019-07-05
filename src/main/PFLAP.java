@@ -44,10 +44,7 @@ import transitionView.View;
 
 /**
  * @author micycle1
- * @version 1.3
- * history list broken
- * fix lambda/space functionality
- * self-arrows broken w/ big size states
+ * @version 1.5
  */
 public final class PFLAP {
 
@@ -90,7 +87,7 @@ public final class PFLAP {
 		private static PFont comfortaaRegular, comfortaaBold;
 		private static State mouseOverState, arrowTailState, arrowHeadState, dragState;
 		private static SelectionBox selectionBox;
-		private static boolean fullScreen = false, newState = false, drawingArrow = false, reset = false;
+		private static boolean newState = false, drawingArrow = false, reset = false;
 		private static PVector mouseClickXY, mouseReleasedXY, mouseCoords, zoomPanOffsetp;
 		private static ZoomPan zoomPan;
 		private static ArrayList<Command> multiMoveCache;
@@ -174,7 +171,7 @@ public final class PFLAP {
 			cp5.setFont(PFLAP.cp5Font);
 			mode = modes.DFA;
 			view = new View(this);
-			historyList = new HistoryList(this);
+			historyList = new HistoryList();
 
 			zoomPanScalep = zoomPan.getZoomScale();
 			zoomPanOffsetp = zoomPan.getPanOffset();
@@ -282,6 +279,7 @@ public final class PFLAP {
 				default :
 					break;
 			}
+			historyList.update();
 			reset = false;
 		}
 
@@ -312,8 +310,6 @@ public final class PFLAP {
 						case RIGHT :
 							Step.stepForward();
 							break;
-						case CONTROL :
-							allowGUIInterraction = false;
 						default :
 							break;
 					}
@@ -323,31 +319,10 @@ public final class PFLAP {
 
 		@Override
 		public void keyReleased(KeyEvent key) {
-			if (keysDown.contains(CONTROL)) {
-				switch (key.getKey()) {
-					case 'H' :
-						historyList.toggleVisible();
-						break;
-					default :
-						break;
-				}
-			}
 			switch (key.getKeyCode()) {
 				case 127 : // 127 == delete key
 					deleteSelection();
 					break;
-				case 122 : // F11
-					if (fullScreen) {
-						surface.setSize(Consts.WIDTH, Consts.HEIGHT);
-						surface.setLocation(displayWidth / 2 - width / 2, displayHeight / 2 - height / 2);
-					} else {
-						surface.setSize(displayWidth, displayHeight);
-						surface.setLocation(0, 0);
-					}
-					fullScreen = !fullScreen;
-					break;
-				case CONTROL :
-					allowGUIInterraction = true;
 				default :
 					break;
 			}

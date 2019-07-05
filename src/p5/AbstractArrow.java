@@ -106,6 +106,11 @@ public abstract class AbstractArrow {
 		p.fill(0);
 		p.text(transitionInfo, pos.x, pos.y);
 	}
+	
+	protected final void drawTransitionLabel(float xPos, float yPos) {
+		p.fill(0);
+		p.text(transitionInfo, xPos, yPos);
+	}
 
 	protected final void drawArrowTip(PVector translate, float angle) {
 		p.noFill();

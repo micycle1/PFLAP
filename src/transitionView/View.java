@@ -35,7 +35,7 @@ import processing.core.PVector;
 
 /**
  * Renders the view of the abstract transitions etc.
- * handle initial & accepting state here , not in state class
+ * handle initial & accepting state here, not in state class
  * @author micycle1
  */
 public final class View {

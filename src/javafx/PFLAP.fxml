@@ -1,10 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import javafx.scene.control.CheckMenuItem?>
 <?import javafx.scene.control.ColorPicker?>
 <?import javafx.scene.control.Menu?>
 <?import javafx.scene.control.MenuBar?>
 <?import javafx.scene.control.MenuItem?>
 <?import javafx.scene.control.SeparatorMenuItem?>
+<?import javafx.scene.input.KeyCodeCombination?>
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.layout.VBox?>
@@ -15,8 +17,14 @@
 			<menus>
 				<Menu fx:id="fileMenu" mnemonicParsing="false" text="File">
 					<items>
-						<MenuItem fx:id="open" mnemonicParsing="false" onAction="#open" text="Open…" />
-						<MenuItem fx:id="save" mnemonicParsing="false" onAction="#save" text="Save..." />
+						<MenuItem fx:id="open" mnemonicParsing="false" onAction="#open" text="Open…">
+                     <accelerator>
+                        <KeyCodeCombination alt="UP" code="O" control="DOWN" meta="UP" shift="UP" shortcut="UP" />
+                     </accelerator></MenuItem>
+						<MenuItem fx:id="save" mnemonicParsing="false" onAction="#save" text="Save...">
+                     <accelerator>
+                        <KeyCodeCombination alt="UP" code="S" control="DOWN" meta="UP" shift="UP" shortcut="UP" />
+                     </accelerator></MenuItem>
 						<SeparatorMenuItem mnemonicParsing="false" />
 						<MenuItem fx:id="close" mnemonicParsing="false" onAction="#close" text="Close" />
 					</items>
@@ -24,24 +32,43 @@
 				<Menu fx:id="editMenu" mnemonicParsing="false" text="Edit">
 					<items>
 						<MenuItem fx:id="undo" mnemonicParsing="false" onAction="#undo" text="Undo">
-						</MenuItem>
-						<MenuItem fx:id="redo" mnemonicParsing="false" onAction="#redo" text="Redo" />
+                     <accelerator>
+                        <KeyCodeCombination alt="UP" code="Z" control="DOWN" meta="UP" shift="UP" shortcut="UP" />
+                     </accelerator></MenuItem>
+						<MenuItem fx:id="redo" mnemonicParsing="false" onAction="#redo" text="Redo">
+                     <accelerator>
+                        <KeyCodeCombination alt="UP" code="Y" control="DOWN" meta="UP" shift="UP" shortcut="UP" />
+                     </accelerator></MenuItem>
 						<SeparatorMenuItem mnemonicParsing="false" />
 						<MenuItem fx:id="reset" mnemonicParsing="false" onAction="#reset" text="Reset PFLAP" />
 						<SeparatorMenuItem mnemonicParsing="false" />
-						<MenuItem fx:id="deleteSelection" mnemonicParsing="false" onAction="#deleteSelection" text="Delete Selected States" />
-						<MenuItem fx:id="selectAllStates" mnemonicParsing="false" onAction="#selectAllStates" text="Select All States" />
+						<MenuItem fx:id="deleteSelection" mnemonicParsing="false" onAction="#deleteSelection" text="Delete Selected States">
+                     <accelerator>
+                        <KeyCodeCombination alt="UP" code="DELETE" control="UP" meta="UP" shift="UP" shortcut="ANY" />
+                     </accelerator></MenuItem>
+						<MenuItem fx:id="selectAllStates" mnemonicParsing="false" onAction="#selectAllStates" text="Select All States">
+                     <accelerator>
+                        <KeyCodeCombination alt="UP" code="A" control="DOWN" meta="UP" shift="UP" shortcut="UP" />
+                     </accelerator></MenuItem>
 						<MenuItem fx:id="deleteAllStates" mnemonicParsing="false" onAction="#deleteAllStates" text="Delete All States" />
 						<MenuItem fx:id="invertSelection" mnemonicParsing="false" onAction="#invertSelection" text="Invert Selection" />
 					</items>
 				</Menu>
 				<Menu fx:id="viewMenu" mnemonicParsing="false" text="View">
 					<items>
+                  <CheckMenuItem fx:id="fullscreen" mnemonicParsing="false" onAction="#fullscreen" text="Fullscreen">
+                     <accelerator>
+                        <KeyCodeCombination alt="UP" code="F11" control="UP" meta="UP" shift="UP" shortcut="ANY" />
+                     </accelerator>
+                  </CheckMenuItem>
 						<MenuItem fx:id="resetZoom" mnemonicParsing="false" onAction="#resetZoom" text="Reset Zoom" />
 						<MenuItem fx:id="resetColors" mnemonicParsing="false" onAction="#resetColors" text="Reset Colours" />
 						<MenuItem fx:id="saveAsImage" mnemonicParsing="false" onAction="#saveAsImage" text="Save Stage as Image..." />
 						<MenuItem fx:id="machineInformation" mnemonicParsing="false" onAction="#machineInformation" text="Machine Information..." />
-						<MenuItem fx:id="history" mnemonicParsing="false" onAction="#history" text="History" />
+                  <CheckMenuItem fx:id="history" mnemonicParsing="false" onAction="#history" text="History">
+                     <accelerator>
+                        <KeyCodeCombination alt="UP" code="H" control="DOWN" meta="UP" shift="UP" shortcut="UP" />
+                     </accelerator></CheckMenuItem>
 						<Menu fx:id="colourMenu" mnemonicParsing="false" text="Redefine Colours">
 							<items>
 								<MenuItem fx:id="colour_state" mnemonicParsing="false" text="State Colour...">

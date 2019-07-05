@@ -78,15 +78,7 @@ public class Controller implements Initializable {
 		redo.setDisable(true);
 		machine_DFA.setDisable(true);
 
-		history.setDisable(true); // todo
-
-		open.setAccelerator(KeyCombination.keyCombination("SHORTCUT+O"));
-		save.setAccelerator(KeyCombination.keyCombination("SHORTCUT+S"));
-		undo.setAccelerator(KeyCombination.keyCombination("SHORTCUT+Z"));
-		redo.setAccelerator(KeyCombination.keyCombination("SHORTCUT+Y"));
 		close.setAccelerator(KeyCombination.keyCombination("Esc"));
-		deleteSelection.setAccelerator(KeyCombination.keyCombination("Del"));
-		selectAllStates.setAccelerator(KeyCombination.keyCombination("SHORTCUT+A"));
 
 		colourPicker_state.setValue(PFLAP.stateColour);
 		colourPicker_stateSelected.setValue(PFLAP.stateSelectedColour);
@@ -143,6 +135,23 @@ public class Controller implements Initializable {
 		File f = fileChooser.showOpenDialog(stage);
 		if (f != null) {
 			HistoryHandler.loadHistory(f.getAbsolutePath());
+			machineMenu.getItems().forEach(m -> m.setDisable(false));
+			switch (PFLAP.mode) {
+				case DFA :
+					machine_DFA.setDisable(true);
+					break;
+				case DPA :
+					machine_DPA.setDisable(true);
+					break;
+				case MEALY :
+					machine_mealy.setDisable(true);
+					break;
+				case MOORE :
+					machine_moore.setDisable(true);
+					break;
+				default :
+					break;
+			}
 		}
 	}
 
@@ -210,6 +219,11 @@ public class Controller implements Initializable {
 	/*
 	 * View Menu
 	 */
+	
+	@FXML
+	private void fullscreen() {
+		stage.setFullScreen(!stage.isFullScreen());
+	}
 
 	@FXML
 	private void resetZoom() {

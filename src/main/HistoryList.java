@@ -2,41 +2,33 @@ package main;
 
 import static main.Functions.colorToRGB;
 
+import commands.Command;
 import controlP5.CallbackEvent;
 import controlP5.CallbackListener;
-import controlP5.ControlP5;
 import controlP5.ListBox;
-import main.PFLAP.PApplet;
 
 /**
  * Manages the controlP5 representation of the user's action history.
  * @author micycle1
- * @deprecated
  */
 public final class HistoryList {
 
-	// private static final ControlP5 cP5;
-	// private static final DropdownList history;
-
-	private PApplet p;
-	private ControlP5 cp5;
 	private ListBox history;
 
-	public HistoryList(PApplet p) {
-		cp5 = new ControlP5(p);
-		cp5.hide();
+	public HistoryList() {
 		// @formatter:off
-		history = cp5.addListBox("HistoryList")
-				.setWidth(160)
+		history = PFLAP.cp5.addListBox("History")
+				.setWidth(240)
 				.setColorBackground(colorToRGB(50, 50, 50))
 				.setColorForeground(colorToRGB(50, 50, 50))
 				.setBarHeight(30)
 				.setItemHeight(20)
 				.setHeight(200)
+				.hide()
 				.addCallback(new CallbackListener() {
 					@Override
 					public void controlEvent(CallbackEvent theEvent) {
-						if (theEvent.getAction() == 100) { // clicked
+						if (theEvent.getAction() == 100 && PFLAP.allowGUIInterraction) { // clicked
 							HistoryHandler.movetoIndex((int) history.getValue() - 1);
 						}
 					}
@@ -51,19 +43,18 @@ public final class HistoryList {
 	protected void update() {
 		history.clear();
 		history.open();
-		// history.addItem("{Init}", null);
-		// for (Command c : HistoryHandler.export()) {
-		// history.addItem(c.description(), c);
-		// }
-		history.addItem("asds", null);
+		history.addItem("{Init}", null);
+		for (Command c : HistoryHandler.export()) {
+			history.addItem(c.description(), c);
+		}
 	}
 
 	protected boolean isMouseOver() {
-		return cp5.isMouseOver();
+		return history.isMouseOver();
 	}
 
 	public void toggleVisible() {
-		cp5.setVisible(!cp5.isVisible());
+		history.setVisible(!history.isVisible());
 		history.open();
 	}
 

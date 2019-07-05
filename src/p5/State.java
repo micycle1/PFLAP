@@ -66,6 +66,7 @@ public class State implements Serializable {
 				rename.setFocus(false).hide();
 				rename.clear();
 				renameState = null;
+				PFLAP.allowGUIInterraction = true;
 				}
 			}
 		});
@@ -130,6 +131,7 @@ public class State implements Serializable {
 						break;
 					case 3 : // Relabel
 						renameState = State.this;
+						PFLAP.allowGUIInterraction = false;
 						rename.setPosition(position.x - rename.getWidth() / 2, position.y + 30);
 						rename.setFocus(true);
 						rename.show();

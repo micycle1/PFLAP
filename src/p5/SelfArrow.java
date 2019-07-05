@@ -12,6 +12,7 @@ import static processing.core.PApplet.sin;
 import java.util.ArrayList;
 
 import model.LogicalTransition;
+import processing.core.PApplet;
 import processing.core.PConstants;
 import processing.core.PVector;
 
@@ -30,12 +31,16 @@ public class SelfArrow extends AbstractArrow {
 	@Override
 	public void update() {
 		textSize = 24;
+		int offset = PApplet.max(head.getRadius() - main.Consts.stateRadius, 0);
+		offset = 0;
+		selfBezierCP1 = new PVector(
+				head.getPosition().x + (selfTransitionLength + offset) * sin(selfTransitionAngle),
+				head.getPosition().y + (selfTransitionLength + offset) * cos(selfTransitionAngle));
 		
-		selfBezierCP1 = new PVector(head.getPosition().x + selfTransitionLength * sin(selfTransitionAngle),
-				head.getPosition().y + selfTransitionLength * cos(selfTransitionAngle));
 		selfBezierCP2 = new PVector(
-				head.getPosition().x + selfTransitionLength * sin(selfTransitionAngle + radians(45)),
-				head.getPosition().y + selfTransitionLength * cos(selfTransitionAngle + radians(45)));
+				head.getPosition().x + (selfTransitionLength + offset) * sin(selfTransitionAngle + radians(45)),
+				head.getPosition().y + (selfTransitionLength + offset) * cos(selfTransitionAngle + radians(45)));
+		
 		selfBezierTranslate = new PVector(head.getPosition().x + head.getRadius() / 2 * sin(selfTransitionAngle),
 				head.getPosition().y + head.getRadius() / 2 * cos(selfTransitionAngle));
 		selfBezierAngle = angleBetween(head.getPosition(), selfBezierCP1) - 0.3f;
@@ -44,8 +49,6 @@ public class SelfArrow extends AbstractArrow {
 						+ 15 * sin(selfTransitionAngle),
 				p.bezierPoint(head.getPosition().y, selfBezierCP1.y, selfBezierCP2.y, head.getPosition().y, 0.5f)
 						+ 15 * cos(selfTransitionAngle));
-//		transitionSymbolEntry.setPosition(selfBezierTextLoc.x - transitionSymbolEntry.getWidth() / 2,
-//				selfBezierTextLoc.y + 10);
 		stateOptions.setPosition(selfBezierTextLoc.x, selfBezierTextLoc.y + 10);
 	}
 

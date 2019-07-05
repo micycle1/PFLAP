@@ -18,7 +18,7 @@ public class BezierArrow extends AbstractArrow {
 
 	private float textSize, arrowTipAngle, theta2;
 	private PVector bezierCPoint, bezierApex, arrowTip, midPoint;
-	
+
 	public BezierArrow(State head, State tail, ArrayList<LogicalTransition> t) {
 		super(head, tail, t);
 	}
@@ -36,7 +36,7 @@ public class BezierArrow extends AbstractArrow {
 		arrowTipAngle = angleBetween(head.getPosition(), bezierApex);
 		arrowTip = new PVector(head.getPosition().x + (head.getRadius() + 3) * -0.5f * cos(arrowTipAngle),
 				head.getPosition().y + (head.getRadius() + 3) * -0.5f * sin(arrowTipAngle));
-//		transitionSymbolEntry.setPosition(bezierApex.x - transitionSymbolEntry.getWidth() / 2, bezierApex.y + 10);
+		// transitionSymbolEntry.setPosition(bezierApex.x - transitionSymbolEntry.getWidth() / 2, bezierApex.y + 10);
 		stateOptions.setPosition(bezierApex.x, bezierApex.y + 10);
 	}
 
@@ -48,7 +48,7 @@ public class BezierArrow extends AbstractArrow {
 		drawArrowTip(arrowTip, arrowTipAngle);
 		p.textAlign(PConstants.CENTER, PConstants.TOP);
 		p.textSize(textSize);
-		drawTransitionLabel(bezierApex);
+		drawTransitionLabel(bezierApex.x, bezierApex.y - textSize / 2);
 	}
 
 	@Override
